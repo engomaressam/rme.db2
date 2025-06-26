@@ -1,0 +1,252 @@
+[2025-05-12 15:09:55]  Running Reem-final-5min.py...
+[2025-05-12 15:09:55] ✅ Script finished. Output:
+
+[2025-05-12 15:09:55] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:09:55] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:10:00]  Running Reem-final-5min.py...
+[2025-05-12 15:10:02] ✅ Script finished. Output:
+
+[2025-05-12 15:10:02] ⚠️ Errors:
+C:\Users\Sama Hatem\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 177, in <module>
+    emails = fetch_emails()
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 50, in fetch_emails
+    print(f"\U0001f310 Folders found: {len(folders)}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f310' in position 0: character maps to <undefined>
+
+[2025-05-12 15:10:02] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:10:03]  Running Reem-final-5min.py...
+[2025-05-12 15:10:05] ✅ Script finished. Output:
+
+[2025-05-12 15:10:05] ⚠️ Errors:
+C:\Users\Sama Hatem\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 177, in <module>
+    emails = fetch_emails()
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 50, in fetch_emails
+    print(f"\U0001f310 Folders found: {len(folders)}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f310' in position 0: character maps to <undefined>
+
+[2025-05-12 15:10:05] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:12:55]  Running Reem-final-5min.py...
+[2025-05-12 15:12:55] ✅ Script finished. Output:
+
+[2025-05-12 15:12:55] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:12:55] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:15:55]  Running Reem-final-5min.py...
+[2025-05-12 15:15:55] ✅ Script finished. Output:
+
+[2025-05-12 15:15:55] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:15:55] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:18:32]  Running Reem-final-5min.py...
+[2025-05-12 15:18:32] ✅ Script finished. Output:
+
+[2025-05-12 15:18:32] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:18:32] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:21:32]  Running Reem-final-5min.py...
+[2025-05-12 15:21:32] ✅ Script finished. Output:
+
+[2025-05-12 15:21:32] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:21:32] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:22:30] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:22:31] ✅ Script finished. Output:
+
+[2025-05-12 15:22:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:22:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:25:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:25:31] ✅ Script finished. Output:
+
+[2025-05-12 15:25:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:25:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:28:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:28:31] ✅ Script finished. Output:
+
+[2025-05-12 15:28:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:28:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:30:03] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:30:05] ✅ Script finished. Output:
+
+[2025-05-12 15:30:05] ⚠️ Errors:
+C:\Users\Sama Hatem\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 177, in <module>
+    emails = fetch_emails()
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 50, in fetch_emails
+    print(f"\U0001f310 Folders found: {len(folders)}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f310' in position 0: character maps to <undefined>
+
+[2025-05-12 15:30:05] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:31:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:31:31] ✅ Script finished. Output:
+
+[2025-05-12 15:31:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:31:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:33:05] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:33:06] ✅ Script finished. Output:
+
+[2025-05-12 15:33:06] ⚠️ Errors:
+C:\Users\Sama Hatem\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 177, in <module>
+    emails = fetch_emails()
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 50, in fetch_emails
+    print(f"\U0001f310 Folders found: {len(folders)}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f310' in position 0: character maps to <undefined>
+
+[2025-05-12 15:33:06] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:34:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:34:31] ✅ Script finished. Output:
+
+[2025-05-12 15:34:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:34:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:37:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:37:31] ✅ Script finished. Output:
+
+[2025-05-12 15:37:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:37:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:40:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:40:31] ✅ Script finished. Output:
+
+[2025-05-12 15:40:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:40:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:43:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:43:31] ✅ Script finished. Output:
+
+[2025-05-12 15:43:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:43:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:46:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:46:31] ✅ Script finished. Output:
+
+[2025-05-12 15:46:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:46:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:49:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:49:31] ✅ Script finished. Output:
+
+[2025-05-12 15:49:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:49:31] 😴 Sleeping for 3 minutes...
+
+[2025-05-12 15:52:31] ⏳ Running Reem-final-5min.py...
+[2025-05-12 15:52:31] ✅ Script finished. Output:
+
+[2025-05-12 15:52:31] ⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Sama Hatem\Downloads\AI-Email-Reem\Reem-final-5min.py", line 4, in <module>
+    import pytz
+ModuleNotFoundError: No module named 'pytz'
+
+[2025-05-12 15:52:31] 😴 Sleeping for 3 minutes...
+

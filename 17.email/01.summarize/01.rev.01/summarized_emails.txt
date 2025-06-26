@@ -1,0 +1,54 @@
+
+Email ID: 11
+Summary:
+This email contains general news updates for July 4th and includes a PDF attachment. It is generated through Rowad Modern Engineering's use of Microsoft 365 and may contain content controlled by the company.
+================================================================================
+
+Email ID: 12
+Summary:
+The status of the Senior Technical Office Engineer position at Radamis City has been updated to Joined RME in the Operations Department. The employee being replaced is Ibrahim Salah and the required qualifications include Arch Shop Drawings with +5 years of experience. The cost control is within budget and the status was updated on 06/Apr/25 by Nada Ehab. Thank you.
+================================================================================
+
+Email ID: 13
+Summary:
+The email requests Eng. Samuel to fill in blank cells/slides in an attached presentation with figures in USD million (where USD = 50 EGP). Specific instructions are given for different slides, including highlighting reasons for deviations between targets and actuals, updating Q1 figures as actuals in the 'Revised Plan' slide, and providing recommended actions to achieve new targets in the 'Required Actions to Achieve Revised Plan' slide. The email concludes by asking for the data to be sent as soon as possible and offering clarification if needed. It is signed by Amr Hamada, Cost Control Manager.
+================================================================================
+
+Email ID: 14
+Summary:
+The email requests Eng. Ali to fill in blank cells/slides in the attached presentation with figures in USD million (where USD = 50 EGP). Eng. Ali is asked to highlight reasons for deviations between targets and actuals, provide forecasts for new targets, recommend actions to achieve new targets, and adjust cash-In figures as discussed earlier. Eng. Ali is urged to send data promptly and contact for clarification if needed. 
+ 
+Best regards,
+Amr Hamada
+Cost Control Manager
+================================================================================
+
+Email ID: 15
+Summary:
+The email requests Eng. Mostafa to fill in blank cells/slides in an attached presentation with figures in USD million (where USD = 50 EGP). Specific instructions are given for highlighting reasons for deviations between targets and actuals, updating Q1 figures as actuals in the 'Revised Plan' slide, and providing recommended actions to achieve new targets in the 'Required Actions to Achieve Revised Plan' slide. The email concludes with a request for prompt submission of data and offers clarification if needed. It is signed by Amr Hamada, Cost Control Manager.
+================================================================================
+
+Email ID: 16
+Summary:
+The email contains an updated budget for the infrastructure business unit. Mohamed Ehab is requesting Ehab Atef to consider the attached budget for the infra-BU. The email was originally sent by Ali Maher on March 24, 2025, with Mohamed Abdelmoktader copied.
+================================================================================
+
+Email ID: 17
+Summary:
+The email requests Eng. Loai to fill in blank cells/slides in an attached presentation with figures in USD million. Specific instructions are given for highlighting reasons for deviations, revising plans, and providing recommended actions to achieve new targets. Eng. Loai is asked to send the data as soon as possible and to contact the sender for any clarification needed. The email is signed by Amr Hamada, Cost Control Manager.
+================================================================================
+
+Email ID: 18
+Summary:
+The email informs Waleed that an interview has been scheduled for a candidate not directly related to his area of responsibility, but suitable for a Data Engineer position. It also includes a list of attached CVs for review and requests feedback on shortlisted candidates and availability for technical interviews.
+================================================================================
+
+Email ID: 19
+Summary:
+The email requests Eng. Amr to review and provide feedback to the Finance team. It is signed off with best regards.
+================================================================================
+
+Email ID: 20
+Summary:
+The email is a brief reminder to Mohamed Ehab to download the Outlook app for iOS.
+================================================================================

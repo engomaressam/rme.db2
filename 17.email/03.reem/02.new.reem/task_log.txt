@@ -1,0 +1,232 @@
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 21, in <module>
+    logging.basicConfig(
+    ~~~~~~~~~~~~~~~~~~~^
+        filename=LOG_FILE_PATH,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+        level=logging.INFO,
+        ^^^^^^^^^^^^^^^^^^^
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 2099, in basicConfig
+    h = FileHandler(filename, mode,
+                    encoding=encoding, errors=errors)
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1218, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1247, in _open
+    return open_func(self.baseFilename, self.mode,
+                     encoding=self.encoding, errors=self.errors)
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\reem\\02.new.reem\\02.new.reem\\script_run_log.txt'
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 21, in <module>
+    logging.basicConfig(
+    ~~~~~~~~~~~~~~~~~~~^
+        filename=LOG_FILE_PATH,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+        level=logging.INFO,
+        ^^^^^^^^^^^^^^^^^^^
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 2099, in basicConfig
+    h = FileHandler(filename, mode,
+                    encoding=encoding, errors=errors)
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1218, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1247, in _open
+    return open_func(self.baseFilename, self.mode,
+                     encoding=self.encoding, errors=self.errors)
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\reem\\02.new.reem\\02.new.reem\\script_run_log.txt'
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 21, in <module>
+    logging.basicConfig(
+    ~~~~~~~~~~~~~~~~~~~^
+        filename=LOG_FILE_PATH,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+        level=logging.INFO,
+        ^^^^^^^^^^^^^^^^^^^
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 2099, in basicConfig
+    h = FileHandler(filename, mode,
+                    encoding=encoding, errors=errors)
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1218, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1247, in _open
+    return open_func(self.baseFilename, self.mode,
+                     encoding=self.encoding, errors=self.errors)
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\reem\\02.new.reem\\02.new.reem\\script_run_log.txt'
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 22, in <module>
+    logging.basicConfig(
+    ~~~~~~~~~~~~~~~~~~~^
+        filename=LOG_FILE_PATH,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+        level=logging.INFO,
+        ^^^^^^^^^^^^^^^^^^^
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 2099, in basicConfig
+    h = FileHandler(filename, mode,
+                    encoding=encoding, errors=errors)
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1218, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\logging\__init__.py", line 1247, in _open
+    return open_func(self.baseFilename, self.mode,
+                     encoding=self.encoding, errors=self.errors)
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\reem\\02.new.reem\\02.new.reem\\script_run_log.txt'
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+[INFO] Folders found: 10
+[SKIP] Skipping folder: Archive
+[INFO] Fetching emails from folder: Conversation History (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAACLP7AAA=)
+[SKIP] Skipping folder: Deleted Items
+[INFO] Fetching emails from folder: Drafts (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEPAAA=)
+[INFO] Checking message: accommodation, car/car allowances, received: 2025-05-13T07:44:00Z
+[INFO] Checking message: Commercial and Industrial Sector needs, received: 2025-05-13T07:38:39Z
+[INFO] Checking message: , received: 2025-05-12T06:50:20Z
+[INFO] Fetching emails from folder: Inbox (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEMAAA=)
+[INFO] Checking message: RE: Personnel Process Mapping , received: 2025-05-13T08:02:50Z
+[INFO] Checking message: RE: Hiring Requests - MEP dep- 22- Apr - 2025 (version 1) (version 1).xlsb, received: 2025-05-13T07:52:15Z
+[INFO] Checking message: RE: Damietta Project Claims Committee, received: 2025-05-13T07:51:48Z
+[INFO] Checking message: FW: APPLICATION FOR THE POST OF QUANTITY SURVEYOR /COST MANAGER, received: 2025-05-13T07:48:09Z
+[INFO] Checking message: Request for cashout for unused ticket, for Mr. Hisham Ahmed ID 6372, received: 2025-05-13T07:47:12Z
+[INFO] Checking message: FW: Post of Quantity Surveyor, received: 2025-05-13T07:47:08Z
+[INFO] Checking message: FW: Application for the post of Quantity Surveyor / Estimator, received: 2025-05-13T07:46:44Z
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 201, in <module>
+    emails = fetch_emails()
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 104, in fetch_emails
+    safe_print(f"[INFO] Checking message: {msg['subject']}, received: {msg['receivedDateTime']}")  # Debugging line
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 18, in safe_print
+    print(msg, **kwargs)
+    ~~~~~^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 29-33: character maps to <undefined>
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+[INFO] Folders found: 10
+[SKIP] Skipping folder: Archive
+[INFO] Fetching emails from folder: Conversation History (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAACLP7AAA=)
+[SKIP] Skipping folder: Deleted Items
+[INFO] Fetching emails from folder: Drafts (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEPAAA=)
+[INFO] Checking message: accommodation, car/car allowances, received: 2025-05-13T07:44:00Z
+[INFO] Checking message: Commercial and Industrial Sector needs, received: 2025-05-13T07:38:39Z
+[INFO] Checking message: , received: 2025-05-12T06:50:20Z
+[INFO] Fetching emails from folder: Inbox (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEMAAA=)
+[INFO] Checking message: RE: Personnel Process Mapping , received: 2025-05-13T08:02:50Z
+[INFO] Checking message: RE: Hiring Requests - MEP dep- 22- Apr - 2025 (version 1) (version 1).xlsb, received: 2025-05-13T07:52:15Z
+[INFO] Checking message: RE: Damietta Project Claims Committee, received: 2025-05-13T07:51:48Z
+[INFO] Checking message: FW: APPLICATION FOR THE POST OF QUANTITY SURVEYOR /COST MANAGER, received: 2025-05-13T07:48:09Z
+[INFO] Checking message: Request for cashout for unused ticket, for Mr. Hisham Ahmed ID 6372, received: 2025-05-13T07:47:12Z
+[INFO] Checking message: FW: Post of Quantity Surveyor, received: 2025-05-13T07:47:08Z
+[INFO] Checking message: FW: Application for the post of Quantity Surveyor / Estimator, received: 2025-05-13T07:46:44Z
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 201, in <module>
+    emails = fetch_emails()
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 104, in fetch_emails
+    safe_print(f"[INFO] Checking message: {msg['subject']}, received: {msg['receivedDateTime']}")  # Debugging line
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 18, in safe_print
+    print(msg, **kwargs)
+    ~~~~~^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 29-33: character maps to <undefined>
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+[INFO] Folders found: 10
+[SKIP] Skipping folder: Archive
+[INFO] Fetching emails from folder: Conversation History (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAACLP7AAA=)
+[SKIP] Skipping folder: Deleted Items
+[INFO] Fetching emails from folder: Drafts (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEPAAA=)
+[INFO] Checking message: accommodation, car/car allowances, received: 2025-05-13T07:44:00Z
+[INFO] Checking message: Commercial and Industrial Sector needs, received: 2025-05-13T07:38:39Z
+[INFO] Checking message: , received: 2025-05-12T06:50:20Z
+[INFO] Fetching emails from folder: Inbox (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEMAAA=)
+[INFO] Checking message: Team New Structure , received: 2025-05-13T08:06:24Z
+[INFO] Checking message: Re: Departmental Organizational Charts, received: 2025-05-13T08:06:07Z
+[INFO] Checking message: RE: Personnel Process Mapping , received: 2025-05-13T08:02:50Z
+[INFO] Checking message: RE: Hiring Requests - MEP dep- 22- Apr - 2025 (version 1) (version 1).xlsb, received: 2025-05-13T07:52:15Z
+[INFO] Checking message: RE: Damietta Project Claims Committee, received: 2025-05-13T07:51:48Z
+[INFO] Checking message: FW: APPLICATION FOR THE POST OF QUANTITY SURVEYOR /COST MANAGER, received: 2025-05-13T07:48:09Z
+[INFO] Checking message: Request for cashout for unused ticket, for Mr. Hisham Ahmed ID 6372, received: 2025-05-13T07:47:12Z
+[INFO] Checking message: FW: Post of Quantity Surveyor, received: 2025-05-13T07:47:08Z
+[INFO] Checking message: FW: Application for the post of Quantity Surveyor / Estimator, received: 2025-05-13T07:46:44Z
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 201, in <module>
+    emails = fetch_emails()
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 104, in fetch_emails
+    safe_print(f"[INFO] Checking message: {msg['subject']}, received: {msg['receivedDateTime']}")  # Debugging line
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 18, in safe_print
+    print(msg, **kwargs)
+    ~~~~~^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 29-33: character maps to <undefined>
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Omar Essam2\AppData\Roaming\Python\Python313\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'graph.microsoft.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+[INFO] Folders found: 10
+[SKIP] Skipping folder: Archive
+[INFO] Fetching emails from folder: Conversation History (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAACLP7AAA=)
+[SKIP] Skipping folder: Deleted Items
+[INFO] Fetching emails from folder: Drafts (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEPAAA=)
+[INFO] Checking message: accommodation, car/car allowances, received: 2025-05-13T07:44:00Z
+[INFO] Checking message: Commercial and Industrial Sector needs, received: 2025-05-13T07:38:39Z
+[INFO] Checking message: , received: 2025-05-12T06:50:20Z
+[INFO] Fetching emails from folder: Inbox (ID: AAMkAGZmNjMxYWY0LWU0MTQtNDhjNC05OTVlLTljZmU5YzI5OWEzMgAuAAAAAACAjaMWn3tgRKEpv-R-KYiMAQBk13JiXX5qQIEuLfUu5TKLAAAAAAEMAAA=)
+[INFO] Checking message: Call for Document Controller Interview, received: 2025-05-13T08:13:57Z
+Traceback (most recent call last):
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 201, in <module>
+    emails = fetch_emails()
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 104, in fetch_emails
+    safe_print(f"[INFO] Checking message: {msg['subject']}, received: {msg['receivedDateTime']}")  # Debugging line
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\reem\02.new.reem\01.emails.summary.teams.py", line 18, in safe_print
+    print(msg, **kwargs)
+    ~~~~~^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f4ca' in position 25: character maps to <undefined>
