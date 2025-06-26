@@ -202,10 +202,46 @@ files-to-remove.txt
 # Ignore remaining untracked files
 09.other.projects/03.ats/08.after.more.columns/.gitignore
 09.other.projects/03.ats/09.after-please/
-16.cash.message/
-17.email/01.summarize/
-17.email/02.sum.and.reply/
-17.email/03.reem/
+
+# Sensitive data patterns
+**/account_sid
+**/auth_token
+**/*.env
+**/secrets.*
+**/credentials.*
+**/*.json
+**/*.key
+**/*.pem
+**/*.token
+**/config.*
+**/*password*
+**/*secret*
+**/*.log
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/venv/
+**/env/
+**/.venv/
+**/*.ipynb_checkpoints/
+**/.DS_Store
+**/Thumbs.db
+
+# Ignore files with sensitive data (Twilio credentials)
+16.cash.message/07.cash-in-message/01.all.old/01.cash-in-message.rev.14.multiple.ipynb
+16.cash.message/07.cash-in-message/01.all.old/01.cash-in-message.rev.16.ipynb
+
+# Ignore all old revision files in cash-in-message
+16.cash.message/07.cash-in-message/01.all.old/*.ipynb
+
+# Ignore any file containing Twilio credentials
+**/*twilio*
+**/*Twilio*
+**/*sid*
+**/*SID*
+**/*token*
+**/*Token*
 a0.support/git.classic.tokens/2025.05.28.txt
 09.other.projects/01.youtube/07.upload.all/07.upload.all.rev.06.ipynb
 a0.support/17.git/auth/from chat.txt
