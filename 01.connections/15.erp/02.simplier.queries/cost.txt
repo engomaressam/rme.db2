@@ -1,0 +1,20 @@
+SELECT prj.segment1 AS project_num,
+       prj.NAME AS project_name,
+       COALESCE(
+           (SELECT ss.LINE_DESC
+            FROM apps.rme_prj_cont_lines ss
+                     INNER JOIN apps.rme_prj_cont_wc wc ON ss.wc_id = wc.wc_id
+            WHERE exp_itm.ORIG_TRANSACTION_REFERENCE = wc.ipc_no
+              AND prj.project_id = ss.project_id
+              AND ROWNUM = 1),
+           (SELECT EXPENDITURE_COMMENT
+            FROM pa_expenditure_comments
+            WHERE EXPENDITURE_ITEM_ID = exp_itm.EXPENDITURE_ITEM_ID
+              AND rownum = 1)
+       ) AS LINE_DESC,
+       dis_ln.amount,
+       dis_ln.gl_date  -- Added GL Date
+FROM pa_cost_distribution_lines_all dis_ln
+         INNER JOIN pa_projects_all prj ON dis_ln.project_id = prj.project_id
+         INNER JOIN pa_expenditure_items_all exp_itm ON exp_itm.expenditure_item_id = dis_ln.expenditure_item_id
+WHERE dis_ln.amount != 0;

@@ -1,0 +1,146 @@
+/* Formatted on 4/21/2019 2:48:51 PM (QP5 v5.256.13226.35510) */
+  SELECT TRX_HEAD.CUSTOMER_TRX_ID,
+         hca.ACCOUNT_NUMBER Customer_No,
+         hp.PARTY_NAME Customer_Name,
+         TRX_HEAD.TRX_NUMBER Inv_num,
+         (SELECT NVL (SUM (extended_amount), 0)
+            FROM ra_customer_trx_all trx_head1,
+                 ra_customer_trx_lines_all trx_line1
+           WHERE     trx_head1.customer_trx_id = trx_line1.customer_trx_id(+)
+                 AND trx_head.customer_trx_id = trx_head1.customer_trx_id
+                 AND trx_line1.customer_trx_id = trx_line.customer_trx_id
+                 AND trx_head1.org_id = trx_line1.org_id(+)
+                 AND trx_line1.line_type IN ('TAX'))
+            S_TAX,
+         ty.DESCRIPTION Inv_Type,
+         --Started By A.Zaki 08-10-2017 to use it when calculate AR balance invoice
+         ty.TYPE INV_CLASS,
+         --Ended By A.Zaki 08-10-2017
+         TO_CHAR (TRX_HEAD.TRX_DATE, 'DD-MM-YYYY') TRX_DATE,
+         TRX_HEAD.INVOICE_CURRENCY_CODE CURRENCY,
+         NVL (TRX_HEAD.EXCHANGE_RATE, 1) RATE,
+         aps.AMOUNT_DUE_REMAINING,
+         --ROUND (TRX_LINE.UNIT_SELLING_PRICE, 4) UNIT_SELLING_PRICE,
+         SUM (NVL (TRX_LINE.EXTENDED_AMOUNT, 0)) AMOUNT,
+           SUM (NVL (TRX_LINE.EXTENDED_AMOUNT, 0))
+         + (SELECT NVL (SUM (extended_amount), 0)
+            FROM ra_customer_trx_all trx_head1,
+                 ra_customer_trx_lines_all trx_line1
+           WHERE     trx_head1.customer_trx_id = trx_line1.customer_trx_id(+)
+                 AND trx_head.customer_trx_id = trx_head1.customer_trx_id
+                 AND trx_line1.customer_trx_id = trx_line.customer_trx_id
+                 AND trx_head1.org_id = trx_line1.org_id(+)
+                 AND trx_line1.line_type IN ('TAX'))
+            TOTAL,                             -- + (NVL (tax.TAX_AMOUNT, 0)))
+         SUM (TRX_LINE.QUANTITY_INVOICED) QTY,
+         trx_head.INTERFACE_HEADER_ATTRIBUTE1 PROJECT_NUMBER,
+         ARPT_SQL_FUNC_UTIL.GET_FIRST_REAL_DUE_DATE (TRX_HEAD.CUSTOMER_TRX_ID,
+                                                     TRX_HEAD.TERM_ID,
+                                                     TRX_HEAD.TRX_DATE)
+            TERM_DUE_DATE,
+         TO_DATE (TRX_HEAD.ATTRIBUTE2, 'YYYY/MM/DD HH24:MI:SS') DUE_DATE_DFF,
+         NVL (
+            (SELECT DISTINCT (F.FULL_NAME)
+               FROM PA_PROJECTS_ALL PPA,
+                    PA_PROJECT_PLAYERS PL,
+                    PER_ALL_PEOPLE_F F
+              WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                    AND PPA.SEGMENT1 = TRX_HEAD.INTERFACE_HEADER_ATTRIBUTE1
+                    AND PL.PERSON_ID = F.PERSON_ID
+                    AND PL.PROJECT_ROLE_TYPE = '1000'
+                    AND NVL ( :P_TO_DATE, SYSDATE) BETWEEN F.EFFECTIVE_START_DATE
+                                                       AND F.EFFECTIVE_END_DATE
+                    AND ROWNUM = 1),
+            'General')
+            Project_Owner
+    FROM RA_CUSTOMER_TRX_ALL TRX_HEAD,
+         RA_CUSTOMER_TRX_LINES_ALL TRX_LINE,
+         hz_parties hp,
+         HZ_CUST_ACCOUNTS hca,
+         HZ_CUST_SITE_USES_ALL hcsua,
+         HZ_CUST_ACCT_SITES_ALL hcasa,
+         hz_party_sites hps,
+         RA_CUST_TRX_TYPES_ALL ty,
+         ar_payment_schedules_all aps
+   WHERE     TRX_HEAD.CUSTOMER_TRX_ID = TRX_LINE.CUSTOMER_TRX_ID
+         AND TRX_HEAD.ORG_ID = TRX_LINE.ORG_ID(+)
+         AND HCA.PARTY_ID = HP.PARTY_ID
+         AND TRX_HEAD.COMPLETE_FLAG = 'Y'
+         AND hps.status = 'A'
+         --   AND TAX.LINK_TO_CUST_TRX_LINE_ID(+) = TRX_LINE.CUSTOMER_TRX_LINE_ID
+         AND TRX_LINE.LINE_TYPE IN ('LINE', 'FREIGHT')
+         AND IDENTIFYING_ADDRESS_FLAG = 'Y'
+         AND hcsua.org_id = TRX_HEAD.org_id
+         AND hcsua.site_use_code = 'BILL_TO'
+         AND hcsua.cust_acct_site_id = hcasa.cust_acct_site_id
+         AND hp.party_id = hps.party_id
+         AND hca.CUST_ACCOUNT_ID = hcasa.CUST_ACCOUNT_ID
+         AND hcsua.PRIMARY_FLAG = 'Y'
+         AND ty.CUST_TRX_TYPE_ID = TRX_HEAD.CUST_TRX_TYPE_ID
+         AND ty.org_id = TRX_HEAD.org_id
+         AND TRX_HEAD.customer_trx_id = aps.customer_trx_id
+         AND TRX_HEAD.org_id = aps.org_id
+         AND TRX_HEAD.org_id = :P_ORG
+         AND (hca.CUST_ACCOUNT_ID = :P_CUSTOMER OR :P_CUSTOMER IS NULL)
+         --AND TRX_HEAD.CUSTOMER_TRX_ID = araa.APPLIED_CUSTOMER_TRX_ID
+         AND DECODE (TRX_HEAD.SOLD_TO_CUSTOMER_ID,
+                     NULL, BILL_TO_CUSTOMER_ID,
+                     TRX_HEAD.SOLD_TO_CUSTOMER_ID) = hca.CUST_ACCOUNT_ID
+         --Started By A.Zaki 16-01-2018
+         --Requestor M.Dawa
+         --Case query return cartesian data(Duplicate amount from RA_CUSTOMER_TRX_LINES_ALL table) (EXTENDED_AMOUNT)
+         --Ex.customer_trx_id = 68456
+         --Duplicate reason merge customer's site between RME and SWK
+  --       AND hcsua.APPLICATION_ID = hca.APPLICATION_ID
+         --Ended By A.Zaki 16-01-2018
+         AND (   trx_head.TRX_DATE >= TRUNC ( :P_FROM_DATE)
+              OR :P_FROM_DATE IS NULL)
+         AND (trx_head.TRX_DATE <= TRUNC ( :P_TO_DATE) OR :P_TO_DATE IS NULL)
+         AND (   trx_head.INTERFACE_HEADER_ATTRIBUTE1 = :P_PROJECT_NUM
+              OR :P_PROJECT_NUM IS NULL)
+         AND (TRX_HEAD.INVOICE_CURRENCY_CODE = :P_CURR OR :P_CURR IS NULL)
+         AND (ty.DESCRIPTION = :P_TRX_TYPE OR :P_TRX_TYPE IS NULL)
+         AND (   (SELECT F.PERSON_ID
+                    FROM PA_PROJECTS_ALL PPA,
+                         PA_PROJECT_PLAYERS PL,
+                         PER_ALL_PEOPLE_F F
+                   --AP_INVOICES_V INNER_AI
+                   WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                         AND PL.PERSON_ID = F.PERSON_ID
+                         AND PL.PROJECT_ROLE_TYPE = '1000'
+                         AND SYSDATE BETWEEN f.EFFECTIVE_START_DATE
+                                         AND F.EFFECTIVE_END_DATE
+                         AND PPA.project_id =
+                                (SELECT p.project_id
+                                   FROM PA_PROJECTS_ALL p
+                                  WHERE p.segment1 =
+                                           TRX_HEAD.INTERFACE_HEADER_ATTRIBUTE1)) =
+                    :P_PERSON_ID
+              OR :p_person_id IS NULL)
+--and TRX_HEAD.INTERFACE_HEADER_ATTRIBUTE1 = '0059'
+-- and TRX_HEAD.CUSTOMER_TRX_ID =  48028
+--AND apl.party_id = hca.party_id
+-------------------------END USER PARAMETER-------------------------------------------------------------------------------
+GROUP BY TRX_HEAD.CUSTOMER_TRX_ID,
+         hca.ACCOUNT_NAME,
+         PARTY_NAME,
+         TRX_HEAD.TRX_DATE,
+         TRX_LINE.CUSTOMER_TRX_ID,
+         TRX_HEAD.TRX_NUMBER,
+         ty.DESCRIPTION,
+         --Started By A.Zaki 08-10-2017 to use it when calculate AR balance invoice
+         ty.TYPE,
+         --Ended By A.Zaki 08-10-2017
+         TRX_HEAD.INVOICE_CURRENCY_CODE,
+         NVL (TRX_HEAD.EXCHANGE_RATE, 1),
+         'S_TAX',
+         --  TRX_LINE.UNIT_SELLING_PRICE,
+         hca.ACCOUNT_NUMBER,
+         trx_head.INTERFACE_HEADER_ATTRIBUTE1,
+         aps.AMOUNT_DUE_REMAINING,
+         ARPT_SQL_FUNC_UTIL.GET_FIRST_REAL_DUE_DATE (
+            TRX_HEAD.CUSTOMER_TRX_ID,
+            TRX_HEAD.TERM_ID,
+            TRX_HEAD.TRX_DATE),
+         TO_DATE (TRX_HEAD.ATTRIBUTE2, 'YYYY/MM/DD HH24:MI:SS')
+ORDER BY hca.ACCOUNT_NUMBER, TO_CHAR (TRX_HEAD.TRX_DATE, 'DD-MM-YYYY') ASC

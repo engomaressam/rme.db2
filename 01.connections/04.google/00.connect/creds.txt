@@ -1,0 +1,15 @@
+project id: rmedb-395804
+instance: rme
+database: rme
+user:eng.omar.e@gmail.com or postgres
+
+project_id = os.environ["rmedb-395804"]
+instance_name = "rme"
+database = "rme"
+username = "postgres"
+password = "omar_321"
+
+
+Instance connection name : rmedb-395804:us-central1:rme
+
+postgres://eng.omar.e:@ep-tight-sea-71568342.eu-central-1.aws.neon.tech/neondb

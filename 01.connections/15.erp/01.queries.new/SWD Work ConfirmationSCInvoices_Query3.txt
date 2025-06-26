@@ -1,0 +1,731 @@
+/* Formatted on 11/5/2019 11:23:54 AM (QP5 v5.256.13226.35510) */
+  SELECT DISTINCT
+         a.DOC_SEQUENCE_VALUE VOUCHER_NUM,
+         a.ORG_id,
+         d.po_header_id,
+         a.invoice_id,
+         a.gl_date,
+         a.invoice_num,
+         a.INVOICE_TYPE_LOOKUP_CODE,
+         --  b.po_distribution_id ,
+         SUM (ail.amount - NVL (ail.included_tax_amount, 0)) item_total,
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '21411000'
+                 AND CCv.SEGMENT4 = '0003'
+                 AND AIv.invoice_id = a.invoice_id)
+            with_tax,
+         --added by o.basiony 29-05-2019
+         --requestor m.saleh 29-05-2019
+         ---------------------------------------------labor---------------------------------------------
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '21411000'
+                 AND CCv.SEGMENT4 = '0009'
+                 AND AIv.invoice_id = a.invoice_id)
+            labor_tax,
+         ---------------------------------------------labor---------------------------------------------
+
+         ---------------------------------------------cost deduction---------------------------------------------
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '52281000'
+                 AND CCv.SEGMENT4 = '0000'
+                 AND AIv.invoice_id = a.invoice_id)
+            cost_ded_tax,
+         ---------------------------------------------cost deduction---------------------------------------------
+
+         ---------------------------------------------item---------------------------------------------
+         (SELECT NVL (ABS (SUM (AILv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                 AND AILv.PO_NUMBER IS NOT NULL
+                 --AND CCv.SEGMENT3 = '52281000'
+                 --AND CCv.SEGMENT4 = '0000'
+                 AND AIv.invoice_id = a.invoice_id)
+            ITM_TAX,
+         ---------------------------------------------item---------------------------------------------
+
+         ---------------------------------------------tax---------------------------------------------
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'TAX'
+                 --AND AILv.PO_NUMBER <> NULL
+                 --AND CCv.SEGMENT3 = '52281000'
+                 --AND CCv.SEGMENT4 = '0000'
+                 AND AIv.invoice_id = a.invoice_id)
+            tax_tax,
+           ---------------------------------------------tax---------------------------------------------
+           --ended by o.basiony 29-05-2019
+           NVL (
+              (SELECT ABS (NVL (SUM (APIDv.AMOUNT), 0))
+                 FROM po_vendors pvv,
+                      AP_INVOICES_all AIv,
+                      AP_INVOICE_LINES_V AILv,
+                      AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                      GL_CODE_COMBINATIONS_V CCv
+                WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                      AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                      AND AILv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                      AND APIDv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                      AND APIDv.DIST_CODE_COMBINATION_ID =
+                             CCv.CODE_COMBINATION_ID
+                      AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                           'DEBIT',
+                                                           'STANDARD',
+                                                           'MIXED',
+                                                           'PREPAYMENT')
+                      AND (AILv.ORG_ID = a.org_id)
+                      AND AIv.INVOICE_ID = a.INVOICE_ID
+                      --   AND AIL.RCV_SHIPMENT_LINE_ID = :SHIPMENT_LINE_ID
+                      --   and apid.INVOICE_DISTRIBUTION_ID = :INVOICE_DISTRIBUTION_ID
+
+                      AND CCv.SEGMENT3 IN (21911000, 21912000)
+                      AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                      AND apidv.LINE_TYPE_LOOKUP_CODE IN ('AWT', 'RETAINAGE')
+                      AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                             AIv.INVOICE_ID,
+                             AIv.INVOICE_AMOUNT,
+                             AIv.PAYMENT_STATUS_FLAG,
+                             AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'),
+              0)
+         + NVL (
+              (SELECT ABS (SUM (NVL (APIDv.AMOUNT, 0)))
+                 FROM po_vendors pvv,
+                      AP_INVOICES_all AIv,
+                      AP_INVOICE_LINES_V AILv,
+                      AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                      GL_CODE_COMBINATIONS_V CCv
+                WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                      AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                      AND AILv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                      AND APIDv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                      AND APIDv.DIST_CODE_COMBINATION_ID =
+                             CCv.CODE_COMBINATION_ID
+                      AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                           'DEBIT',
+                                                           'STANDARD',
+                                                           'MIXED')
+                      AND (AILv.ORG_ID = a.ORG_id)
+                      AND AIv.INVOICE_ID = a.INVOICE_ID
+                      --    AND AIL.RCV_SHIPMENT_LINE_ID = :SHIPMENT_LINE_ID
+                      --  and apid.INVOICE_DISTRIBUTION_ID = :INVOICE_DISTRIBUTION_ID
+
+                      AND CCv.SEGMENT3 IN (21911000, 21912000)
+                      AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                      AND apidv.LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                      AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                             AIv.INVOICE_ID,
+                             AIv.INVOICE_AMOUNT,
+                             AIv.PAYMENT_STATUS_FLAG,
+                             AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'),
+              0)
+            with_ret,
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 --  AND ailv.ATTRIBUTE2 = '5%'
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND AIv.invoice_id = a.invoice_id
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '21413000'
+                 AND CCv.SEGMENT4 = '0003')
+            with_ins,
+         a.invoice_amount "INVOICE AMOUNT",
+         NULL applied_prp,
+         (SELECT SUM (AIP.AMOUNT)
+            FROM AP_INVOICE_PAYMENTS_all AIP,
+                 AP_INVOICES_ALL AI1,
+                 AP_INVOICES_ALL AI2,
+                 AP_CHECKS_ALL AC,
+                 AP_LOOKUP_CODES ALC1,
+                 IBY_PAYMENT_METHODS_VL IBY
+           WHERE     AIP.INVOICE_ID = AI1.INVOICE_ID
+                 AND AIP.OTHER_INVOICE_ID = AI2.INVOICE_ID(+)
+                 AND AIP.CHECK_ID = AC.CHECK_ID
+                 AND ALC1.LOOKUP_TYPE(+) = 'NLS TRANSLATION'
+                 AND ALC1.LOOKUP_CODE(+) = 'PREPAY'
+                 AND iby.payment_method_code(+) = AC.PAYMENT_METHOD_CODE
+                 AND AC.STATUS_LOOKUP_CODE <> 'VOIDED'
+                 AND aip.invoice_id = a.invoice_id)
+            PAYMENT,
+         (SELECT NVL (SUM (PREPAY_AMOUNT_APPLIED), 0)
+            FROM AP_VIEW_PREPAYS_V
+           WHERE invoice_id = a.INVOICE_ID AND ROWNUM = 1)
+            prepay,
+         e.vendor_id,
+         (SELECT due_date
+            FROM apps.AP_PAYMENT_SCHEDULES aps
+           WHERE     aps.invoice_id = a.invoice_id
+                 AND aps.invoice_id = ail.invoice_id
+                 AND ROWNUM = 1)
+            due_date,
+         --item tax for test
+         (SELECT NVL (SUM (inner_ail.amount), 0)
+            FROM ap_invoice_lines_v inner_ail
+           WHERE     inner_ail.invoice_id = ail.invoice_id
+                 AND LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                 AND po_number IS NULL)
+            test_tax,
+         --item tax for test
+         --tax type
+         (SELECT NVL (SUM (inner_ail.amount), 0)
+            FROM ap_invoice_lines_v inner_ail
+           WHERE     inner_ail.invoice_id = ail.invoice_id
+                 AND LINE_TYPE_LOOKUP_CODE = 'TAX')
+            tax_type
+    --tax type
+    FROM ap.ap_invoices_all a,
+         ap_invoice_lines_all ail,
+         ap.ap_invoice_distributions_all b,
+         po.po_distributions_all c,
+         po.po_headers_all d,
+         ap.ap_suppliers e,
+         ap.ap_supplier_sites_all f,
+         po.po_lines_all g,
+         po.po_line_locations_all g1
+   WHERE     a.invoice_id = b.invoice_id
+         AND ail.invoice_id = a.invoice_id
+         AND b.po_distribution_id = c.po_distribution_id(+)
+         AND c.po_header_id = d.po_header_id(+)
+         --    and a.attribute5  = d.po_header_id
+         AND e.vendor_id(+) = d.vendor_id
+         AND f.vendor_site_id(+) = d.vendor_site_id
+         AND d.po_header_id = g.po_header_id
+         AND g1.po_header_id = c.po_header_id
+         AND g1.po_line_id = g.po_line_id
+         --  AND d.PO_HEADER_ID = :PO_HEADER_ID
+         AND (d.po_header_id = :PO_HEADER_ID1 OR :PO_HEADER_ID1 IS NULL)
+         AND c.po_line_id = g.po_line_id
+         --   AND :ship_num  =  :SHIPMENT_HEADER_ID
+         AND c.line_location_id = g1.line_location_id
+         AND g1.inspection_required_flag = 'N'
+         AND g1.receipt_required_flag = 'Y'
+         AND a.ORG_id = :P_ORG
+         AND ail.amount > 0
+GROUP BY a.ORG_id,
+         a.invoice_id,
+         --- e.segment1,
+         e.vendor_name,
+         d.po_header_id,
+         e.vendor_type_lookup_code,
+         --    f.vendor_site_code,
+         -- f.address_line1,
+         --   f.city,
+         --    f.country,
+         TO_CHAR (TRUNC (d.creation_date)),
+         --   d.segment1,
+         e.vendor_id,
+         a.invoice_type_lookup_code,
+         a.invoice_amount,
+         a.invoice_date,
+         a.invoice_num,
+         a.INVOICE_TYPE_LOOKUP_CODE,
+         b.invoice_distribution_id,
+         a.amount_paid,
+         a.DOC_SEQUENCE_VALUE,
+         a.gl_date,
+         e.VENDOR_ID,
+         F.VENDOR_ID,
+         ail.invoice_id
+UNION
+  SELECT DISTINCT
+         a.DOC_SEQUENCE_VALUE VOUCHER_NUM,
+         a.ORG_id,
+         d.po_header_id,
+         a.invoice_id,
+         a.gl_date,
+         a.invoice_num,
+         a.INVOICE_TYPE_LOOKUP_CODE,
+         --  b.po_distribution_id ,
+         SUM (ail.amount - NVL (ail.included_tax_amount, 0)) item_total,
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '21411000'
+                 AND CCv.SEGMENT4 = '0003'
+                 AND AIv.invoice_id = a.invoice_id)
+            with_tax,
+         --added by o.basiony 29-05-2019
+         --requestor m.saleh 29-05-2019
+         ---------------------------------------------labor---------------------------------------------
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '21411000'
+                 AND CCv.SEGMENT4 = '0009'
+                 AND AIv.invoice_id = a.invoice_id)
+            labor_tax,
+         ---------------------------------------------labor---------------------------------------------
+
+         ---------------------------------------------cost deduction---------------------------------------------
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '52281000'
+                 AND CCv.SEGMENT4 = '0000'
+                 AND AIv.invoice_id = a.invoice_id)
+            cost_ded_tax,
+         ---------------------------------------------cost deduction---------------------------------------------
+
+         ---------------------------------------------item---------------------------------------------
+         (SELECT NVL (ABS (SUM (AILv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                 AND AILv.PO_NUMBER IS NOT NULL
+                 --AND CCv.SEGMENT3 = '52281000'
+                 --AND CCv.SEGMENT4 = '0000'
+                 AND AIv.invoice_id = a.invoice_id)
+            ITM_TAX,
+         ---------------------------------------------item---------------------------------------------
+         ---------------------------------------------tax---------------------------------------------
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'TAX'
+                 --AND AILv.PO_NUMBER <> NULL
+                 --AND CCv.SEGMENT3 = '52281000'
+                 --AND CCv.SEGMENT4 = '0000'
+                 AND AIv.invoice_id = a.invoice_id)
+            tax_tax,
+           ---------------------------------------------tax---------------------------------------------
+           --ended by o.basiony 29-05-2019
+           NVL (
+              (SELECT ABS (NVL (SUM (APIDv.AMOUNT), 0))
+                 FROM po_vendors pvv,
+                      AP_INVOICES_all AIv,
+                      AP_INVOICE_LINES_V AILv,
+                      AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                      GL_CODE_COMBINATIONS_V CCv
+                WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                      AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                      AND AILv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                      AND APIDv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                      AND APIDv.DIST_CODE_COMBINATION_ID =
+                             CCv.CODE_COMBINATION_ID
+                      AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                           'DEBIT',
+                                                           'STANDARD',
+                                                           'MIXED',
+                                                           'PREPAYMENT')
+                      AND (AILv.ORG_ID = a.org_id)
+                      AND AIv.INVOICE_ID = a.INVOICE_ID
+                      --   AND AIL.RCV_SHIPMENT_LINE_ID = :SHIPMENT_LINE_ID
+                      --   and apid.INVOICE_DISTRIBUTION_ID = :INVOICE_DISTRIBUTION_ID
+
+                      AND CCv.SEGMENT3 IN (21911000, 21912000)
+                      AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                      AND apidv.LINE_TYPE_LOOKUP_CODE IN ('AWT', 'RETAINAGE')
+                      AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                             AIv.INVOICE_ID,
+                             AIv.INVOICE_AMOUNT,
+                             AIv.PAYMENT_STATUS_FLAG,
+                             AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'),
+              0)
+         + NVL (
+              (SELECT ABS (SUM (NVL (APIDv.AMOUNT, 0)))
+                 FROM po_vendors pvv,
+                      AP_INVOICES_all AIv,
+                      AP_INVOICE_LINES_V AILv,
+                      AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                      GL_CODE_COMBINATIONS_V CCv
+                WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                      AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                      AND AILv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                      AND APIDv.ORG_ID = AIv.ORG_ID
+                      AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                      AND APIDv.DIST_CODE_COMBINATION_ID =
+                             CCv.CODE_COMBINATION_ID
+                      AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                           'DEBIT',
+                                                           'STANDARD',
+                                                           'MIXED')
+                      AND (AILv.ORG_ID = a.ORG_id)
+                      AND AIv.INVOICE_ID = a.INVOICE_ID
+                      --    AND AIL.RCV_SHIPMENT_LINE_ID = :SHIPMENT_LINE_ID
+                      --  and apid.INVOICE_DISTRIBUTION_ID = :INVOICE_DISTRIBUTION_ID
+
+                      AND CCv.SEGMENT3 IN (21911000, 21912000)
+                      AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                      AND apidv.LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                      AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                             AIv.INVOICE_ID,
+                             AIv.INVOICE_AMOUNT,
+                             AIv.PAYMENT_STATUS_FLAG,
+                             AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'),
+              0)
+            with_ret,
+         (SELECT NVL (ABS (SUM (APIDv.AMOUNT)), 0)
+            FROM po_vendors pvv,
+                 AP_INVOICES_all AIv,
+                 AP_INVOICE_LINES_V AILv,
+                 AP_INVOICE_DISTRIBUTIONS_ALL APIDv,
+                 GL_CODE_COMBINATIONS_V CCv
+           WHERE     PVv.VENDOR_ID = AIv.VENDOR_ID
+                 AND AILv.INVOICE_ID = AIv.INVOICE_ID
+                 AND AILv.ORG_ID = AIv.ORG_ID
+                 AND APIDv.INVOICE_ID = AIv.INVOICE_ID
+                 AND APIDv.ORG_ID = AIv.ORG_ID
+                 --  AND ailv.ATTRIBUTE2 = '5%'
+                 AND APIDv.INVOICE_LINE_NUMBER = AILv.LINE_NUMBER
+                 AND APIDv.DIST_CODE_COMBINATION_ID = CCv.CODE_COMBINATION_ID
+                 AND AIv.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                      'DEBIT',
+                                                      'STANDARD',
+                                                      'PREPAYMENT',
+                                                      'MIXED')
+                 AND (AILv.ORG_ID = a.ORG_id)
+                 AND AIv.invoice_id = a.invoice_id
+                 AND (NVL (pvv.vendor_type_lookup_code, ' ') <> 'CUSTODY')
+                 AND AP_INVOICES_PKG.GET_APPROVAL_STATUS (
+                        AIv.INVOICE_ID,
+                        AIv.INVOICE_AMOUNT,
+                        AIv.PAYMENT_STATUS_FLAG,
+                        AIv.INVOICE_TYPE_LOOKUP_CODE) <> 'CANCELLED'
+                 AND apidv.LINE_TYPE_LOOKUP_CODE = 'AWT'
+                 AND CCv.SEGMENT3 = '21413000'
+                 AND CCv.SEGMENT4 = '0003'
+                 AND ROWNUM = 1)
+            with_ins,
+         0 "INVOICE AMOUNT",
+         a.invoice_amount applied_prp,
+         0 PAYMENT,
+         (SELECT NVL (SUM (PREPAY_AMOUNT_APPLIED), 0)
+            FROM AP_VIEW_PREPAYS_V
+           WHERE invoice_id = a.INVOICE_ID AND ROWNUM = 1)
+            prepay,
+         e.vendor_id,
+         --o.basiony 26-03-2019
+         (SELECT due_date
+            FROM apps.AP_PAYMENT_SCHEDULES aps
+           WHERE     aps.invoice_id = a.invoice_id
+                 AND aps.invoice_id = ail.invoice_id
+                 AND ROWNUM = 1)
+            due_date,
+         --item tax for test
+         (SELECT NVL (SUM (inner_ail.amount), 0)
+            FROM ap_invoice_lines_v inner_ail
+           WHERE     inner_ail.invoice_id = ail.invoice_id
+                 AND LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                 AND po_number IS NULL)
+            test_tax,
+         --item tax for test
+         --tax type
+         (SELECT NVL (SUM (inner_ail.amount), 0)
+            FROM ap_invoice_lines_v inner_ail
+           WHERE     inner_ail.invoice_id = ail.invoice_id
+                 AND LINE_TYPE_LOOKUP_CODE = 'TAX')
+            tax_type
+    --tax type
+    FROM ap.ap_invoices_all a,
+         ap_invoice_lines_all ail,
+         --     ap.ap_invoice_distributions_all b,
+         po.po_distributions_all c,
+         po.po_headers_all d,
+         ap.ap_suppliers e,
+         ap.ap_supplier_sites_all f,
+         po.po_lines_all g,
+         po.po_line_locations_all g1
+   WHERE     ail.invoice_id = a.invoice_id
+         --   AND b.po_distribution_id = c.po_distribution_id(+)
+         AND c.po_header_id = d.po_header_id(+)
+         AND a.attribute5 = d.po_header_id
+         AND e.vendor_id(+) = d.vendor_id
+         AND f.vendor_site_id(+) = d.vendor_site_id
+         AND d.po_header_id = g.po_header_id
+         AND g1.po_header_id = c.po_header_id
+         AND g1.po_line_id = g.po_line_id
+         --  AND d.PO_HEADER_ID = :PO_HEADER_ID
+         AND d.po_header_id = :PO_HEADER_ID1
+         AND c.po_line_id = g.po_line_id
+         --   AND :ship_num  =  :SHIPMENT_HEADER_ID
+         AND c.line_location_id = g1.line_location_id
+         AND g1.inspection_required_flag = 'N'
+         AND g1.receipt_required_flag = 'Y'
+         AND a.ORG_id = :P_ORG
+         AND ail.amount > 0
+GROUP BY a.ORG_id,
+         a.invoice_id,
+         --- e.segment1,
+         e.vendor_name,
+         d.po_header_id,
+         e.vendor_type_lookup_code,
+         --    f.vendor_site_code,
+         -- f.address_line1,
+         --   f.city,
+         --    f.country,
+         TO_CHAR (TRUNC (d.creation_date)),
+         --   d.segment1,
+         e.vendor_id,
+         a.invoice_type_lookup_code,
+         a.invoice_amount,
+         a.invoice_date,
+         a.invoice_num,
+         a.INVOICE_TYPE_LOOKUP_CODE,
+         --   b.invoice_distribution_id ,
+         a.amount_paid,
+         a.DOC_SEQUENCE_VALUE,
+         a.gl_date,
+         e.VENDOR_ID,
+         F.VENDOR_ID,
+         ail.invoice_id;

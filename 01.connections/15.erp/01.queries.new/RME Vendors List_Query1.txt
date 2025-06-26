@@ -1,0 +1,59 @@
+/* Formatted on 10/25/2022 2:36:53 PM (QP5 v5.256.13226.35510) */
+SELECT DISTINCT     ----------AYA------
+ 
+       -- IPY.BANK_ACCOUNT_NUMBER BANCK_ACC_NO,     ------AYA REDA-----11-10-2022
+       a.VENDOR_ID,
+       a.SEGMENT1 VENDOR_NUM,
+       a.VENDOR_NAME,
+       pvc.FIRST_NAME contact_name,
+    ---   a.vat_registration_num,
+       -----NVL (a.Individual_1099, a.Num_1099) Taxpayer_Id,
+       (SELECT DISTINCT IPY.BANK_ACCOUNT_NUMBER
+          FROM apps.iby_external_bank_accounts_v IPY
+         WHERE     IPY.PRIMARY_ACCT_OWNER_PARTY_ID = hp.PARTY_ID
+               AND a.PARTY_ID = IPY.PRIMARY_ACCT_OWNER_PARTY_ID
+               AND ROWNUM = 1)
+          BANCK_ACC_NO,
+       (SELECT Concatenated_Segments
+          FROM apps.Gl_Code_Combinations_Kfv Gcck
+         WHERE Code_Combination_Id = APSS.Accts_Pay_Code_Combination_Id)
+          LIAB_ACC,
+       (SELECT Concatenated_Segments
+          FROM apps.Gl_Code_Combinations_Kfv Gcck
+         WHERE Code_Combination_Id = APSS.Prepay_Code_Combination_Id)
+          PREPAYMENT_ACCOUNT,
+       (SELECT Concatenated_Segments
+          FROM Apps.Gl_Code_Combinations_Kfv Gcck
+         WHERE Code_Combination_Id = APSS.Future_Dated_Payment_Ccid)
+          Future_Acc,
+       (SELECT a.TERRITORY_SHORT_NAME
+          FROM FND_TERRITORIES_VL a
+         WHERE A.TERRITORY_CODE = hp.COUNTRY)
+          COUNTRY,
+       APSS.Vendor_Site_Code SITE_NAME,
+       hp.PARTY_NUMBER,
+       --hp.EMAIL_ADDRESS,
+       pvc.EMAIL_ADDRESS,
+       pvc.PHONE,
+       pvc.TITLE,
+       hp.PERSON_PRE_NAME_ADJUNCT,
+       pvc.URL
+  -- IPY.currency_code
+  FROM ap_suppliers a,
+       ap_supplier_sites_all apss,
+       PO_VENDOR_CONTACTS pvc,
+       hz_parties hp
+ --
+ WHERE     1 = 1
+       --and a.vendor_id = b.vendor_id
+
+       AND pvc.VENDOR_ID(+) = a.VENDOR_ID
+       AND a.VENDOR_ID = apss.VENDOR_ID
+       -- AND pvs.ACCTS_PAY_CODE_COMBINATION_ID = gcc.CODE_COMBINATION_ID(+)
+       -- AND a.VENDOR_ID = 101088 --4333---70974
+       --AND PO.PO_HEADER_ID = B.PO_HEADER_ID
+       AND a.PARTY_ID = hp.PARTY_ID
+       AND apss.org_id = :P_ORG_ID
+       AND (hp.COUNTRY = :p_countery OR :p_countery IS NULL)
+       AND (a.VENDOR_ID = :P_VENDOR_ID OR :P_VENDOR_ID IS NULL);
+   

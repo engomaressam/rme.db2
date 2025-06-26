@@ -1,0 +1,13 @@
+
+
+server name : tcp:10.10.11.241,1433
+
+auth, sql auth
+
+yasser
+
+yasser123
+
+nada
+
+nada123

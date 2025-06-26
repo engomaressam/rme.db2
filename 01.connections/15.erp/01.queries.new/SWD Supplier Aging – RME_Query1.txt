@@ -1,0 +1,916 @@
+
+  /* Formatted on 09/02/2023 15:23:16 (QP5 v5.256.13226.35510) */
+  SELECT                                                           --MAIN_Q.Q,
+        ORG_ID,
+         INV_TYPE INV_TYPE,
+         INV_TYPE_DTL,
+         PROJECT_NAME,
+         (SELECT DISTINCT full_name
+            FROM po.po_agents fu, hr.PER_ALL_PEOPLE_F papf, po_headers_all poh
+           WHERE     fu.agent_id = poh.agent_id
+                 AND papf.person_id = fu.agent_id
+                 AND SYSDATE BETWEEN papf.EFFECTIVE_START_DATE
+                                 AND papf.EFFECTIVE_END_DATE
+                 AND ROWNUM = 1
+                 AND poh.po_header_id = quick_po_header_id)
+            buyer,
+         (SELECT DISTINCT paf.ASS_ATTRIBUTE1
+            FROM po.po_agents fu,
+                 po_headers_all poh,
+                 PER_ALL_PEOPLE_F ppf,
+                 per_assignments_f paf
+           WHERE     fu.agent_id = poh.agent_id
+                 AND ppf.person_id = paf.person_id
+                 AND fu.agent_id = ppf.person_id
+                 AND SYSDATE BETWEEN ppf.EFFECTIVE_START_DATE
+                                 AND ppf.EFFECTIVE_END_DATE
+                 AND SYSDATE BETWEEN paf.EFFECTIVE_START_DATE
+                                 AND paf.EFFECTIVE_END_DATE
+                 AND poh.po_header_id = NVL (quick_po_header_id, dff_po))
+            buyer_dep,
+         (SELECT DISTINCT segment1
+            FROM po_headers_all
+           WHERE po_header_id = NVL (quick_po_header_id, dff_po))
+            po_num,
+         SUPPLIER_NUM,
+         VENDOR_NAME,
+         SUPPLIER_NUM sup_num,
+         VENDOR_NAME sup_name,
+         INVOICE_ID,
+         INVOICE_NUM,
+         INVOICE_AMOUNT,
+         VOUCHER_NUMBER,
+         INVOICE_TYPE,
+         CURRENCY,
+         DESCRIPTION,
+         GL_DATE,
+         ATTRIBUTE10,
+         ITEM_TOTAL AMOUNT,
+         AMOUNT_PAID,
+         amount_remaining,
+         past_due_days,                                           -- DAYS_DUE,
+         amt_due_remaining,
+         CP_DUE,
+         CP_BALANCE_DUE_01_30,
+         CP_BALANCE_DUE_30_60,
+         CP_BALANCE_DUE_60_90,
+         CP_BALANCE_DUE_90_120,
+         CP_BALANCE_DUE_120_180,
+         CP_BALANCE_DUE_180_270,
+         CP_BALANCE_DUE_OVER_360,
+         NVL (ITEM_TOTAL, 0) - NVL (AMOUNT_PAID, 0) NET,
+         --         SUM (NVL (ITEM_TOTAL, 0) - NVL (AMOUNT_PAID, 0)) NET
+         TERMS_NAME,
+         PROJECT_OWNER
+    FROM (WITH Q_AP_INVOICES
+               AS (SELECT DISTINCT
+                          --'Q1' Q,
+                          MAIN_AI.ATTRIBUTE2 INV_TYPE,
+                          (SELECT PPA.NAME
+                             FROM PA_PROJECTS_ALL PPA
+                            WHERE PPA.PROJECT_ID = MAIN_AI.ATTRIBUTE6)
+                             PROJECT_NAME,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) >= -999
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) < 0
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_DUE,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) >= 0
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 30
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_01_30,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) > 30
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 60
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_30_60,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) > 60
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 90
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_60_90,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) > 90
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 120
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_90_120,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) > 120
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 180
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_120_180,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) > 180
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 270
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_180_270,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) > 120
+                                  AND (CEIL (ps.due_date - MAIN_AI.TERMS_DATE)) <= 999999
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_OVER_360,
+                          ---ps.due_date Due_Date,
+                          ps.amount_remaining,
+                          (CEIL (ps.due_date - SYSDATE)) past_due_days, -- DAYS_DUE,
+                          DECODE (
+                             MAIN_AI.invoice_currency_code,
+                             'USD', DECODE (
+                                       0,
+                                       0, ROUND (
+                                             (  (  NVL (ps.amount_remaining, 0)
+                                                 / (NVL (
+                                                       MAIN_AI.payment_cross_rate,
+                                                       1)))
+                                              * NVL (MAIN_AI.exchange_rate, 1)),
+                                             2),
+                                         ROUND (
+                                              (  (  NVL (ps.amount_remaining,
+                                                         0)
+                                                  / (NVL (
+                                                        MAIN_AI.payment_cross_rate,
+                                                        1)))
+                                               * NVL (MAIN_AI.exchange_rate, 1))
+                                            / 0)
+                                       * 0),
+                             DECODE (
+                                MAIN_AI.exchange_rate,
+                                NULL, 0,
+                                DECODE (
+                                   0,
+                                   0, ROUND (
+                                         (  (  NVL (ps.amount_remaining, 0)
+                                             / (NVL (ps.payment_cross_rate, 1)))
+                                          * NVL (MAIN_AI.exchange_rate, 1)),
+                                         2),
+                                     ROUND (
+                                          (  (  NVL (ps.amount_remaining, 0)
+                                              / (NVL (
+                                                    MAIN_AI.payment_cross_rate,
+                                                    1)))
+                                           * NVL (MAIN_AI.exchange_rate, 1))
+                                        / 0)
+                                   * 0)))
+                             amt_due_remaining,
+                          MAIN_AI.ORG_ID,
+                          MAIN_AI.ATTRIBUTE5 dff_po,
+                          main_ai.quick_po_header_id,
+                          MAIN_AI.VENDOR_ID,
+                          APS.SEGMENT1 SUPPLIER_NUM,
+                          APS.VENDOR_NAME,
+                          MAIN_AI.INVOICE_ID,
+                          MAIN_AI.INVOICE_NUM,
+                          MAIN_AI.INVOICE_AMOUNT,
+                          MAIN_AI.DOC_SEQUENCE_VALUE VOUCHER_NUMBER,
+                          MAIN_AI.INVOICE_TYPE_LOOKUP_CODE INVOICE_TYPE,
+                          MAIN_AI.INVOICE_CURRENCY_CODE CURRENCY,
+                          MAIN_AI.DESCRIPTION,
+                          MAIN_AI.GL_DATE,
+                          MAIN_AI.ATTRIBUTE10,
+                          MAIN_AI.INVOICE_DATE,
+                          AT.NAME TERMS_NAME,
+                          (SELECT NVL (F.FULL_NAME, 'General')
+                             FROM PA_PROJECTS_ALL PPA,
+                                  PA_PROJECT_PLAYERS PL,
+                                  PER_ALL_PEOPLE_F F
+                            WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                  AND ppa.project_id = MAIN_AI.ATTRIBUTE6
+                                  AND PL.PERSON_ID = F.PERSON_ID
+                                  AND ROWNUM = 1
+                                  AND PL.PROJECT_ROLE_TYPE = '1000'
+                                  AND NVL ( :P_TO_GL_DATE, SYSDATE) BETWEEN f.EFFECTIVE_START_DATE
+                                                                        AND F.EFFECTIVE_END_DATE)
+                             PROJECT_OWNER
+                     FROM AP_INVOICES_ALL MAIN_AI,
+                          ap_payment_schedules_all ps,
+                          AP_INVOICE_LINES_ALL AIL,
+                          apps.AP_INVOICE_DISTRIBUTIONS APD,
+                          GL_CODE_COMBINATIONS GCC,
+                          AP_SUPPLIERS APS,
+                          AP_TERMS_vl AT
+                    WHERE     MAIN_AI.INVOICE_ID = AIL.INVOICE_ID
+                          AND MAIN_AI.invoice_id = ps.invoice_id
+                          AND (  NVL (ps.amount_remaining, 0)
+                               * NVL (MAIN_AI.exchange_rate, 1)) != 0 ----------------------------
+                          AND MAIN_AI.TERMS_ID = AT.TERM_ID
+                          ----------------------------
+                          AND APD.INVOICE_ID = MAIN_AI.INVOICE_ID
+                          AND APD.INVOICE_LINE_NUMBER = AIL.LINE_NUMBER
+                          AND GCC.CODE_COMBINATION_ID =
+                                 APD.DIST_CODE_COMBINATION_ID
+                          AND APS.VENDOR_ID = MAIN_AI.VENDOR_ID
+                          --AND MAIN_AI.ATTRIBUTE10 IS NULL
+                          ----------------------------
+                          --Start User Parameters
+                          AND MAIN_AI.ORG_ID = :P_ORG_ID
+                          AND (   APD.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                               OR :P_FROM_GL_DATE IS NULL)
+                          AND (   APD.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                               OR :P_TO_GL_DATE IS NULL)
+                          AND (   MAIN_AI.VENDOR_ID = :P_VENDOR_ID
+                               OR :P_VENDOR_ID IS NULL)
+                          AND (   MAIN_AI.ATTRIBUTE2 = :P_INV_TYPE
+                               OR :P_INV_TYPE IS NULL)
+                          AND (   MAIN_AI.ATTRIBUTE6 = :P_PROJECT_ID
+                               OR :P_PROJECT_ID IS NULL)
+                          AND (   main_ai.attribute10 = :p_Category
+                               OR :p_Category IS NULL)
+                          AND (   (SELECT DISTINCT F.PERSON_ID
+                                     FROM PA_PROJECTS_ALL PPA,
+                                          PA_PROJECT_PLAYERS PL,
+                                          PER_ALL_PEOPLE_F F
+                                    --AP_INVOICES_V INNER_AI
+                                    WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                          AND PL.PERSON_ID = F.PERSON_ID
+                                          AND ROWNUM = 1
+                                          AND PL.PROJECT_ROLE_TYPE = '1000'
+                                          AND SYSDATE BETWEEN f.EFFECTIVE_START_DATE
+                                                          AND F.EFFECTIVE_END_DATE
+                                          AND PPA.PROJECT_ID =
+                                                 MAIN_AI.attribute6) =
+                                     :P_PERSON_ID
+                               OR :P_PERSON_ID IS NULL)
+                   --AND MAIN_AI.INVOICE_ID = 232960
+                   UNION
+                   --Query retrive invoice not in period and payment in period
+                   SELECT DISTINCT
+                          AI.ATTRIBUTE2 INV_TYPE,
+                          (SELECT PPA.NAME
+                             FROM PA_PROJECTS_ALL PPA
+                            WHERE PPA.PROJECT_ID = AI.ATTRIBUTE6)
+                             PROJECT_NAME,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) >= -999
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) < 0
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_DUE,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) >= 0
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 30
+                                  
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_01_30,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 30
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 60
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_30_60,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 60
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 90
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_60_90,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 90
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 120
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_90_120,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 120
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 180
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_120_180,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 180
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 270
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_180_270,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 120
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 999999
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_OVER_360,
+                          --ps.due_date Due_Date,
+                          ps.amount_remaining,
+                          (CEIL (ps.due_date - SYSDATE)) past_due_days, -- DAYS_DUE,
+                          DECODE (
+                             AI.invoice_currency_code,
+                             'USD', DECODE (
+                                       0,
+                                       0, ROUND (
+                                             (  (  NVL (ps.amount_remaining, 0)
+                                                 / (NVL (Ai.payment_cross_rate,
+                                                         1)))
+                                              * NVL (Ai.exchange_rate, 1)),
+                                             2),
+                                         ROUND (
+                                              (  (  NVL (ps.amount_remaining,
+                                                         0)
+                                                  / (NVL (
+                                                        Ai.payment_cross_rate,
+                                                        1)))
+                                               * NVL (AI.exchange_rate, 1))
+                                            / 0)
+                                       * 0),
+                             DECODE (
+                                AI.exchange_rate,
+                                NULL, 0,
+                                DECODE (
+                                   0,
+                                   0, ROUND (
+                                         (  (  NVL (ps.amount_remaining, 0)
+                                             / (NVL (ps.payment_cross_rate, 1)))
+                                          * NVL (AI.exchange_rate, 1)),
+                                         2),
+                                     ROUND (
+                                          (  (  NVL (ps.amount_remaining, 0)
+                                              / (NVL (AI.payment_cross_rate, 1)))
+                                           * NVL (AI.exchange_rate, 1))
+                                        / 0)
+                                   * 0)))
+                             amt_due_remaining,
+                          AI.ORG_ID,
+                          AI.ATTRIBUTE5 dff_po,
+                          AI.quick_po_header_id,
+                          AI.VENDOR_ID,
+                          APS.SEGMENT1 SUPPLIER_NUM,
+                          APS.VENDOR_NAME,
+                          AI.INVOICE_ID,
+                          AI.INVOICE_NUM,
+                          AI.INVOICE_AMOUNT,
+                          AI.DOC_SEQUENCE_VALUE VOUCHER_NUMBER,
+                          AI.INVOICE_TYPE_LOOKUP_CODE INVOICE_TYPE,
+                          AI.INVOICE_CURRENCY_CODE CURRENCY,
+                          AI.DESCRIPTION,
+                          AI.GL_DATE,
+                          AI.ATTRIBUTE10,
+                          AI.INVOICE_DATE,
+                          AI.TERMS_NAME,
+                          (SELECT NVL (F.FULL_NAME, 'General')
+                             FROM PA_PROJECTS_ALL PPA,
+                                  PA_PROJECT_PLAYERS PL,
+                                  PER_ALL_PEOPLE_F F
+                            WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                  AND ppa.project_id = AI.ATTRIBUTE6
+                                  AND PL.PERSON_ID = F.PERSON_ID
+                                  AND PL.PROJECT_ROLE_TYPE = '1000'
+                                  AND NVL ( :P_TO_GL_DATE, SYSDATE) BETWEEN f.EFFECTIVE_START_DATE
+                                                                        AND F.EFFECTIVE_END_DATE)
+                             PROJECT_OWNER
+                     FROM AP_INVOICE_PAYMENTS_ALL AIP,
+                          ap_payment_schedules_all ps,
+                          AP_INVOICES_V AI,
+                          AP_SUPPLIERS APS
+                    WHERE     AI.INVOICE_ID = AIP.INVOICE_ID
+                          AND AI.invoice_id = ps.invoice_id
+                          AND (  NVL (ps.amount_remaining, 0)
+                               * NVL (AI.exchange_rate, 1)) != 0
+                          AND AI.VENDOR_ID = APS.VENDOR_ID
+                          AND (   AIP.INVOICE_ID = :P_INVOICE_ID
+                               OR :P_INVOICE_ID IS NULL)
+                          -- AND AI.ATTRIBUTE10 IS NULL
+                          AND AIP.ORG_ID = :P_ORG_ID
+                          AND (   AI.INVOICE_CURRENCY_CODE = :P_CURRENCY
+                               OR :P_CURRENCY IS NULL)
+                          AND TRUNC (AI.GL_DATE) < TRUNC ( :P_FROM_GL_DATE)
+                          AND (   AIP.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                               OR :P_FROM_GL_DATE IS NULL)
+                          AND (   AIP.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                               OR :P_TO_GL_DATE IS NULL)
+                          AND (   AI.VENDOR_ID = :P_VENDOR_ID
+                               OR :P_VENDOR_ID IS NULL)
+                          AND (   AI.ATTRIBUTE2 = :P_INV_TYPE
+                               OR :P_INV_TYPE IS NULL)
+                          AND (   ai.attribute10 = :p_Category
+                               OR :p_Category IS NULL)
+                          AND (   AI.ATTRIBUTE6 = :P_PROJECT_ID
+                               OR :P_PROJECT_ID IS NULL)
+                          AND (   (SELECT F.PERSON_ID
+                                     FROM PA_PROJECTS_ALL PPA,
+                                          PA_PROJECT_PLAYERS PL,
+                                          PER_ALL_PEOPLE_F F
+                                    --AP_INVOICES_V INNER_AI
+                                    WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                          AND PL.PERSON_ID = F.PERSON_ID
+                                          AND PL.PROJECT_ROLE_TYPE = '1000'
+                                          AND SYSDATE BETWEEN f.EFFECTIVE_START_DATE
+                                                          AND F.EFFECTIVE_END_DATE
+                                          AND PPA.PROJECT_ID = AI.attribute6) =
+                                     :P_PERSON_ID
+                               OR :P_PERSON_ID IS NULL)
+                   -- AND AI.INVOICE_ID = 232960)
+                   UNION
+                   --Query retrive invoice not in period and amount applied in period
+                   SELECT DISTINCT
+                          AI.ATTRIBUTE2 INV_TYPE,
+                          (SELECT PPA.NAME
+                             FROM PA_PROJECTS_ALL PPA
+                            WHERE PPA.PROJECT_ID = AI.ATTRIBUTE6)
+                             PROJECT_NAME,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) >= -999
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) < 0
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_DUE,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) >= 0
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 30
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_01_30,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 30
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 60
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_30_60,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 60
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 90
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_60_90,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 90
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 120
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_90_120,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 120
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 180
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_120_180,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 180
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 270
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_180_270,
+                          CASE
+                             WHEN     (CEIL (ps.due_date - AI.TERMS_DATE)) > 270
+                                  AND (CEIL (ps.due_date - AI.TERMS_DATE)) <= 999999
+                             THEN
+                                amount_remaining
+                             ELSE
+                                0
+                          END
+                             CP_BALANCE_DUE_OVER_360,
+                          --ps.due_date Due_Date,
+                          ps.amount_remaining,
+                          (CEIL (ps.due_date - SYSDATE)) past_due_days, -- DAYS_DUE,
+                          DECODE (
+                             AI.invoice_currency_code,
+                             'USD', DECODE (
+                                       0,
+                                       0, ROUND (
+                                             (  (  NVL (ps.amount_remaining, 0)
+                                                 / (NVL (Ai.payment_cross_rate,
+                                                         1)))
+                                              * NVL (Ai.exchange_rate, 1)),
+                                             2),
+                                         ROUND (
+                                              (  (  NVL (ps.amount_remaining,
+                                                         0)
+                                                  / (NVL (
+                                                        Ai.payment_cross_rate,
+                                                        1)))
+                                               * NVL (AI.exchange_rate, 1))
+                                            / 0)
+                                       * 0),
+                             DECODE (
+                                AI.exchange_rate,
+                                NULL, 0,
+                                DECODE (
+                                   0,
+                                   0, ROUND (
+                                         (  (  NVL (ps.amount_remaining, 0)
+                                             / (NVL (ps.payment_cross_rate, 1)))
+                                          * NVL (AI.exchange_rate, 1)),
+                                         2),
+                                     ROUND (
+                                          (  (  NVL (ps.amount_remaining, 0)
+                                              / (NVL (AI.payment_cross_rate, 1)))
+                                           * NVL (AI.exchange_rate, 1))
+                                        / 0)
+                                   * 0)))
+                             amt_due_remaining,
+                          AI.ORG_ID,
+                          AI.ATTRIBUTE5 dff_po,
+                          ai.quick_po_header_id,
+                          AI.VENDOR_ID,
+                          APS.SEGMENT1 SUPPLIER_NUM,
+                          APS.VENDOR_NAME,
+                          AI.INVOICE_ID,
+                          AI.INVOICE_NUM,
+                          AI.INVOICE_AMOUNT,
+                          AI.DOC_SEQUENCE_VALUE VOUCHER_NUMBER,
+                          AI.INVOICE_TYPE_LOOKUP_CODE INVOICE_TYPE,
+                          AI.INVOICE_CURRENCY_CODE CURRENCY,
+                          AI.DESCRIPTION,
+                          AI.GL_DATE,
+                          AI.ATTRIBUTE10,
+                          AI.INVOICE_DATE,
+                          AT.NAME TERMS_NAME,
+                          (SELECT NVL (F.FULL_NAME, 'General')
+                             FROM PA_PROJECTS_ALL PPA,
+                                  PA_PROJECT_PLAYERS PL,
+                                  PER_ALL_PEOPLE_F F
+                            WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                  AND ppa.project_id = AI.ATTRIBUTE6
+                                  AND PL.PERSON_ID = F.PERSON_ID
+                                  AND PL.PROJECT_ROLE_TYPE = '1000'
+                                  AND NVL ( :P_TO_GL_DATE, SYSDATE) BETWEEN f.EFFECTIVE_START_DATE
+                                                                        AND F.EFFECTIVE_END_DATE)
+                             PROJECT_OWNER
+                     FROM AP_INVOICES_ALL AI,
+                          AP_INVOICE_LINES_ALL AIL,
+                          apps.AP_INVOICE_DISTRIBUTIONS APD,
+                          GL_CODE_COMBINATIONS GCC,
+                          AP_SUPPLIERS APS,
+                          AP_TERMS_vl AT,
+                          ap_payment_schedules_all ps
+                    WHERE     AI.INVOICE_ID = AIL.INVOICE_ID
+                          AND AI.invoice_id = ps.invoice_id
+                          AND (  NVL (ps.amount_remaining, 0)
+                               * NVL (AI.exchange_rate, 1)) != 0
+                          AND AT.TERM_ID = AI.TERMS_ID
+                          AND APS.VENDOR_ID = AI.VENDOR_ID
+                          AND APD.INVOICE_ID = AI.INVOICE_ID
+                          AND APD.INVOICE_LINE_NUMBER = AIL.LINE_NUMBER
+                          AND GCC.CODE_COMBINATION_ID =
+                                 APD.DIST_CODE_COMBINATION_ID
+                          AND (APD.LINE_TYPE_LOOKUP_CODE = 'PREPAY')
+                          AND AI.INVOICE_TYPE_LOOKUP_CODE = 'STANDARD'
+                          --AND AI.ATTRIBUTE10 IS NULL
+                          AND (   APS.VENDOR_ID = :P_VENDOR_ID
+                               OR :P_VENDOR_ID IS NULL)
+                          AND (   ai.attribute10 = :p_Category
+                               OR :p_Category IS NULL)
+                          AND (   AI.INVOICE_ID = :P_INVOICE_ID
+                               OR :P_INVOICE_ID IS NULL)
+                          AND (   AI.PAYMENT_CURRENCY_CODE = :P_CURRENCY
+                               OR :P_CURRENCY IS NULL)
+                          AND TRUNC (AI.GL_DATE) < TRUNC ( :P_FROM_GL_DATE)
+                          AND (   APD.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                               OR :P_FROM_GL_DATE IS NULL)
+                          AND (   APD.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                               OR :P_TO_GL_DATE IS NULL)
+                          AND (AIL.ORG_ID = :P_ORG_ID)
+                          AND (   (SELECT F.PERSON_ID
+                                     FROM PA_PROJECTS_ALL PPA,
+                                          PA_PROJECT_PLAYERS PL,
+                                          PER_ALL_PEOPLE_F F
+                                    --AP_INVOICES_V INNER_AI
+                                    WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                          AND PL.PERSON_ID = F.PERSON_ID
+                                          AND PL.PROJECT_ROLE_TYPE = '1000'
+                                          AND SYSDATE BETWEEN f.EFFECTIVE_START_DATE
+                                                          AND F.EFFECTIVE_END_DATE
+                                          AND PPA.PROJECT_ID = AI.attribute6) =
+                                     :P_PERSON_ID
+                               OR :P_PERSON_ID IS NULL)
+                          AND (   AI.ATTRIBUTE2 = :P_INV_TYPE
+                               OR :P_INV_TYPE IS NULL)
+                          AND (   AI.ATTRIBUTE6 = :P_PROJECT_ID
+                               OR :P_PROJECT_ID IS NULL))
+          -----------------
+          ---Start Query---
+          -----------------
+          SELECT DECODE ( :P_GROUP_INVOICE_TYPE,
+                         'Y', Q_INV.INV_TYPE,
+                         'ALL INVOICES')
+                    INV_TYPE,                                             --Q,
+                 Q_INV.INV_TYPE INV_TYPE_DTL,
+                 Q_INV.PROJECT_NAME,
+                 Q_INV.ORG_ID,
+                 Q_INV.dff_po,
+                 Q_INV.quick_po_header_id,
+                 Q_INV.VENDOR_ID,
+                 Q_INV.SUPPLIER_NUM,
+                 Q_INV.VENDOR_NAME,
+                 Q_INV.INVOICE_ID,
+                 Q_INV.INVOICE_NUM,
+                 Q_INV.INVOICE_AMOUNT,
+                 Q_INV.VOUCHER_NUMBER,
+                 Q_INV.INVOICE_TYPE,
+                 Q_INV.CURRENCY,
+                 Q_INV.DESCRIPTION,
+                 Q_INV.GL_DATE,
+                 Q_INV.ATTRIBUTE10,
+                 Q_INV.INVOICE_DATE,
+                 Q_INV.TERMS_NAME,
+                 Q_INV.PROJECT_OWNER,
+                 Q_INV.amount_remaining,
+                 Q_INV.past_due_days,
+                 Q_INV.amt_due_remaining,
+                 Q_INV.CP_DUE,
+                 Q_INV.CP_BALANCE_DUE_01_30,
+                 Q_INV.CP_BALANCE_DUE_30_60,
+                 Q_INV.CP_BALANCE_DUE_60_90,
+                 Q_INV.CP_BALANCE_DUE_90_120,
+                 Q_INV.CP_BALANCE_DUE_120_180,
+                 Q_INV.CP_BALANCE_DUE_OVER_360,
+                 Q_INV.CP_BALANCE_DUE_180_270,
+                 ------------------------------------------------
+                 --==============================================
+
+                 (SELECT DECODE (
+                            :P_ENTER_OR_FUNC,
+                            'ENTER', (SUM (APD.AMOUNT)),
+                            'FUNC', (SUM (
+                                        APD.AMOUNT * NVL (AI.EXCHANGE_RATE, 1))))
+                            ITEM_TOTAL
+                    FROM AP_INVOICES_ALL AI,
+                         AP_INVOICE_LINES_ALL AIL,
+                         apps.AP_INVOICE_DISTRIBUTIONS APD,
+                         GL_CODE_COMBINATIONS GCC,
+                         AP_TERMS_vl AT
+                   WHERE     AI.INVOICE_ID = AIL.INVOICE_ID
+                         ----------------------------
+                         AND AT.TERM_ID = AI.TERMS_ID
+                         AND APD.INVOICE_ID = AI.INVOICE_ID
+                         AND APD.INVOICE_LINE_NUMBER = AIL.LINE_NUMBER
+                         AND GCC.CODE_COMBINATION_ID =
+                                APD.DIST_CODE_COMBINATION_ID
+                         -- AND AIL.LINE_TYPE_LOOKUP_CODE = 'ITEM'
+                         /* AND APD.LINE_TYPE_LOOKUP_CODE NOT IN ('NONREC_TAX',
+                                                                'REC_TAX',
+                                                                'TRV',
+                                                                'TIPV')*/
+                         --AND APD.LINE_TYPE_LOOKUP_CODE NOT IN ('')
+                         --AND GCC.SEGMENT3 <> '21411000'                       --TAX AMOUNT
+                         --AND APD.DETAIL_TAX_DIST_ID IS NULL
+                         ----------------------------
+                         AND AI.VENDOR_ID = Q_INV.VENDOR_ID
+                         AND AI.INVOICE_ID = Q_INV.INVOICE_ID
+                         --============================== start user parameter ===========
+
+                         AND (   AI.INVOICE_ID = :P_INVOICE_ID
+                              OR :P_INVOICE_ID IS NULL)
+                         AND (   AI.PAYMENT_CURRENCY_CODE = :P_CURRENCY
+                              OR :P_CURRENCY IS NULL)
+                         AND (   TRUNC (APD.ACCOUNTING_DATE) >= :P_FROM_GL_DATE
+                              OR :P_FROM_GL_DATE IS NULL)
+                         AND (   ai.attribute10 = :p_Category
+                              OR :p_Category IS NULL)
+                         AND (   TRUNC (APD.ACCOUNTING_DATE) <= :P_TO_GL_DATE
+                              OR :P_TO_GL_DATE IS NULL)
+                         AND (   (SELECT F.PERSON_ID
+                                    FROM PA_PROJECTS_ALL PPA,
+                                         PA_PROJECT_PLAYERS PL,
+                                         PER_ALL_PEOPLE_F F
+                                   --AP_INVOICES_V INNER_AI
+                                   WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                         AND PL.PERSON_ID = F.PERSON_ID
+                                         AND ROWNUM = 1
+                                         AND PL.PROJECT_ROLE_TYPE = '1000'
+                                         AND SYSDATE BETWEEN f.EFFECTIVE_START_DATE
+                                                         AND F.EFFECTIVE_END_DATE
+                                         AND PPA.PROJECT_ID = AI.attribute6) =
+                                    :P_PERSON_ID
+                              OR :P_PERSON_ID IS NULL)
+                         AND (AIL.ORG_ID = :P_ORG_ID))
+                    ITEM_TOTAL,
+                 /* (SELECT DECODE (
+                             :P_ENTER_OR_FUNC,
+                             'ENTER', (SUM (APD.AMOUNT)),
+                             'FUNC', (SUM (
+                                         APD.AMOUNT * NVL (AI.EXCHANGE_RATE, 1))))
+                     FROM AP_INVOICES_ALL AI,
+                          AP_INVOICE_LINES_ALL AIL,
+                          AP_INVOICE_DISTRIBUTIONS APD,
+                          GL_CODE_COMBINATIONS GCC
+                    WHERE     AI.INVOICE_ID = AIL.INVOICE_ID
+                          ----------------------------
+                          AND APD.INVOICE_ID = AI.INVOICE_ID
+                          AND APD.INVOICE_LINE_NUMBER = AIL.LINE_NUMBER
+                          AND GCC.CODE_COMBINATION_ID =
+                                 APD.DIST_CODE_COMBINATION_ID
+                          AND (APD.LINE_TYPE_LOOKUP_CODE IN ('NONREC_TAX',
+                                                             'REC_TAX',
+                                                             'TRV',
+                                                             'TIPV'))
+                          AND AI.VENDOR_ID = Q_INV.VENDOR_ID
+                          AND AI.INVOICE_ID = Q_INV.INVOICE_ID
+                          --OR (GCC.SEGMENT3 = '21411000' AND GCC.SEGMENT4 = '0002'))
+                          --============================== start user parameter ===========
+                          AND (   AI.INVOICE_ID = :P_INVOICE_ID
+                               OR :P_INVOICE_ID IS NULL)
+                          AND (   AI.PAYMENT_CURRENCY_CODE = :P_CURRENCY
+                               OR :P_CURRENCY IS NULL)
+                          AND (   APD.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                               OR :P_FROM_GL_DATE IS NULL)
+                          AND (   APD.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                               OR :P_TO_GL_DATE IS NULL)
+                          AND (AIL.ORG_ID = :P_ORG_ID))
+                     TAX,
+                  (SELECT DECODE (
+                             :P_ENTER_OR_FUNC,
+                             'ENTER', ( (NVL (SUM (APID.AMOUNT), 0))),
+                             'FUNC', ( (NVL (
+                                           SUM (
+                                                APID.AMOUNT
+                                              * NVL (AI.EXCHANGE_RATE, 1)),
+                                           0))))
+                     FROM AP_INVOICES_ALL AI,
+                          AP_INVOICE_LINES_V AIL,
+                          AP_INVOICE_DISTRIBUTIONS_ALL APID,
+                          GL_CODE_COMBINATIONS CC
+                    WHERE     AIL.INVOICE_ID = AI.INVOICE_ID
+                          AND AIL.ORG_ID = AI.ORG_ID
+                          AND APID.INVOICE_ID = AI.INVOICE_ID
+                          AND APID.ORG_ID = AI.ORG_ID
+                          AND APID.INVOICE_LINE_NUMBER = AIL.LINE_NUMBER
+                          AND APID.DIST_CODE_COMBINATION_ID =
+                                 CC.CODE_COMBINATION_ID
+                          AND AI.INVOICE_TYPE_LOOKUP_CODE IN ('CREDIT',
+                                                              'DEBIT',
+                                                              'STANDARD',
+                                                              'MIXED',
+                                                              'PREPAYMENT')
+                          AND AI.VENDOR_ID = Q_INV.VENDOR_ID
+                          AND AI.INVOICE_ID = Q_INV.INVOICE_ID
+                          --============================== start user parameter ===========
+                          AND (AIL.ORG_ID = :P_ORG_ID)
+                          AND (   AI.INVOICE_CURRENCY_CODE = :P_CURRENCY
+                               OR :P_CURRENCY IS NULL)
+                          AND (   AI.INVOICE_ID = :P_INVOICE_ID
+                               OR :P_INVOICE_ID IS NULL)
+                          AND (   APID.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                               OR :P_FROM_GL_DATE IS NULL)
+                          AND (   APID.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                               OR :P_TO_GL_DATE IS NULL)
+                          AND APID.LINE_TYPE_LOOKUP_CODE IN ('AWT', 'RETAINAGE'))
+                     DEDUCTION,*/
+                 (SELECT DECODE (
+                            :P_ENTER_OR_FUNC,
+                            'ENTER', (SUM (AIP.AMOUNT)),
+                            'FUNC', (SUM (
+                                        AIP.AMOUNT * NVL (AI.EXCHANGE_RATE, 1))))
+                    FROM AP_INVOICE_PAYMENTS_ALL AIP, AP_INVOICES_V AI
+                   WHERE     AI.INVOICE_ID = AIP.INVOICE_ID
+                         AND AI.VENDOR_ID = Q_INV.VENDOR_ID
+                         AND AI.INVOICE_ID = Q_INV.INVOICE_ID
+                         --============================== start user parameter ===========
+                         AND (   AIP.INVOICE_ID = :P_INVOICE_ID
+                              OR :P_INVOICE_ID IS NULL)
+                         AND AIP.ORG_ID = :P_ORG_ID
+                         AND (   AI.INVOICE_CURRENCY_CODE = :P_CURRENCY
+                              OR :P_CURRENCY IS NULL)
+                         AND (   AIP.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                              OR :P_FROM_GL_DATE IS NULL)
+                         AND (   (SELECT F.PERSON_ID
+                                    FROM PA_PROJECTS_ALL PPA,
+                                         PA_PROJECT_PLAYERS PL,
+                                         PER_ALL_PEOPLE_F F
+                                   --AP_INVOICES_V INNER_AI
+                                   WHERE     PPA.PROJECT_ID = PL.PROJECT_ID
+                                         AND PL.PERSON_ID = F.PERSON_ID
+                                         AND PL.PROJECT_ROLE_TYPE = '1000'
+                                         AND ROWNUM = 1
+                                         AND SYSDATE BETWEEN f.EFFECTIVE_START_DATE
+                                                         AND F.EFFECTIVE_END_DATE
+                                         AND PPA.PROJECT_ID = AI.attribute6) =
+                                    :P_PERSON_ID
+                              OR :P_PERSON_ID IS NULL)
+                         AND (   AIP.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                              OR :P_TO_GL_DATE IS NULL))
+                    AMOUNT_PAID /*,
+                  (SELECT DECODE (
+                             :P_ENTER_OR_FUNC,
+                             'ENTER', (SUM (APD.AMOUNT)),
+                             'FUNC', (SUM (
+                                         APD.AMOUNT * NVL (AI.EXCHANGE_RATE, 1))))
+                     FROM AP_INVOICES_ALL AI,
+                          AP_INVOICE_LINES_ALL AIL,
+                          AP_INVOICE_DISTRIBUTIONS APD,
+                          GL_CODE_COMBINATIONS GCC
+                    WHERE     AI.INVOICE_ID = AIL.INVOICE_ID
+                          ----------------------------
+                          AND APD.INVOICE_ID = AI.INVOICE_ID
+                          AND APD.INVOICE_LINE_NUMBER = AIL.LINE_NUMBER
+                          AND GCC.CODE_COMBINATION_ID =
+                                 APD.DIST_CODE_COMBINATION_ID
+                          AND (APD.LINE_TYPE_LOOKUP_CODE = 'PREPAY')
+                          --OR GCC.SEGMENT3 = '12431000')
+                          AND AI.INVOICE_TYPE_LOOKUP_CODE = 'STANDARD'
+                          --            OR (GCC.SEGMENT3 = '21411000' AND GCC.SEGMENT4 = '0002')
+                          AND AI.VENDOR_ID = Q_INV.VENDOR_ID
+                          AND AI.INVOICE_ID = Q_INV.INVOICE_ID
+                          --============================== start user parameter ===========
+                          AND (   AI.INVOICE_ID = :P_INVOICE_ID
+                               OR :P_INVOICE_ID IS NULL)
+                          AND (   AI.PAYMENT_CURRENCY_CODE = :P_CURRENCY
+                               OR :P_CURRENCY IS NULL)
+                          AND (   APD.ACCOUNTING_DATE >= :P_FROM_GL_DATE
+                               OR :P_FROM_GL_DATE IS NULL)
+                          AND (   APD.ACCOUNTING_DATE <= :P_TO_GL_DATE
+                               OR :P_TO_GL_DATE IS NULL)
+                          AND (AIL.ORG_ID = :P_ORG_ID))
+                     APPLIED_PREPAYMENT*/
+            --==============================================
+            ------------------------------------------------
+            FROM Q_AP_INVOICES Q_INV
+           WHERE VENDOR_ID NOT IN (3192,
+                                   19192,
+                                   52239,
+                                   52240)) MAIN_Q
+   WHERE     (NVL (item_total, 0) - NVL (amount_paid, 0)) <> 0
+         AND (   :p_dep =
+                    (SELECT DISTINCT paf.ASS_ATTRIBUTE1
+                       FROM po.po_agents fu,
+                            po_headers_all poh,
+                            PER_ALL_PEOPLE_F ppf,
+                            per_assignments_f paf
+                      WHERE     fu.agent_id = poh.agent_id
+                            AND ppf.person_id = paf.person_id
+                            AND ROWNUM = 1
+                            AND fu.agent_id = ppf.person_id
+                            AND SYSDATE BETWEEN ppf.EFFECTIVE_START_DATE
+                                            AND ppf.EFFECTIVE_END_DATE
+                            AND SYSDATE BETWEEN paf.EFFECTIVE_START_DATE
+                                            AND paf.EFFECTIVE_END_DATE
+                            AND poh.po_header_id =
+                                   NVL (quick_po_header_id, dff_po))
+              OR :p_dep IS NULL)
+ORDER BY SUPPLIER_NUM,
+         DECODE ( :P_GROUP_INVOICE_TYPE, 'Y', INV_TYPE, NULL),
+         GL_DATE

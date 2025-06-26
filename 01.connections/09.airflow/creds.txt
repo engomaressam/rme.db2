@@ -1,0 +1,13 @@
+airflow
+
+user: airflow
+pass: airflow
+
+linux
+
+root@DW
+
+omarrme@DW
+
+user : omarrme
+password : omarrme123

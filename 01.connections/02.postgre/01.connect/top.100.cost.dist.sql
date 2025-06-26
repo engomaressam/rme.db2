@@ -1,0 +1,1 @@
+SELECT project_name, comment, supplier_name, amount FROM cost_dist ORDER BY amount DESC LIMIT 100;

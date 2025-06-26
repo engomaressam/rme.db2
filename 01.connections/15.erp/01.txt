@@ -1,0 +1,23 @@
+RMEDB =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 10.0.11.59)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = dedicated)
+      (SERVICE_NAME = RMEDB)
+    )
+  )
+
+
+Named :RMEDWH
+PASS:DWHRME  
+
+
+
+Kindly find VPN portals to Erp system . 
+196.204.113.228
+62.193.106.195
+80.75.173.3
+
+
+globalprotect user omar.essam@elsewedy.com
+oe@12345

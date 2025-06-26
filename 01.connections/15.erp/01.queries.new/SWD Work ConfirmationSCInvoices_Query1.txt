@@ -1,0 +1,101 @@
+SELECT 
+RSL.PO_LINE_LOCATION_ID ,
+poh.ORG_ID ,
+ rsh.request_date ,
+pol.LINE_NUM DOc ,
+  (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = poll.ship_to_organization_id AND ROWNUM = 1)
+          project_name,
+ rsl.SHIPMENT_LINE_ID ,
+               rsl.PO_LINE_ID ,
+ RSH.SHIPMENT_NUM,
+ (select  ood.ORGANIZATION_NAME   from ORG_ORGANIZATION_DEFINITIONS ood where ood.ORGANIZATION_ID = POLL.SHIP_TO_ORGANIZATION_ID AND ROWNUM = 1) shipto_name ,
+                POH.segment1 ,
+POH.segment1  sc,
+               RSH.SHIPMENT_HEADER_ID ship_hd,
+               RSH.PERFORMANCE_PERIOD_FROM,
+               RSH.PERFORMANCE_PERIOD_TO,
+           --  RSH.CURRENCY_CODE,
+               RSH.COMMENTS,
+               POH.COMMENTS Des ,
+               RSH.VENDOR_ID,
+               RSH.VENDOR_SITE_ID,
+DECODE (POLL.matching_basis,
+                       'AMOUNT', POLL.AMOUNT,
+                       POLL.PRICE_OVERRIDE)
+                   * RSL.QUANTITY_SHIPPED  amnt ,
+               '' AS STATUS,
+               pov.vendor_name ,
+               POH.VENDOR_CONTACT_ID,
+               POH.PO_HEADER_ID,
+               VENDOR_SITE_CODE ,
+               RSH.EXPECTED_RECEIPT_DATE ,
+               POL.LINE_NUM_DISPLAY LINE_NUMBER,
+               DECODE (POLL.PAYMENT_TYPE,
+                       'DELIVERY', TO_NUMBER (NULL),
+                       POLL.SHIPMENT_NUM)
+                  SHIPMENT_NUM,
+               POLL.DESCRIPTION,
+               POLL.MATCHING_BASIS,
+               POLL.NEED_BY_DATE,
+               POLL.UNIT_MEAS_LOOKUP_CODE UNIT_OF_MEASURE,
+                POLL.PRICE_OVERRIDE   PRICE,  
+           --     POLL.PRICE_OVERRIDE PRICE,
+               decode(POLL.matching_basis,
+                       'AMOUNT',POLL.AMOUNT,POLL.QUANTITY) QUANTITY_ORDERED,
+               POLL.AMOUNT AMOUNT_ORDERED,
+                 POLL.AMOUNT + RSL.AMOUNT_SHIPPED ,
+               RSL.SHIPMENT_HEADER_ID,
+               RSL.PO_LINE_LOCATION_ID,
+              decode(poll.MATCHING_BASIS,'AMOUNT',nvl(RSL.AMOUNT_SHIPPED,0) ,POLL.PRICE_OVERRIDE * RSL.QUANTITY_SHIPPED) AMOUNT,
+               RSL.QUANTITY_SHIPPED QUANTITY,
+               RSL.MATERIAL_STORED_AMOUNT,
+               POH.CURRENCY_CODE,
+               RSL.SHIPMENT_LINE_ID PAY_ITEM_LINE_ID,
+               decode(poll.MATCHING_BASIS,'AMOUNT' ,RSL.REQUESTED_AMOUNT ,RSL.QUANTITY_SHIPPED) REQUESTED_AMOUNT,
+RSL.PO_LINE_ID ,
+               RSL.COMMENTS,
+               NVL (POLL.UNIT_MEAS_LOOKUP_CODE, POH.CURRENCY_CODE)
+                  QTY_AMT_SWITCHER,
+               RSL.APPROVAL_STATUS,
+               POLL.CANCEL_FLAG,
+               POH.FROZEN_FLAG,
+               POLL.APPROVED_FLAG,
+               POLL.CLOSED_CODE,
+               NVL (PDSH.CLM_FLAG, 'N') CLM_FLAG,
+               DECODE (POL.CLM_UNDEF_FLAG, 'Y', 'Yes', 'No') UNDEF_STS,
+               POL.ORDER_TYPE_LOOKUP_CODE,
+               pol.amount Price
+          FROM RCV_SHIPMENT_HEADERS RSH,
+               AP_SUPPLIERS POV,
+               AP_SUPPLIER_SITES_ALL POVS,
+               PO_HEADERS_ALL POH ,
+               RCV_SHIPMENT_LINES RSL,
+               PO_LINES_ALL POL,
+               PO_LINE_LOCATIONS_ALL POLL,
+               PO_DOC_STYLE_HEADERS PDSH 
+               
+         WHERE     RSH.ASN_TYPE IN ('WC')
+               AND RECEIPT_SOURCE_CODE = 'VENDOR'
+               AND POV.VENDOR_ID = RSH.VENDOR_ID
+               AND POV.VENDOR_ID = POVS.VENDOR_ID
+               AND POVS.VENDOR_SITE_ID = RSH.VENDOR_SITE_ID
+               AND POH.PO_HEADER_ID = POL.PO_HEADER_ID
+             and   rsh.SHIPMENT_HEADER_ID = RSL.SHIPMENT_HEADER_ID
+             and POLL.LINE_LOCATION_ID = RSL.PO_LINE_LOCATION_ID
+               AND POL.PO_LINE_ID = RSL.PO_LINE_ID
+               AND POH.PO_HEADER_ID = POL.PO_HEADER_ID
+AND POH.PO_HEADER_ID = :PO_HEADER_ID1
+               AND POH.STYLE_ID = PDSH.STYLE_ID(+)
+               AND PDSH.STATUS(+) = 'ACTIVE'
+               and POH.PO_HEADER_ID = rsl.po_header_id 
+               AND POH.PO_HEADER_ID IN
+                      (SELECT RSL.PO_HEADER_ID
+                         FROM RCV_SHIPMENT_LINES RSL
+                        WHERE RSL.SHIPMENT_HEADER_ID = RSH.SHIPMENT_HEADER_ID)
+  and (rsh.SHIPMENT_HEADER_ID = :ship_num or :ship_num is null)
+   AND (poh.PO_HEADER_ID = :po_num or :po_num is null )
+AND  (POV.VENDOR_ID = :p_supp or :p_supp is null ) --changed from :P_vendor to :p_supp
+ and (POLL.SHIP_TO_ORGANIZATION_ID = :p_organization_id or :p_organization_id is null )
+and (poh.ORG_ID = :p_org or :p_org is null )

@@ -1,0 +1,27 @@
+MySQL
+ip: 10.10.11.242
+port: 3306
+
+user:gamal
+pass:password123Y$
+
+user : omaressam
+password : Omar@1234$
+
+user : omar2
+password : Omar_54321
+
+
+databases (no name needed)
+RME_DH
+RME_TEST
+
+
+library needed
+
+pip install mysql-connector-python
+
+
+
+
+

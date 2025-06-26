@@ -1,0 +1,2 @@
+SELECT DISTINCT project_name
+FROM ap_check;

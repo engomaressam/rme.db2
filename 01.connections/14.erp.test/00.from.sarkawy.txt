@@ -1,0 +1,9 @@
+RMETEST =
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 10.0.11.92)(PORT = 1531))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = RMETEST)
+    )
+  )

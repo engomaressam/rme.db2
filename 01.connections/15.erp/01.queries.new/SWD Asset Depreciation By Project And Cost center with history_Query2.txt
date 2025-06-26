@@ -1,0 +1,212 @@
+SELECT * from (
+  SELECT DISTINCT
+         A.BOOK_TYPE_CODE,
+         --         A.ASSET_ID,
+         --         B.ASSET_NUMBER,
+         --         C.DESCRIPTION,
+         GG.SEGMENT1 MAJOR_CATEGORY,
+         GG.ATTRIBUTE10 EXPEN_TYPE,
+         GG.ATTRIBUTE9 task,
+         --         GG.SEGMENT2 MINOR_CATEGORY,
+         --         GG.SEGMENT1 || '-' || GG.SEGMENT2 CONCAT_CATEGORY,
+         --         (SELECT  CG2.ASSET_COST_ACCT
+         --            FROM APPS.FA_CATEGORIES CG1, FA_CATEGORY_BOOKS CG2
+         --           WHERE     CG1.CATEGORY_ID = CG2.CATEGORY_ID
+         --                 AND (CG1.SEGMENT1 || '-' || CG1.SEGMENT2) = (GG.SEGMENT1 || '-' || GG.SEGMENT2)
+         --                 AND CG2.BOOK_TYPE_CODE = A.BOOK_TYPE_CODE) ASSET_COST_ACCT,
+        TO_CHAR(FLK.SEGMENT4) PROJECTS,
+         
+         (SELECT DISTINCT VV.DESCRIPTION
+            FROM APPS.FND_FLEX_VALUES_VL VV
+           WHERE     VV.FLEX_VALUE_SET_ID = 1016650
+                 AND FLK.SEGMENT4 = VV.FLEX_VALUE_MEANING
+                 AND VV.PARENT_FLEX_VALUE_LOW = 'RME')
+            PRJ_PROJECT,
+         --         FLK.SEGMENT5 DEPT,
+         --         FLK.CONCATENATED_SEGMENTS LOCATIONS,
+         --         B.CURRENT_UNITS,
+         --         FDH.UNITS_ASSIGNED,
+         --         TO_CHAR (A.DATE_PLACED_IN_SERVICE, 'DD-MON-YYYY')
+         --            DATE_PLACED_IN_SERVICE,
+         --TO_CHAR (D.DEPRN_RUN_DATE,'DD-MON-YYYY') LAST_POSTING_DATE,
+         --         A.DEPRN_METHOD_CODE,
+         --         (A.LIFE_IN_MONTHS / 12) LIFE_YEAR,
+         --         A.ORIGINAL_COST,
+         --         A.ADJUSTED_COST,
+         --         A.COST,
+         --         D.DEPRN_RESERVE,
+         --         (A.ORIGINAL_COST - D.DEPRN_RESERVE) NET_BOOK_VALUE,
+         --         A.ADJUSTMENT_REQUIRED_STATUS,
+         --         B.ASSET_TYPE,
+         --         A.BASIC_RATE,
+         ROUND (
+            SUM (
+               (  ( (NVL (D.DEPRN_AMOUNT, 0)) * (NVL (FDH.UNITS_ASSIGNED, 0)))
+                / (NVL (B.CURRENT_UNITS, 0)))),
+            4)
+            DEPRN_PER_UNIT,
+         --         D.DEPRN_AMOUNT,
+         --         D.YTD_DEPRN,
+         --E.FISCAL_YEAR,
+         --E.PERIOD_NUM,
+         E.PERIOD_NAME,
+         GCCK.CONCATENATED_SEGMENTS EXPENSE_ACCOUNT
+    FROM APPS.FA_BOOKS A,
+         APPS.FA_BOOK_CONTROLS_SEC AA,
+         APPS.FA_ADDITIONS_B B,
+         APPS.FA_ADDITIONS_TL C,
+         APPS.FA_DEPRN_SUMMARY D,
+         APPS.FA_DEPRN_PERIODS E,
+         APPS.FA_CATEGORIES GG,
+         APPS.FA_DISTRIBUTION_HISTORY FDH,
+         APPS.GL_CODE_COMBINATIONS_KFV GCCK,
+         APPS.FA_LOCATIONS_KFV FLK
+   WHERE     AA.BOOK_TYPE_CODE = A.BOOK_TYPE_CODE
+         AND A.ASSET_ID = B.ASSET_ID
+         AND A.ASSET_ID = C.ASSET_ID
+         AND A.ASSET_ID = D.ASSET_ID
+         AND B.ASSET_ID = FDH.ASSET_ID
+         AND B.ASSET_CATEGORY_ID = GG.CATEGORY_ID
+         AND FDH.LOCATION_ID = FLK.LOCATION_ID
+         AND GCCK.CODE_COMBINATION_ID = FDH.CODE_COMBINATION_ID
+         AND A.BOOK_TYPE_CODE = E.BOOK_TYPE_CODE
+         AND D.PERIOD_COUNTER = E.PERIOD_COUNTER
+         --         AND A.RETIREMENT_PENDING_FLAG = 'NO'
+         AND A.DATE_INEFFECTIVE IS NULL
+         AND FDH.DATE_INEFFECTIVE IS NULL
+         AND E.DEPRN_RUN = 'Y'
+         AND AA.DATE_INEFFECTIVE IS NULL
+         --         AND GCCK.CONCATENATED_SEGMENTS NOT LIKE '%-0000-%'
+         AND A.BOOK_TYPE_CODE = :p_book
+         AND E.PERIOD_NAME = :p_period
+         AND :dep = 'N'
+         AND GCCK.CONCATENATED_SEGMENTS LIKE '%.00000000.0000.000.00.%'
+         AND :P_LAYOUT = 'SUMMARY'
+         AND (   ( (SELECT DISTINCT VV.DESCRIPTION
+                      FROM APPS.FND_FLEX_VALUES_VL VV
+                     WHERE     VV.FLEX_VALUE_SET_ID = 1016650
+                           AND FLK.SEGMENT4 = VV.FLEX_VALUE_MEANING
+                           AND VV.PARENT_FLEX_VALUE_LOW = 'RME') =
+                     (SELECT name
+                        FROM PA_PROJECTS_ALL
+                       WHERE project_id = :P_PROJECT))
+              OR :P_PROJECT IS NULL)
+--AND A.DEPRECIATE_FLAG = 'YES'
+--AND D.DEPRN_RESERVE <> 0
+--AND B.ASSET_ID = '15589'
+--AND B.ASSET_NUMBER = 'BUL000000003'
+GROUP BY A.BOOK_TYPE_CODE,
+         GG.SEGMENT1,
+         GG.ATTRIBUTE10,
+         FLK.SEGMENT4,
+         
+         GG.ATTRIBUTE9,
+         --         FLK.SEGMENT5 ,
+         --         FLK.CONCATENATED_SEGMENTS ,
+         E.PERIOD_NAME,
+         GCCK.CONCATENATED_SEGMENTS
+UNION
+  SELECT DISTINCT
+         A.BOOK_TYPE_CODE,
+         --         A.ASSET_ID,
+         --         B.ASSET_NUMBER,
+         --         C.DESCRIPTION,
+         GG.SEGMENT1 MAJOR_CATEGORY,
+         GG.ATTRIBUTE10 EXPEN_TYPE,
+         GG.ATTRIBUTE9 task,
+         --         GG.SEGMENT2 MINOR_CATEGORY,
+         --         GG.SEGMENT1 || '-' || GG.SEGMENT2 CONCAT_CATEGORY,
+         --         (SELECT  CG2.ASSET_COST_ACCT
+         --            FROM APPS.FA_CATEGORIES CG1, FA_CATEGORY_BOOKS CG2
+         --           WHERE     CG1.CATEGORY_ID = CG2.CATEGORY_ID
+         --                 AND (CG1.SEGMENT1 || '-' || CG1.SEGMENT2) = (GG.SEGMENT1 || '-' || GG.SEGMENT2)
+         --                 AND CG2.BOOK_TYPE_CODE = A.BOOK_TYPE_CODE) ASSET_COST_ACCT,
+         TO_CHAR(FLK.SEGMENT4) PROJECTS,
+         (SELECT DISTINCT VV.DESCRIPTION
+            FROM APPS.FND_FLEX_VALUES_VL VV
+           WHERE     VV.FLEX_VALUE_SET_ID = 1016650
+                 AND FLK.SEGMENT4 = VV.FLEX_VALUE_MEANING
+                 AND VV.PARENT_FLEX_VALUE_LOW = 'RME')
+            PRJ_PROJECT,
+         --         FLK.SEGMENT5 DEPT,
+         --         FLK.CONCATENATED_SEGMENTS LOCATIONS,
+         --         B.CURRENT_UNITS,
+         --         FDH.UNITS_ASSIGNED,
+         --         TO_CHAR (A.DATE_PLACED_IN_SERVICE, 'DD-MON-YYYY')
+         --            DATE_PLACED_IN_SERVICE,
+         --TO_CHAR (D.DEPRN_RUN_DATE,'DD-MON-YYYY') LAST_POSTING_DATE,
+         --         A.DEPRN_METHOD_CODE,
+         --         (A.LIFE_IN_MONTHS / 12) LIFE_YEAR,
+         --         A.ORIGINAL_COST,
+         --         A.ADJUSTED_COST,
+         --         A.COST,
+         --         D.DEPRN_RESERVE,
+         --         (A.ORIGINAL_COST - D.DEPRN_RESERVE) NET_BOOK_VALUE,
+         --         A.ADJUSTMENT_REQUIRED_STATUS,
+         --         B.ASSET_TYPE,
+         --         A.BASIC_RATE,
+         ROUND (
+            SUM (
+               (  ( (NVL (D.DEPRN_AMOUNT, 0)) * (NVL (FDH.UNITS_ASSIGNED, 0)))
+                / (NVL (B.CURRENT_UNITS, 0)))),
+            4)
+            DEPRN_PER_UNIT,
+         --         D.DEPRN_AMOUNT,
+         --         D.YTD_DEPRN,
+         --E.FISCAL_YEAR,
+         --E.PERIOD_NUM,
+         E.PERIOD_NAME,
+         GCCK.CONCATENATED_SEGMENTS EXPENSE_ACCOUNT
+    FROM APPS.FA_BOOKS A,
+         APPS.FA_BOOK_CONTROLS_SEC AA,
+         APPS.FA_ADDITIONS_B B,
+         APPS.FA_ADDITIONS_TL C,
+         APPS.FA_DEPRN_SUMMARY D,
+         APPS.FA_DEPRN_PERIODS E,
+         APPS.FA_CATEGORIES GG,
+         APPS.FA_DISTRIBUTION_HISTORY FDH,
+         APPS.GL_CODE_COMBINATIONS_KFV GCCK,
+         APPS.FA_LOCATIONS_KFV FLK
+   WHERE     AA.BOOK_TYPE_CODE = A.BOOK_TYPE_CODE
+         AND A.ASSET_ID = B.ASSET_ID
+         AND A.ASSET_ID = C.ASSET_ID
+         AND A.ASSET_ID = D.ASSET_ID
+         AND B.ASSET_ID = FDH.ASSET_ID
+         AND B.ASSET_CATEGORY_ID = GG.CATEGORY_ID
+         AND FDH.LOCATION_ID = FLK.LOCATION_ID
+         AND GCCK.CODE_COMBINATION_ID = FDH.CODE_COMBINATION_ID
+         AND A.BOOK_TYPE_CODE = E.BOOK_TYPE_CODE
+         AND D.PERIOD_COUNTER = E.PERIOD_COUNTER
+         --         AND A.RETIREMENT_PENDING_FLAG = 'NO'
+         AND A.DATE_INEFFECTIVE IS NULL
+         AND FDH.DATE_INEFFECTIVE IS NULL
+         AND E.DEPRN_RUN = 'Y'
+         AND AA.DATE_INEFFECTIVE IS NULL
+         --         AND GCCK.CONCATENATED_SEGMENTS NOT LIKE '%-0000-%'
+         AND A.BOOK_TYPE_CODE = :p_book
+         AND E.PERIOD_NAME = :p_period
+         AND :dep = 'Y'
+         AND :P_LAYOUT = 'SUMMARY'
+         AND (   ( (SELECT DISTINCT VV.DESCRIPTION
+                      FROM APPS.FND_FLEX_VALUES_VL VV
+                     WHERE     VV.FLEX_VALUE_SET_ID = 1016650
+                           AND FLK.SEGMENT4 = VV.FLEX_VALUE_MEANING
+                           AND VV.PARENT_FLEX_VALUE_LOW = 'RME') =
+                     (SELECT name
+                        FROM PA_PROJECTS_ALL
+                       WHERE project_id = :P_PROJECT))
+              OR :P_PROJECT IS NULL)
+--AND A.DEPRECIATE_FLAG = 'YES'
+--AND D.DEPRN_RESERVE <> 0
+--AND B.ASSET_ID = '15589'
+--AND B.ASSET_NUMBER = 'BUL000000003'
+GROUP BY A.BOOK_TYPE_CODE,
+         GG.SEGMENT1,
+         GG.ATTRIBUTE10,
+         FLK.SEGMENT4,
+         GG.ATTRIBUTE9,
+         --         FLK.SEGMENT5 ,
+         --         FLK.CONCATENATED_SEGMENTS ,
+         E.PERIOD_NAME,
+         GCCK.CONCATENATED_SEGMENTS)
+         ORDER BY PROJECTS , TASK

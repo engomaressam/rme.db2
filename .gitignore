@@ -1,0 +1,223 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+# *.py[cod]   # Temporarily commented to allow .py files for debug session
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+
+# Images
+/images
+# Environment variables and local configuration
+.env
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+# Test and coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# API keys and credentials
+**/client_secret*.json
+**/client_*.json
+**/token*.json
+**/token.pickle
+**/*.pem
+**/*.key
+**/*.pfx
+**/*.p12
+**/*.crt
+**/*.cer
+**/credentials.json
+**/secrets.*
+**/password*
+**/api_key*
+**/auth_token*
+**/*.env*
+**/.env*
+
+# Logs
+*.log
+
+# IDE specific files
+.vscode/
+.idea/
+*.code-workspace
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Project specific ignores
+16.email/01.summarize/02.rev.02/client.txt
+16.email/01.summarize/01.rev.01/sql-mail.py
+16.email/01.summarize/02.rev.02/01.extract.and.summarize.rev.04.ipynb
+16.email/01.summarize/01.rev.01/.env.txt
+16.email/01.summarize/01.rev.01/summarize_emails.py
+16.email/01.summarize/01.rev.01/email_replies.txt
+16.email/01.summarize/01.rev.01/Email-ETL.py
+16.email/02.sum.and.reply/Email-Auto-Responce-V1(Final).ipynb
+16.email/02.sum.and.reply/01.5.cells.complete.ipynb
+16.email/02.sum.and.reply/01.5.cells.complete.yasser-omar.ipynb
+16.email/02.sum.and.reply/01.5.cells.complete.new.api.ipynb
+16.email/02.sum.and.reply/02.5.cells.complete.new.rme.api.ipynb
+16.email/02.sum.and.reply/Email-Auto-Responce-V1(Final).rme.api.ipynb
+16.email/03.reem/01.old.nada.new.api/01_fetch_emails.py
+16.email/03.reem/01.old.nada.new.api/04_create_drafts.py
+16.email/03.reem/01.old.nada.new.api/original.rme.api.ipynb
+16.email/03.reem/01.old.nada.new.api/original.ipynb
+
+# ATS project files
+09.other.projects/03.ats/06.fix.dep/unmatched_records_report.txt
+09.other.projects/03.ats/06.fix.dep/02.process_pdfs_with_batch.py
+09.other.projects/03.ats/04.ats-old/app.py
+09.other.projects/03.ats/07.last.working/02.process_pdfs_with_batch.py
+09.other.projects/03.ats/07.last.working/02.process_pdfs.py
+09.other.projects/03.ats/07.last.working/02b.process_ocr_with_gpt.py
+09.other.projects/03.ats/07.last.working/02a.extract_ocr_text.py
+09.other.projects/03.ats/07.last.working/fix_unmatched_with_gpt.py
+09.other.projects/03.ats/07.last.working/get_unmatched_records.py
+09.other.projects/03.ats/07.last.working/fix.jobs.departments.py
+09.other.projects/03.ats/07.last.working/fix_non_standard_values.py
+09.other.projects/03.ats/08.after.more.columns/02b.process_ocr_with_gpt.py
+09.other.projects/03.ats/08.after.more.columns/02.process_pdfs.py
+09.other.projects/03.ats/08.after.more.columns/02.process_pdfs_with_batch.py
+
+# LLM and other project files
+18.LLMs/02.po.extract/09.pdf.webapp copy.py
+18.LLMs/02.po.extract/09.pdf.webapp.backup.with.api.py
+18.LLMs/02.po.extract/app.py
+18.LLMs/02.po.extract/09.pdf.webapp.py
+18.LLMs/02.po.extract/12.po.followup.query.ai.py
+18.LLMs/02.po.extract/test_query.py
+18.LLMs/02.po.extract/test_query_new.py
+18.LLMs/02.po.extract/test_query_v2.py
+a0.support/secrets.txt
+a0.support/clean_repo.py
+18.LLMs/01.mistral/03.web_qa.py
+18.LLMs/01.mistral/07.local.web.qa.py
+18.LLMs/01.mistral/02.build_chroma_db.py
+18.LLMs/04.alstom/ngrok.token.txt
+
+# MCP ERP files
+03.warehouse/01.mcp_erp/document_ap_checks_all.py
+03.warehouse/01.mcp_erp/document_ap_schema_overview.py
+03.warehouse/01.mcp_erp/document_top10_ap_ar_tables.py
+03.warehouse/01.mcp_erp/document_ar_schema_overview.py
+
+# YouTube related
+09.other.projects/01.youtube/04.merge.and.upload/token.json
+09.other.projects/01.youtube/08.upload.mine/token.pickle
+
+# Gradio certificate
+# Before
+.gradio/certificate.pem
+
+# After
+a0.support/.gradio/certificate.pem
+
+# Additional sensitive files found
+**/last_message_*.txt
+**/email_replies.txt
+**/extracted_email_bodies.txt
+**/my_emails.txt
+**/*.bat
+**/*.log
+**/run_*.bat
+**/run_*.sh
+**/*.token.*
+
+# Ignore the remove-sensitive-files script as it might contain paths to sensitive files
+remove-sensitive-files.ps1
+
+# Ignore temporary and test files
+**/06.full.folder.with.git/**
+**/test_*.py
+**/*_old.md
+files-to-remove.txt
+
+# Ignore remaining untracked files
+09.other.projects/03.ats/08.after.more.columns/.gitignore
+09.other.projects/03.ats/09.after-please/
+16.cash.message/
+17.email/01.summarize/
+17.email/02.sum.and.reply/
+17.email/03.reem/
+a0.support/git.classic.tokens/2025.05.28.txt
+09.other.projects/01.youtube/07.upload.all/07.upload.all.rev.06.ipynb
+a0.support/17.git/auth/from chat.txt
+19.ats/06.full.folder.with.git
+19.ats/06.full.folder.with.git
+09.other.projects/01.youtube/00.creds/dlc2.json
+09.other.projects/01.youtube/00.creds/rme.json
+09.other.projects/01.youtube/00.creds/dlc.json
+09.other.projects/01.youtube/00.creds/emc.json
+03.telegram/api.txt
+03.telegram/.env
+09.other.projects/03.telegram/api.txt
+09.other.projects/03.telegram/gui_session.session-journal
+09.other.projects/03.telegram/gui_session.session
+01.connections/19.apis/01.rmedigitalteam/key.txt

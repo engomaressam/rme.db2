@@ -1,0 +1,57 @@
+select BOOK_TYPE_CODE,
+       DATE_PLACED_IN_SERVICE,
+       ASSET_ID,
+       ASSET_NUMBER,
+       DESCRIPTION,
+       MAJOR_CATEGORY,
+       MINOR_CATEGORY,
+       EXPEN_TYPE,
+       task,
+       PROJECTS,
+       PRJ_PROJECT,
+       DEPT,
+       LOCATIONS,
+       CURRENT_UNITS,
+       UNITS_ASSIGNED,
+       DEPRN_PER_UNIT,
+       DEPRN_AMOUNT,
+       ADJUSTED_COST,          
+       PERIOD_NAME,
+       EXPENSE_ACCOUNT ,
+       PERIOD_counter from ( select * from apps.rme_fa_history where  BOOK_TYPE_CODE = :p_book       
+ AND    EXPENSE_ACCOUNT  LIKE '%.00000000.0000.000.00.%'     --  'RME ASSET BOOK'
+         AND upper(PERIOD_NAME) = :p_period
+         and (DATE_PLACED_IN_SERVICE >= :p_plced_from or :p_plced_from is null)
+         and (DATE_PLACED_IN_SERVICE <= :p_plced_to or :p_plced_to is null)
+ AND :dep = 'N'
+         And  ( PROJECTS = :P_PROJECT or  :P_PROJECT is null)
+
+
+union 
+select BOOK_TYPE_CODE,
+       DATE_PLACED_IN_SERVICE,
+       ASSET_ID,
+       ASSET_NUMBER,
+       DESCRIPTION,
+       MAJOR_CATEGORY,
+       MINOR_CATEGORY,
+       EXPEN_TYPE,
+       task,
+       PROJECTS,
+       PRJ_PROJECT,
+       DEPT,
+       LOCATIONS,
+       CURRENT_UNITS,
+       UNITS_ASSIGNED,
+       DEPRN_PER_UNIT,
+       DEPRN_AMOUNT,
+       ADJUSTED_COST,          
+       PERIOD_NAME,
+       EXPENSE_ACCOUNT ,
+       PERIOD_counter from apps.rme_fa_history where  upper(PERIOD_NAME) = :p_period
+AND BOOK_TYPE_CODE = :p_book 
+         and (DATE_PLACED_IN_SERVICE >= :p_plced_from or :p_plced_from is null)
+         and (DATE_PLACED_IN_SERVICE <= :p_plced_to or :p_plced_to is null)
+ AND :dep = 'Y'
+         And  ( PROJECTS = :P_PROJECT or :P_PROJECT is null))
+         ORDER BY PROJECTS , task

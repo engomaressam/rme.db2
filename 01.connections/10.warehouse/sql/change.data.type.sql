@@ -1,0 +1,2 @@
+ALTER TABLE cost_dist
+ALTER COLUMN project_no NVARCHAR(50);

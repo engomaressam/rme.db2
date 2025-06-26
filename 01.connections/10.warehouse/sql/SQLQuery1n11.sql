@@ -1,0 +1,1 @@
+SELECT DISTINCT project FROM salaries

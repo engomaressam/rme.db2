@@ -1,0 +1,8 @@
+ssms : tcp:10.10.11.241,1433
+
+powerbi : 10.10.11.241:1433
+
+
+user1: yasser , pass : yasser123
+
+user2: nada , pass : nada123

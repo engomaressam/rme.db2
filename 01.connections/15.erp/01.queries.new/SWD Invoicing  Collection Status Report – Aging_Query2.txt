@@ -1,0 +1,26 @@
+SELECT INITCAP(PARAMETER_TITLE) PARAMETER_TITLE, PARAMETER_VALUE 
+FROM 
+( 
+ SELECT 'Operating Unit' PARAMETER_TITLE,:org_name_header PARAMETER_VALUE ,1 SERIAL FROM DUAL 
+ UNION
+ SELECT 'Customer' PARAMETER_TITLE,to_char(:P_CUSTOMER) PARAMETER_VALUE ,3 SERIAL FROM DUAL 
+ union
+ select 'From Date' PARAMETER_TITLE , to_char(trunc(:P_FROM_DATE)) PARAMETER_VALUE, 4 SERIAL from DUAL
+  union
+ select 'To Date' PARAMETER_TITLE , to_char(trunc(:P_TO_DATE)) PARAMETER_VALUE, 5 SERIAL from DUAL
+  union
+ select 'Project Number' PARAMETER_TITLE , to_char(:P_PROJECT_NUM) PARAMETER_VALUE, 6 SERIAL from DUAL
+  union
+ select 'Currency' PARAMETER_TITLE , to_char(:P_CURR) PARAMETER_VALUE, 7 SERIAL from DUAL
+  union
+select 'Segment (2)' PARAMETER_TITLE , to_char(:P_SEG_2) PARAMETER_VALUE, 8 SERIAL from DUAL
+  union
+ select 'TYPE' PARAMETER_TITLE , to_char(:P_TRX_TYPE) PARAMETER_VALUE, 9 SERIAL from DUAL
+union
+ select 'Show Aging' PARAMETER_TITLE , to_char(:CF_P_SHOW_AGING) PARAMETER_VALUE, 10 SERIAL from DUAL
+union
+ select 'SUmmary' PARAMETER_TITLE , to_char(:CF_P_SUMMARY) PARAMETER_VALUE, 10 SERIAL from DUAL
+union
+select 'Project Owner' PARAMETER_TITLE , (select distinct full_name from PER_ALL_PEOPLE_F  where person_id = :P_PERSON_ID) PARAMETER_VALUE, 10 SERIAL from DUAL
+)
+ORDER BY SERIAL

@@ -1,0 +1,131 @@
+/* Formatted on 11/27/2019 9:49:50 AM (QP5 v5.256.13226.35510) */
+SELECT d.segment1 SC_No,
+       NVL (
+          (SELECT SUM (
+                     DECODE (
+                        poll.MATCHING_BASIS,
+                        'AMOUNT', NVL (RSL.AMOUNT_SHIPPED, 0),
+                          NVL (POLL.PRICE_OVERRIDE, 1)
+                        * NVL (RSL.QUANTITY_SHIPPED, 0)))
+                     AMOUNT
+             FROM RCV_SHIPMENT_HEADERS RSH,
+                  AP_SUPPLIERS POV,
+                  AP_SUPPLIER_SITES_ALL POVS,
+                  PO_HEADERS_ALL POH,
+                  RCV_SHIPMENT_LINES RSL,
+                  PO_LINES_ALL POL,
+                  PO_LINE_LOCATIONS_ALL POLL,
+                  PO_DOC_STYLE_HEADERS PDSH
+            WHERE     RSH.ASN_TYPE IN ('WC')
+                  AND RECEIPT_SOURCE_CODE = 'VENDOR'
+                  AND POV.VENDOR_ID = RSH.VENDOR_ID
+                  AND POV.VENDOR_ID = POVS.VENDOR_ID
+                  AND POVS.VENDOR_SITE_ID = RSH.VENDOR_SITE_ID
+                  AND POH.PO_HEADER_ID = POL.PO_HEADER_ID
+                  AND rsh.SHIPMENT_HEADER_ID = RSL.SHIPMENT_HEADER_ID
+                  AND POLL.LINE_LOCATION_ID = RSL.PO_LINE_LOCATION_ID
+                  AND POL.PO_LINE_ID = RSL.PO_LINE_ID
+                  AND POH.PO_HEADER_ID = POL.PO_HEADER_ID
+                  AND POH.STYLE_ID = PDSH.STYLE_ID(+)
+                  AND PDSH.STATUS(+) = 'ACTIVE'
+                  AND POH.PO_HEADER_ID = rsl.po_header_id
+                  AND POH.PO_HEADER_ID = d.PO_HEADER_ID
+                  AND (poh.ORG_ID = d.org_id)),
+          0)
+          total_wc,
+       d.comments SC_Manual,
+       e.vendor_name SUPPLIER_NAME,
+       f.vendor_site_code VENDOR_SITE_CODE,
+       pll.po_header_id,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = pll.ship_to_organization_id AND ROWNUM = 1)
+          project_name,
+       d.AUTHORIZATION_STATUS,
+       PO_INQ_SV.get_po_total ('STANDARD', d.po_header_id, NULL) Total_SC,
+       d.CURRENCY_CODE,
+       d.CREATION_DATE,
+       (SELECT p.FULL_NAME
+          FROM per_all_people_f p
+         WHERE     p.PERSON_ID = d.AGENT_ID
+               AND (SYSDATE BETWEEN p.EFFECTIVE_START_DATE
+                                AND p.EFFECTIVE_END_DATE))
+          buyer_name,
+       G.line_num,
+       g.item_description,
+       G.category_id,
+       (SELECT segment1 || '-' || segment2
+          FROM mtl_categories_b
+         WHERE category_id = G.category_id)
+          Category,
+       G.amount Price,
+       pll.NEED_BY_DATE,
+       pll.SHIPMENT_NUM,
+       pll.payment_type,
+       pll.description,
+       pll.QUANTITY,
+       pll.PRICE_OVERRIDE,
+       DECODE (pll.AMOUNT,
+               NULL, NVL (pll.QUANTITY, 0) * NVL (pll.PRICE_OVERRIDE, 0),
+               pll.AMOUNT)
+          Amount,
+       (SELECT PPA.NAME
+          FROM PA_PROJECTS_ALL PPA
+         WHERE PPA.PROJECT_ID = C.project_id AND ROWNUM = 1)
+          Project,
+       (SELECT PT.TASK_NUMBER
+          FROM PA_TASKS PT
+         WHERE     PT.PROJECT_ID = C.project_id
+               AND PT.TASK_ID = C.task_id
+               AND ROWNUM = 1)
+          Task,
+       C.EXPENDITURE_TYPE,
+       c.EXPENDITURE_ITEM_DATE,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE     o.ORGANIZATION_ID = c.EXPENDITURE_ORGANIZATION_ID
+               AND ROWNUM = 1)
+          EXPENDITURE_ORGANIZATION,
+       ROUND (
+          DECODE (
+             pll.PAYMENT_TYPE,
+             'RATE',   (  (pll.QUANTITY_RECEIVED * pll.PRICE_OVERRIDE)
+                        / (pll.QUANTITY * pll.PRICE_OVERRIDE))
+                     * 100,
+             (pll.AMOUNT_RECEIVED / pll.AMOUNT) * 100),
+          2)
+          progress,
+       DECODE (pll.PAYMENT_TYPE,
+               'RATE', (pll.QUANTITY_BILLED * pll.PRICE_OVERRIDE),
+               pll.AMOUNT_BILLED)
+          INVOICE_AMT
+  FROM PO_DISTRIBUTIONS_ALL C,
+       PO_HEADERS_ALL D,
+       PO_VENDORS E,
+       PO_VENDOR_SITES_ALL F,
+       PO_LINES_ALL G,
+       po_line_locations_all pll
+ WHERE     c.po_header_id = d.po_header_id(+)
+       AND e.vendor_id(+) = d.VENDOR_ID
+       AND f.vendor_site_id(+) = d.vendor_site_id
+       AND d.po_header_id = g.po_header_id
+       AND c.po_line_id = g.po_line_id
+       AND c.PO_HEADER_ID IS NOT NULL
+       AND d.org_id = g.org_id
+       AND d.org_id = c.org_id
+       AND d.ORG_ID = :p_org
+       AND ( :P_buyer IS NULL OR d.agent_id = :P_buyer)
+       AND ( :P_supp IS NULL OR e.VENDOR_ID = :P_supp)
+       AND ( :P_CAT IS NULL OR G.category_id = :P_CAT)
+       AND ( :po_num IS NULL OR d.PO_HEADER_ID = :po_num)
+       AND (g.CREATION_DATE >= :P_FRM_CRT_DATE OR :P_FRM_CRT_DATE IS NULL)
+       AND (g.CREATION_DATE <= :P_TO_CRT_DATE OR :P_TO_CRT_DATE IS NULL)
+       AND (   :p_organization_id IS NULL
+            OR pll.ship_to_organization_id = :p_organization_id)
+       AND (d.AUTHORIZATION_STATUS = :P_STATUS OR :P_STATUS IS NULL)
+       AND pll.CANCELLED_BY IS NULL
+       --AND pll.payment_type != 'ADVANCE'
+        AND d.STYLE_ID = 100
+       AND pll.po_header_id = d.po_header_id(+)
+       AND PLL.PO_LINE_ID = g.PO_LINE_ID(+)
+       AND pll.line_location_id(+) = c.line_location_id
