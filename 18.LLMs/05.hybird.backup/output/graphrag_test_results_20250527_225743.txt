@@ -1,0 +1,627 @@
+GraphRAG System Test Results - 2025-05-27 22:57:43
+================================================================================
+
+Generating 40 sample purchase orders...
+Generated 40 sample purchase orders and saved to output\sample_pos_20250527_225743.json
+
+Importing purchase orders to GraphRAG system...
+Successfully imported 40 purchase orders to GraphRAG system
+
+
+=== Running Semantic Searches ===
+
+
+=== Semantic Search: 'steel reinforcement for bridge project' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5742
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5630
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5545
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5435
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5394
+
+
+=== Semantic Search: 'concrete materials for NEOM project' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.6171
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5476
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5471
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5450
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.5448
+
+
+=== Semantic Search: 'electrical equipment for airport expansion' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3861
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3612
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3419
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3410
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3320
+
+
+=== Semantic Search: 'plumbing fixtures for metro line' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4280
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4243
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4152
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4114
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4008
+
+
+=== Semantic Search: 'payment terms with 50% advance payment' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2965
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2930
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2617
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2592
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2578
+
+
+=== Semantic Search: 'delivery terms for on-site delivery' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2533
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2475
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2429
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2405
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2393
+
+
+=== Semantic Search: 'net 30 days payment condition' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3839
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3773
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3713
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3675
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3610
+
+
+=== Semantic Search: 'contracts with advance payment requirements' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2929
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2864
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2797
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2789
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2765
+
+
+=== Semantic Search: 'purchase orders with specific delivery terms' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3547
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3445
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3351
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3315
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3282
+
+
+=== Semantic Search: 'payment upon completion terms' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2975
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2884
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2861
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2835
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.2806
+
+
+=== Semantic Search: 'orders from Saudi Steel Industries' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.6485
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.6463
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.6383
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.6221
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.6145
+
+
+=== Semantic Search: 'high value orders from technical services suppliers' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4024
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3926
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3895
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3887
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3849
+
+
+=== Semantic Search: 'purchase orders with value over 100000' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3784
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3595
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3577
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3493
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.3472
+
+
+=== Semantic Search: 'low cost material orders under 20000' ===
+Found 5 purchase orders:
+1. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4663
+2. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4662
+3. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4625
+4. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4510
+5. PO: Unknown
+   Project: Unknown
+   Supplier: Unknown
+   Date: Unknown
+   Total Value: Unknown
+   Payment Terms: Unknown
+   Delivery Terms: Unknown
+   Similarity Score: 0.4405

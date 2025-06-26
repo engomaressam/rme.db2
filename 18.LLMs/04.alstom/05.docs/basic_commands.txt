@@ -1,0 +1,21 @@
+# First, switch to PowerShell in your SSH session
+powershell
+
+# Now try these commands in PowerShell
+# 1. Check if Ollama is installed
+where ollama
+
+# 2. Stop any running Ollama process
+taskkill /F /IM ollama.exe /T
+
+# 3. Set environment variable for current session
+set OLLAMA_HOST=0.0.0.0:11434
+
+# 4. Start Ollama service (simplified command)
+start /B ollama serve
+
+# 5. Check if Ollama is running
+tasklist | findstr ollama
+
+# 6. Test if API is accessible locally (wait a few seconds first)
+curl http://localhost:11434/api/tags

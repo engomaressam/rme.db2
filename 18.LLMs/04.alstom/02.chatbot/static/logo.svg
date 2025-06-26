@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80">
+  <style>
+    .logo-text { font-family: Arial, sans-serif; font-weight: bold; }
+    .main-text { font-size: 32px; fill: #0066cc; }
+    .sub-text { font-size: 14px; fill: #666666; }
+  </style>
+  <rect width="200" height="80" fill="white"/>
+  <text x="10" y="45" class="logo-text main-text">ALSTOM</text>
+  <text x="10" y="65" class="logo-text sub-text">Project Assistant</text>
+</svg>

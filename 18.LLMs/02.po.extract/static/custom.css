@@ -1,0 +1,20 @@
+footer {
+    visibility: hidden;
+}
+
+.logo-container {
+    width: 10% !important;
+    max-width: 10% !important;
+    flex: 0 0 10% !important;
+}
+
+.logo-container img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+}
+
+.header-container {
+    width: 90% !important;
+    flex: 0 0 90% !important;
+}

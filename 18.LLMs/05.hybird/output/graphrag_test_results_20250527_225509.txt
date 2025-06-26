@@ -1,0 +1,14 @@
+GraphRAG System Test Results - 2025-05-27 22:55:09
+================================================================================
+
+Generating 40 sample purchase orders...
+Generated 40 sample purchase orders and saved to output\sample_pos_20250527_225509.json
+
+Importing purchase orders to GraphRAG system...
+Successfully imported 40 purchase orders to GraphRAG system
+
+
+=== Running Semantic Searches ===
+
+
+=== Semantic Search: 'steel reinforcement for bridge project' ===

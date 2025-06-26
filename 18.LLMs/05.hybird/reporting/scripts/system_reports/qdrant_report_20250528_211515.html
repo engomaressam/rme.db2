@@ -1,0 +1,229 @@
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Qdrant Vector Search Report</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        line-height: 1.6; 
+                        margin: 0;
+                        padding: 20px;
+                        color: #333;
+                        background-color: #f5f7fa;
+                    }
+                    .container { 
+                        max-width: 1200px; 
+                        margin: 0 auto; 
+                    }
+                    .header { 
+                        background: #2c3e50; 
+                        color: white; 
+                        padding: 20px; 
+                        border-radius: 5px;
+                        margin-bottom: 20px;
+                    }
+                    .section { 
+                        margin-bottom: 30px; 
+                        background: white;
+                        border-radius: 5px;
+                        padding: 20px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }
+                    .card { 
+                        background: #f8f9fa; 
+                        border-radius: 5px; 
+                        padding: 20px; 
+                        margin-bottom: 20px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    }
+                    h1, h2, h3, h4, h5, h6 { 
+                        color: #2c3e50; 
+                        margin-top: 0;
+                    }
+                    .grid { 
+                        display: grid; 
+                        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                        gap: 20px;
+                        margin: 20px 0;
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin: 15px 0;
+                        font-size: 14px;
+                    }
+                    th, td { 
+                        padding: 12px 15px; 
+                        text-align: left; 
+                        border: 1px solid #e0e0e0;
+                    }
+                    th { 
+                        background-color: #f5f7fa;
+                        font-weight: 600;
+                    }
+                    tr:nth-child(even) { 
+                        background-color: #f9f9f9; 
+                    }
+                    .search-query {
+                        background: #e3f2fd;
+                        padding: 15px;
+                        border-radius: 4px;
+                        margin: 15px 0;
+                        border-left: 4px solid #2196f3;
+                    }
+                    .search-result {
+                        margin: 15px 0;
+                        padding: 15px;
+                        background: white;
+                        border-radius: 4px;
+                        border-left: 4px solid #4caf50;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    }
+                    .search-result h4 {
+                        margin: 0 0 10px 0;
+                        color: #2c3e50;
+                    }
+                    .warning {
+                        background: #fff3e0;
+                        padding: 15px;
+                        border-left: 4px solid #ff9800;
+                        margin: 15px 0;
+                        border-radius: 4px;
+                    }
+                    .success {
+                        background: #e8f5e9;
+                        padding: 15px;
+                        border-left: 4px solid #4caf50;
+                        margin: 15px 0;
+                        border-radius: 4px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Qdrant Vector Search Report</h1>
+                        <p>Generated on: 2025-05-28 21:15:15</p>
+                    </div>
+                    
+                    <!-- Qdrant Statistics -->
+                    <div class="section">
+                        <h2>📊 Vector Store Statistics</h2>
+                    
+        <div class="grid">
+            <div class="card">
+                <h3>Collection Information</h3>
+                <table>
+                    <tr><th>Metric</th><th>Value</th></tr>
+                    <tr><td>Vectors Stored</td><td style="text-align: right;">0</td></tr>
+                    <tr><td>Vector Dimensions</td><td style="text-align: right;">384</td></tr>
+                    <tr><td>Similarity Metric</td><td>COSINE</td></tr>
+                </table>
+            </div>
+        </div>
+        
+                </div>
+                    
+                    <!-- Semantic Search Example -->
+                    <div class="section">
+                        <h2>🔍 Semantic Search Example</h2>
+                    
+        <div class="search-query">
+            <h3>Semantic Search Query</h3>
+            <p>construction materials delivery</p>
+        </div>
+        <div class="search-results">
+            <h4>Top Results:</h4>
+            
+                <div class="search-result">
+                    <h4>Result 1:  <span style="color: #666;">(Score: 0.5044)</span></h4>
+                    <div style="margin-left: 15px; margin-top: 5px;">
+                        <div><strong>id:</strong> 1243</div><div><strong>pdf_path:</strong> //fileserver2/Head Office Server/Procurement (PR)/02 Projects Document\02-01 Finish\Bani suif power ...</div><div><strong>pdf_filename:</strong> LAFARGE.PDF</div><div><strong>pdf_hash:</strong> 825c3301bd182475d3de6b0d11b9f6a219aaaad61ffce2f8af2a9d31afc98a05</div><div><strong>project_name:</strong> Bani suif power plant</div><div><strong>document_type:</strong> Unknown</div><div><strong>text:</strong> A World Leader
+In Building materials operating
+In 64 Countries
+
+A world Leader in
+e Innovation
+٠ Con...</div>
+                    </div>
+                </div>
+                <div class="search-result">
+                    <h4>Result 2:  <span style="color: #666;">(Score: 0.5038)</span></h4>
+                    <div style="margin-left: 15px; margin-top: 5px;">
+                        <div><strong>id:</strong> 4792</div><div><strong>pdf_path:</strong> //fileserver2/Head Office Server/Procurement (PR)/02 Projects Document\02-01 Finish\Ministerial Buil...</div><div><strong>pdf_filename:</strong> Comparison for Supply Concrete (Sammix) Signed - Ministerial Building.pdf</div><div><strong>pdf_hash:</strong> 1d8958180e05d98b402be5636031c362129aedec2af45f904d8f3c0926cce0ed</div><div><strong>project_name:</strong> Ministerial Building</div><div><strong>document_type:</strong> Comparison</div><div><strong>text:</strong> Ministrial building project
+
+ROWAD
+
+Modern Engineering supply concrete Comparison Rev.00
++
+Consultan...</div>
+                    </div>
+                </div>
+                <div class="search-result">
+                    <h4>Result 3:  <span style="color: #666;">(Score: 0.4819)</span></h4>
+                    <div style="margin-left: 15px; margin-top: 5px;">
+                        <div><strong>id:</strong> 7419</div><div><strong>pdf_path:</strong> //fileserver2/Head Office Server/Procurement (PR)/02 Projects Document\02-01 Finish\Royal City\Compa...</div><div><strong>pdf_filename:</strong> Comparison for Light Weight Concrete Signed - Royal City Mall.pdf</div><div><strong>pdf_hash:</strong> ea16d07582781d46a08f0b079ab3a50fd8ec181fb6af7d1bd074b02f155afd8c</div><div><strong>project_name:</strong> Royal City</div><div><strong>document_type:</strong> Comparison</div><div><strong>text:</strong> Expenture Category : Subcontractor 1
+
+Expenture Type : Subcontractor 000
+9 Royal City Mall. 1
+ae ___...</div>
+                    </div>
+                </div>
+                <div class="search-result">
+                    <h4>Result 4:  <span style="color: #666;">(Score: 0.4810)</span></h4>
+                    <div style="margin-left: 15px; margin-top: 5px;">
+                        <div><strong>id:</strong> 2423</div><div><strong>pdf_path:</strong> //fileserver2/Head Office Server/Procurement (PR)/02 Projects Document\02-01 Finish\El Sweedy Univer...</div><div><strong>pdf_filename:</strong> Comparison for Post Tension Works - El sweedy University ( Phase 2 ).pdf</div><div><strong>pdf_hash:</strong> 359e914e4961b0c4e9c6a6b13845b09af2ce231ccc2d1fe1188f74dee317f9d3</div><div><strong>project_name:</strong> El Sweedy University ( phase 2 )</div><div><strong>document_type:</strong> Comparison</div><div><strong>text:</strong> : ١
+
+| EL-Sewedy Education Consultant: RMC Cost Center:
+| Subcontractor Frayssinet | Steel Tec
+2) 56...</div>
+                    </div>
+                </div>
+                <div class="search-result">
+                    <h4>Result 5:  <span style="color: #666;">(Score: 0.4783)</span></h4>
+                    <div style="margin-left: 15px; margin-top: 5px;">
+                        <div><strong>id:</strong> 9845</div><div><strong>pdf_path:</strong> //fileserver2/Head Office Server/Procurement (PR)/02 Projects Document\02-02 Undergoing\01 Compariso...</div><div><strong>pdf_filename:</strong> Comparison for Steel Structure Works Rev.02 - MDF Factory Project.pdf</div><div><strong>pdf_hash:</strong> acfa01903de383901ec247a8bd643c4626a6b52690057a51e6e7bfd95e6524a8</div><div><strong>project_name:</strong> Unknown</div><div><strong>document_type:</strong> Unknown</div><div><strong>text:</strong> Supply-Apply Comparison Sheet (CS)
+Project Name: Project Cost
+(MOF Factory Centre:1752
+
+aN ENGINEERI...</div>
+                    </div>
+                </div>
+        </div>
+        
+                </div>
+                    
+                    <!-- Vector Space Visualization -->
+                    <div class="section">
+                        <h2>🌐 Vector Space Visualization</h2>
+                    
+        <div class="card">
+            <h3>Vector Space Visualization</h3>
+            <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+                <p><em>Vector space visualization would appear here</em></p>
+                <p>This would show a 2D projection of the vector space with similar documents clustered together.</p>
+            </div>
+        </div>
+        
+                </div>
+                    
+                    <div class="section success">
+                        <h3>✅ Vector Search Status: Operational</h3>
+                    <p>Qdrant vector store is functioning normally with 0 vectors indexed.</p>
+                </div>
+                    
+                    <div class="section">
+                        <h3>Next Steps</h3>
+                        <ul>
+                            <li>Try different search queries to explore the vector space</li>
+                            <li>Adjust the similarity threshold for more/less strict matching</li>
+                            <li>Monitor vector search performance and quality</li>
+                            <li>Consider fine-tuning the embedding model for your specific domain</li>
+                        </ul>
+                    </div>
+                </div>
+            </body>
+            </html>
+            

@@ -1,0 +1,28 @@
+# Try these commands in the command prompt
+
+# 1. Switch to PowerShell (this should work in any Windows command prompt)
+powershell
+
+# After entering PowerShell, you should see a PS> prompt
+# Then try these PowerShell commands one by one:
+
+# 2. Check if Ollama is installed
+Get-Command ollama -ErrorAction SilentlyContinue
+
+# 3. Stop any running Ollama process
+Stop-Process -Name ollama -Force -ErrorAction SilentlyContinue
+
+# 4. Set environment variable
+$env:OLLAMA_HOST="0.0.0.0:11434"
+
+# 5. Start Ollama service
+Start-Process ollama -ArgumentList "serve" -WindowStyle Hidden
+
+# 6. Wait a few seconds for Ollama to start
+Start-Sleep -Seconds 5
+
+# 7. Check if Ollama is running
+Get-Process -Name ollama -ErrorAction SilentlyContinue
+
+# 8. Test if API is accessible locally
+Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -Method Get -TimeoutSec 5

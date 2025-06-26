@@ -1,0 +1,27 @@
+BASIC WINDOWS COMMANDS FOR OLLAMA
+
+After connecting with:
+ssh -l "ROWAD\Omar Essam2" 10.10.12.202
+
+Try these very basic commands:
+
+1. Check what shell you're in:
+   echo %COMSPEC%
+
+2. See if Ollama is installed:
+   dir C:\Users\Omar* /s /b | findstr ollama.exe
+
+3. Kill any running Ollama:
+   taskkill /F /IM ollama.exe
+
+4. Set the environment variable:
+   set OLLAMA_HOST=0.0.0.0:11434
+
+5. Start Ollama (assuming the path from step 2):
+   start "" "C:\Users\Omar Essam2\AppData\Local\Programs\Ollama\ollama.exe" serve
+
+6. Check if it's running:
+   tasklist | findstr ollama
+
+7. Check if port 11434 is open:
+   netstat -an | findstr 11434

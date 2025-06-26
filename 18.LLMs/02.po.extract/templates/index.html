@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RME Document OCR And Chat Bot</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery UI CSS -->
+    <link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-height: 60px;
+        }
+        .search-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .results-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .pdf-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .pdf-item:last-child {
+            border-bottom: none;
+        }
+        .btn-action {
+            margin-right: 5px;
+        }
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .modal-body pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .ui-autocomplete {
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        #project-dropdown {
+            max-height: 300px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        #project-dropdown .dropdown-item {
+            white-space: normal;
+            word-wrap: break-word;
+            padding: 8px 12px;
+        }
+        #project-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .chat-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .chat-input {
+            margin-top: 10px;
+        }
+        #pdf-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Logo -->
+        <div class="header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="/static/logo.png" alt="RME Logo" class="logo me-3">
+                <h1>RME Document OCR And Chat Bot</h1>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-container">
+            <form id="search-form">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="project-name" class="form-label">Project Name</label>
+                        <div class="dropdown">
+                            <input type="text" class="form-control" id="project-name" placeholder="Start typing to search projects..." autocomplete="off" data-bs-toggle="dropdown" aria-expanded="false">
+                            <ul class="dropdown-menu w-100" id="project-dropdown">
+                                <!-- Projects will be loaded here -->
+                                <li><a class="dropdown-item text-center text-muted" href="#">Loading projects...</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="document-type" class="form-label">Document Type</label>
+                        <select class="form-select" id="document-type">
+                            <option value="">Select Document Type</option>
+                            <!-- Options will be loaded dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Search Documents
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container">
+            <h2>Documents <span id="result-count" class="badge bg-primary">0</span></h2>
+            <div id="loading" class="text-center my-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Searching documents...</p>
+            </div>
+            <div id="pdf-list">
+                <!-- PDF items will be loaded here -->
+                <div class="text-center text-muted my-5">
+                    <i class="fas fa-file-pdf fa-3x mb-3"></i>
+                    <p>Select a project and/or document type to see results</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Text Modal -->
+    <div class="modal fade" id="pdfTextModal" tabindex="-1" aria-labelledby="pdfTextModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfTextModalLabel">PDF Text</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="pdf-text-content"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Modal -->
+    <div class="modal fade" id="aiChatModal" tabindex="-1" aria-labelledby="aiChatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aiChatModalLabel">Ask AI about this document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="chat-container" class="chat-container">
+                        <p class="text-muted">Ask a question about this document to get AI-powered insights.</p>
+                    </div>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input type="text" id="ai-question" class="form-control" placeholder="Type your question here...">
+                            <button class="btn btn-primary" id="ask-ai-btn" type="button">
+                                <i class="fas fa-paper-plane"></i> Ask
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery, jQuery UI, and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            let currentPdfId = null;
+            let allProjects = [];
+            
+            // Load document types dropdown
+            $.getJSON('/get_document_types', function(data) {
+                const select = $('#document-type');
+                data.forEach(function(type) {
+                    select.append($('<option>', {
+                        value: type,
+                        text: type
+                    }));
+                });
+            });
+            
+            // Load all projects for dropdown
+            $.getJSON('/get_projects', function(data) {
+                allProjects = data;
+                updateProjectDropdown(data);
+            });
+            
+            // Function to update project dropdown
+            function updateProjectDropdown(projects) {
+                const dropdown = $('#project-dropdown');
+                dropdown.empty();
+                
+                if (projects.length === 0) {
+                    dropdown.append(`<li><a class="dropdown-item text-center text-muted" href="#">No projects found</a></li>`);
+                    return;
+                }
+                
+                projects.forEach(function(project) {
+                    dropdown.append(`<li><a class="dropdown-item" href="#" data-project="${project}">${project}</a></li>`);
+                });
+            }
+            
+            // Handle project dropdown item click
+            $(document).on('click', '#project-dropdown .dropdown-item', function(e) {
+                e.preventDefault();
+                const project = $(this).data('project');
+                $('#project-name').val(project);
+            });
+            
+            // Handle typing in project name field
+            $('#project-name').on('input', function() {
+                const searchTerm = $(this).val().toLowerCase();
+                
+                if (searchTerm.length === 0) {
+                    // Show all projects if search field is empty
+                    updateProjectDropdown(allProjects);
+                } else {
+                    // Filter projects based on search term
+                    const filteredProjects = allProjects.filter(project => 
+                        project.toLowerCase().includes(searchTerm)
+                    );
+                    updateProjectDropdown(filteredProjects);
+                }
+            });
+            
+            // Show dropdown when focusing on project name field
+            $('#project-name').on('focus', function() {
+                $(this).dropdown('show');
+            });
+            
+            // Handle form submission
+            $('#search-form').submit(function(e) {
+                e.preventDefault();
+                
+                const projectName = $('#project-name').val();
+                const documentType = $('#document-type').val();
+                
+                if (!projectName && !documentType) {
+                    alert('Please select at least a project name or document type');
+                    return;
+                }
+                
+                $('#loading').show();
+                $('#pdf-list').empty();
+                
+                $.ajax({
+                    url: '/search_pdfs',
+                    type: 'POST',
+                    data: {
+                        project_name: projectName,
+                        document_type: documentType
+                    },
+                    success: function(response) {
+                        $('#loading').hide();
+                        
+                        if (response.error) {
+                            $('#pdf-list').html(`<div class="alert alert-danger">${response.error}</div>`);
+                            $('#result-count').text(0);
+                            return;
+                        }
+                        
+                        const pdfs = response.pdfs;
+                        $('#result-count').text(pdfs.length);
+                        
+                        if (pdfs.length === 0) {
+                            $('#pdf-list').html(`
+                                <div class="text-center text-muted my-5">
+                                    <i class="fas fa-search fa-3x mb-3"></i>
+                                    <p>No documents found matching your criteria</p>
+                                </div>
+                            `);
+                            return;
+                        }
+                        
+                        pdfs.forEach(function(pdf) {
+                            const pdfItem = $(`
+                                <div class="pdf-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5><i class="fas fa-file-pdf text-danger me-2"></i>${pdf.pdf_filename}</h5>
+                                            <p class="text-muted mb-0">
+                                                Project: ${pdf.project_name || 'N/A'} | 
+                                                Type: ${pdf.document_type || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary btn-action show-text" data-pdf-id="${pdf.id}">
+                                                <i class="fas fa-file-alt me-1"></i> Show Text
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success btn-action ask-ai" data-pdf-id="${pdf.id}" data-pdf-name="${pdf.pdf_filename}">
+                                                <i class="fas fa-robot me-1"></i> Ask AI
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                            
+                            $('#pdf-list').append(pdfItem);
+                        });
+                    },
+                    error: function() {
+                        $('#loading').hide();
+                        $('#pdf-list').html(`
+                            <div class="alert alert-danger">
+                                An error occurred while searching. Please try again.
+                            </div>
+                        `);
+                        $('#result-count').text(0);
+                    }
+                });
+            });
+            
+            // Show PDF text
+            $(document).on('click', '.show-text', function() {
+                const pdfId = $(this).data('pdf-id');
+                
+                $('#pdf-text-content').html(`
+                    <div class="text-center my-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading document text...</p>
+                    </div>
+                `);
+                
+                $('#pdfTextModal').modal('show');
+                
+                $.getJSON(`/get_pdf_text/${pdfId}`, function(data) {
+                    if (data.error) {
+                        $('#pdf-text-content').html(`<div class="alert alert-danger">${data.error}</div>`);
+                        return;
+                    }
+                    
+                    $('#pdfTextModalLabel').text(data.filename);
+                    $('#pdf-text-content').text(data.text);
+                }).fail(function() {
+                    $('#pdf-text-content').html(`
+                        <div class="alert alert-danger">
+                            Failed to load document text. Please try again.
+                        </div>
+                    `);
+                });
+            });
+            
+            // Ask AI about PDF
+            $(document).on('click', '.ask-ai', function() {
+                currentPdfId = $(this).data('pdf-id');
+                const pdfName = $(this).data('pdf-name');
+                
+                $('#aiChatModalLabel').text(`Ask AI about: ${pdfName}`);
+                $('#chat-container').html(`
+                    <p class="text-muted">Ask a question about this document to get AI-powered insights.</p>
+                `);
+                $('#ai-question').val('');
+                $('#aiChatModal').modal('show');
+            });
+            
+            // Send question to AI
+            $('#ask-ai-btn').click(function() {
+                const question = $('#ai-question').val().trim();
+                
+                if (!question) {
+                    alert('Please enter a question');
+                    return;
+                }
+                
+                if (!currentPdfId) {
+                    alert('No document selected');
+                    return;
+                }
+                
+                // Add user question to chat
+                $('#chat-container').append(`
+                    <div class="mb-3">
+                        <strong>You:</strong> ${question}
+                    </div>
+                `);
+                
+                // Add loading indicator
+                const loadingDiv = $(`
+                    <div class="mb-3" id="ai-loading">
+                        <strong>AI:</strong> <span class="loading"></span> Thinking...
+                    </div>
+                `);
+                $('#chat-container').append(loadingDiv);
+                
+                // Scroll to bottom of chat
+                $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                
+                // Clear input
+                $('#ai-question').val('');
+                
+                // Send request to server
+                $.ajax({
+                    url: '/ask_ai',
+                    type: 'POST',
+                    data: {
+                        pdf_id: currentPdfId,
+                        question: question
+                    },
+                    success: function(response) {
+                        // Remove loading indicator
+                        $('#ai-loading').remove();
+                        
+                        if (response.error) {
+                            $('#chat-container').append(`
+                                <div class="mb-3 text-danger">
+                                    <strong>Error:</strong> ${response.error}
+                                </div>
+                            `);
+                        } else {
+                            // Add AI response to chat
+                            $('#chat-container').append(`
+                                <div class="mb-3">
+                                    <strong>AI:</strong> ${response.answer.replace(/\n/g, '<br>')}
+                                </div>
+                            `);
+                        }
+                        
+                        // Scroll to bottom of chat
+                        $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                    },
+                    error: function() {
+                        // Remove loading indicator
+                        $('#ai-loading').remove();
+                        
+                        $('#chat-container').append(`
+                            <div class="mb-3 text-danger">
+                                <strong>Error:</strong> Failed to get a response from the AI. Please try again.
+                            </div>
+                        `);
+                        
+                        // Scroll to bottom of chat
+                        $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                    }
+                });
+            });
+            
+            // Allow pressing Enter to send question
+            $('#ai-question').keypress(function(e) {
+                if (e.which === 13) {
+                    $('#ask-ai-btn').click();
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+DIRECT COMMANDS FOR STARTING OLLAMA API
+
+1. First, connect to the GPU machine:
+   ssh -l "ROWAD\Omar Essam2" 10.10.12.202
+   (Enter password: PMO@1234)
+
+2. Try this command to see what shell you're in:
+   echo %COMSPEC%
+
+3. Try to switch to PowerShell:
+   powershell
+
+4. If you get a PS prompt, try these commands one by one:
+
+   # Find where Ollama is installed
+   dir "C:\Users\Omar Essam2\AppData\Local\Programs\Ollama" /s /b | findstr ollama.exe
+
+   # Kill any running Ollama process
+   taskkill /F /IM ollama.exe
+
+   # Set environment variable
+   set OLLAMA_HOST=0.0.0.0:11434
+
+   # Start Ollama directly with the full path
+   start "" "C:\Users\Omar Essam2\AppData\Local\Programs\Ollama\ollama.exe" serve
+
+5. Wait a few seconds, then check if it's running:
+   tasklist | findstr ollama
+
+6. Test if the API is accessible locally:
+   curl http://localhost:11434/api/tags
+
+7. If everything works, update your chatbot to use:
+   http://10.10.12.202:11434

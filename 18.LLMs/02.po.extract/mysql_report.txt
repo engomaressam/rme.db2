@@ -1,0 +1,56 @@
+================================================================================
+PDF EXTRACTION DATABASE REPORT - 2025-05-19 09:11:22.523149
+================================================================================
+
+Checking PDF extraction tables in database RME_TEST:
+
+TABLE: po.pdfs
+--------------------------------------------------------------------------------
+Row count: 1688
+
+Columns:
+  - id: int NO PRI
+  - pdf_path: varchar(1000) NO 
+  - pdf_filename: varchar(255) NO 
+  - pdf_hash: varchar(64) NO MUL
+  - extracted_text: longtext YES 
+  - processed_timestamp: timestamp YES 
+
+PDF Statistics:
+  - Last processed PDF: اعمال مصنعيات توريد وتركيب اعمال WPC والبرجولات.pdf at 2025-05-19 09:11:04
+
+  Top 5 folders:
+    - 1. Contract\LOI.PDF: 3 PDFs
+    - 1. Contract\OP-URSC-1388-C-00014-2015.PDF: 2 PDFs
+    - 2. Invoices\Target - Invoice No. 1 dated 16-06-2016.pdf: 1 PDFs
+    - 2. Invoices\Target - Invoice No. 1 dated 24-04-2016.pdf: 1 PDFs
+    - 2. Invoices\Target - Invoice No. 2 dated 24-11-2016.PDF: 1 PDFs
+
+
+TABLE: po.pdf_chunks
+--------------------------------------------------------------------------------
+Row count: 108718
+
+Columns:
+  - id: int NO PRI
+  - pdf_id: int NO MUL
+  - chunk_number: int NO 
+  - chunk_text: longtext YES 
+
+Chunk Statistics:
+  - Total chunks: 1688
+  - Average chunks per PDF: 64.41
+  - Min chunks in a PDF: 2
+  - Max chunks in a PDF: 2042
+
+
+SUMMARY:
+--------------------------------------------------------------------------------
+Total PDFs processed: 1688
+Total text chunks extracted: 108718
+Average chunks per PDF: 64.41
+
+Processing rate: 101.40 PDFs per hour
+Processing started: 2025-05-18 16:32:13
+Last PDF processed: 2025-05-19 09:11:04
+Total processing time: 16.65 hours

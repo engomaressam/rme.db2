@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
+  <meta lastmodifieddate="2025-05-27">
+    <creator>NetworkX 3.4.2</creator>
+  </meta>
+  <graph defaultedgetype="directed" mode="static" name="">
+    <attributes mode="static" class="edge">
+      <attribute id="1" title="predicate" type="string" />
+    </attributes>
+    <attributes mode="static" class="node">
+      <attribute id="0" title="type" type="string" />
+    </attributes>
+    <nodes>
+      <node id="Project A" label="Project A">
+        <attvalues>
+          <attvalue for="0" value="project" />
+        </attvalues>
+      </node>
+      <node id="Project B" label="Project B">
+        <attvalues>
+          <attvalue for="0" value="project" />
+        </attvalues>
+      </node>
+      <node id="Supplier X" label="Supplier X">
+        <attvalues>
+          <attvalue for="0" value="supplier" />
+        </attvalues>
+      </node>
+      <node id="Supplier Y" label="Supplier Y">
+        <attvalues>
+          <attvalue for="0" value="supplier" />
+        </attvalues>
+      </node>
+      <node id="Supplier Z" label="Supplier Z">
+        <attvalues>
+          <attvalue for="0" value="supplier" />
+        </attvalues>
+      </node>
+      <node id="PO-001" label="PO-001">
+        <attvalues>
+          <attvalue for="0" value="po" />
+        </attvalues>
+      </node>
+      <node id="PO-002" label="PO-002">
+        <attvalues>
+          <attvalue for="0" value="po" />
+        </attvalues>
+      </node>
+      <node id="PO-003" label="PO-003">
+        <attvalues>
+          <attvalue for="0" value="po" />
+        </attvalues>
+      </node>
+      <node id="PO-004" label="PO-004">
+        <attvalues>
+          <attvalue for="0" value="po" />
+        </attvalues>
+      </node>
+      <node id="Item 1" label="Item 1">
+        <attvalues>
+          <attvalue for="0" value="item" />
+        </attvalues>
+      </node>
+      <node id="Item 2" label="Item 2">
+        <attvalues>
+          <attvalue for="0" value="item" />
+        </attvalues>
+      </node>
+      <node id="Item 3" label="Item 3">
+        <attvalues>
+          <attvalue for="0" value="item" />
+        </attvalues>
+      </node>
+      <node id="Item 4" label="Item 4">
+        <attvalues>
+          <attvalue for="0" value="item" />
+        </attvalues>
+      </node>
+      <node id="Item 5" label="Item 5">
+        <attvalues>
+          <attvalue for="0" value="item" />
+        </attvalues>
+      </node>
+      <node id="1000 USD" label="1000 USD" />
+      <node id="2000 USD" label="2000 USD" />
+      <node id="1500 USD" label="1500 USD" />
+      <node id="3000 USD" label="3000 USD" />
+      <node id="2500 USD" label="2500 USD" />
+    </nodes>
+    <edges>
+      <edge source="Project A" target="PO-001" id="0">
+        <attvalues>
+          <attvalue for="1" value="has_po" />
+        </attvalues>
+      </edge>
+      <edge source="Project A" target="PO-002" id="1">
+        <attvalues>
+          <attvalue for="1" value="has_po" />
+        </attvalues>
+      </edge>
+      <edge source="Project B" target="PO-003" id="2">
+        <attvalues>
+          <attvalue for="1" value="has_po" />
+        </attvalues>
+      </edge>
+      <edge source="Project B" target="PO-004" id="3">
+        <attvalues>
+          <attvalue for="1" value="has_po" />
+        </attvalues>
+      </edge>
+      <edge source="Supplier X" target="PO-001" id="4">
+        <attvalues>
+          <attvalue for="1" value="issued_po" />
+        </attvalues>
+      </edge>
+      <edge source="Supplier X" target="PO-004" id="5">
+        <attvalues>
+          <attvalue for="1" value="issued_po" />
+        </attvalues>
+      </edge>
+      <edge source="Supplier Y" target="PO-002" id="6">
+        <attvalues>
+          <attvalue for="1" value="issued_po" />
+        </attvalues>
+      </edge>
+      <edge source="Supplier Z" target="PO-003" id="7">
+        <attvalues>
+          <attvalue for="1" value="issued_po" />
+        </attvalues>
+      </edge>
+      <edge source="PO-001" target="Item 1" id="8">
+        <attvalues>
+          <attvalue for="1" value="has_item" />
+        </attvalues>
+      </edge>
+      <edge source="PO-001" target="Item 2" id="9">
+        <attvalues>
+          <attvalue for="1" value="has_item" />
+        </attvalues>
+      </edge>
+      <edge source="PO-002" target="Item 3" id="10">
+        <attvalues>
+          <attvalue for="1" value="has_item" />
+        </attvalues>
+      </edge>
+      <edge source="PO-003" target="Item 4" id="11">
+        <attvalues>
+          <attvalue for="1" value="has_item" />
+        </attvalues>
+      </edge>
+      <edge source="PO-004" target="Item 5" id="12">
+        <attvalues>
+          <attvalue for="1" value="has_item" />
+        </attvalues>
+      </edge>
+      <edge source="Item 1" target="1000 USD" id="13">
+        <attvalues>
+          <attvalue for="1" value="has_value" />
+        </attvalues>
+      </edge>
+      <edge source="Item 2" target="2000 USD" id="14">
+        <attvalues>
+          <attvalue for="1" value="has_value" />
+        </attvalues>
+      </edge>
+      <edge source="Item 3" target="1500 USD" id="15">
+        <attvalues>
+          <attvalue for="1" value="has_value" />
+        </attvalues>
+      </edge>
+      <edge source="Item 4" target="3000 USD" id="16">
+        <attvalues>
+          <attvalue for="1" value="has_value" />
+        </attvalues>
+      </edge>
+      <edge source="Item 5" target="2500 USD" id="17">
+        <attvalues>
+          <attvalue for="1" value="has_value" />
+        </attvalues>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

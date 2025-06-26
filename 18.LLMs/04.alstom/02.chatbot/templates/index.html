@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alstom Project Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Rowad Modern Engineering Logo" class="navbar-logo">
+            <h1 class="navbar-title">Alstom Project Assistant</h1>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>Project Documentation Assistant</h2>
+            </div>
+            
+            <div class="chat-messages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+            
+            <form class="chat-input chat-form">
+                <input type="text" placeholder="Ask a question about the Alstom project..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>&copy; 2025 Rowad Modern Engineering. All rights reserved.</p>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>

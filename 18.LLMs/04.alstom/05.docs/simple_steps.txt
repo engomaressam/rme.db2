@@ -1,0 +1,28 @@
+SIMPLE STEPS TO START OLLAMA ON GPU MACHINE
+
+1. SSH into the GPU machine:
+   ssh -l "ROWAD\Omar Essam2" 10.10.12.202
+   (Enter password: PMO@1234)
+
+2. First, type this to switch to PowerShell:
+   powershell
+
+3. Check if Ollama is installed:
+   where.exe ollama
+
+4. Kill any running Ollama process:
+   taskkill /F /IM ollama.exe
+
+5. Set the environment variable:
+   $env:OLLAMA_HOST="0.0.0.0:11434"
+
+6. Start Ollama:
+   & "C:\Users\Omar Essam2\AppData\Local\Programs\Ollama\ollama.exe" serve
+
+7. In a new PowerShell window (open another SSH session):
+   ssh -l "ROWAD\Omar Essam2" 10.10.12.202
+   powershell
+   Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -Method Get
+
+8. If everything works, update your chatbot to use:
+   http://10.10.12.202:11434

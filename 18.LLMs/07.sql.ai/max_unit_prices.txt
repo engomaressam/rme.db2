@@ -1,0 +1,13 @@
+Top 10 unit prices for project: EGAT Pelletizing Plant-0144
+  UNIT_PRICE | ITEM_DESCRIPTION                                   | VENDOR_NAME
+------------------------------------------------------------------------------------------
+    279000.0 | دكاك رولة (هراس)                                   | شركة كيميت للهندسة
+    279000.0 | دكاك رولة (هراس)                                   | شركة كيميت للهندسة
+    274455.0 | MEC Butterfly Float Valve Double Flanged Size 900m | هرمس لتوريد وتركيب وصيانة ماكينات المصانع -محمد عبد الله محمد احمد
+    180000.0 | دكاك رولة (هراس)                                   | شركة مصر للمعدات
+   110344.02 | Metal doors Finish Powder Coated with Jamp Depth=2 | الفرنسية للصناعات المعدنية فرانس ميتال
+    110000.0 | جهاز توتال استيشن                                  | سيرفيينج سيستمز
+    108300.0 | Butterfly Valve Series 7500 Ductile Cast Iron GGG5 | سييرا للهندسه والتصنيع
+    108300.0 | Butterfly Valve Series 7500 Ductile Cast Iron GGG5 | سييرا للهندسة والمقاولات
+    92970.42 | Metal doors Finish Powder Coated with Jamp Depth 2 | الفرنسية للصناعات المعدنية فرانس ميتال
+  83999.9994 | Photocopier Ricoh MP 4055                          | اس 21 للحلول المتكامله

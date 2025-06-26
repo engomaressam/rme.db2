@@ -1,0 +1,27 @@
+COMMANDS TO USE OLLAMA FROM ANOTHER USER'S PROFILE
+
+After connecting with:
+ssh -l "ROWAD\Omar Essam2" 10.10.12.202
+
+Try these commands:
+
+1. Check if Ollama is installed in the other user's profile:
+   dir "C:\Users\Omar Abdelhakim\AppData\Local\Programs\Ollama" /s /b | findstr ollama.exe
+
+2. Kill any running Ollama process (this will affect the other user if they're using it):
+   taskkill /F /IM ollama.exe
+
+3. Set the environment variable:
+   set OLLAMA_HOST=0.0.0.0:11434
+
+4. Start Ollama from the other user's profile:
+   start "" "C:\Users\Omar Abdelhakim\AppData\Local\Programs\Ollama\ollama.exe" serve
+
+5. Check if it's running:
+   tasklist | findstr ollama
+
+6. Check if port 11434 is open:
+   netstat -an | findstr 11434
+
+7. If everything works, update your chatbot to use:
+   http://10.10.12.202:11434

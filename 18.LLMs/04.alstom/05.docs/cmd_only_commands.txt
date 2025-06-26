@@ -1,0 +1,36 @@
+WINDOWS CMD COMMANDS FOR STARTING OLLAMA API
+
+1. After connecting to the GPU machine via SSH, you'll likely be in a CMD shell.
+   Try these commands that should work in a standard Windows command prompt:
+
+   # Check if Ollama is installed
+   where ollama
+
+   # Kill any running Ollama process
+   taskkill /F /IM ollama.exe
+
+   # Set environment variable for the current session
+   set OLLAMA_HOST=0.0.0.0:11434
+
+   # Start Ollama in the background
+   start /B ollama serve
+
+   # Check if Ollama is running
+   tasklist | findstr ollama
+
+   # Test if API is accessible (if curl is available)
+   curl http://localhost:11434/api/tags
+
+2. If the above commands don't work, try with the full path:
+
+   # Kill any running Ollama process
+   taskkill /F /IM ollama.exe
+
+   # Set environment variable
+   set OLLAMA_HOST=0.0.0.0:11434
+
+   # Start Ollama with full path (adjust path if needed)
+   start /B "C:\Users\Omar Essam2\AppData\Local\Programs\Ollama\ollama.exe" serve
+
+3. Once Ollama is running on the GPU machine, update your chatbot to use:
+   http://10.10.12.202:11434

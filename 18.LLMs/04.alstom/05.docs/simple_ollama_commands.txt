@@ -1,0 +1,26 @@
+# 1. Check if Ollama is installed
+Get-Command ollama -ErrorAction SilentlyContinue
+
+# 2. Stop any running Ollama process
+Stop-Process -Name ollama -Force -ErrorAction SilentlyContinue
+
+# 3. Set environment variable for current session
+$env:OLLAMA_HOST='0.0.0.0:11434'
+
+# 4. Set environment variable permanently
+[Environment]::SetEnvironmentVariable('OLLAMA_HOST', '0.0.0.0:11434', 'User')
+
+# 5. Start Ollama service (simplified command)
+Start-Process ollama -ArgumentList "serve" -WindowStyle Hidden
+
+# 6. Check if Ollama is running
+Get-Process -Name ollama -ErrorAction SilentlyContinue
+
+# 7. Simple firewall rule (if the complex one doesn't work)
+New-NetFirewallRule -Name "OllamaAPI" -DisplayName "Ollama API" -Direction Inbound -Protocol TCP -LocalPort 11434 -Action Allow -ErrorAction SilentlyContinue
+
+# 8. Test if API is accessible locally
+try { Invoke-RestMethod -Uri 'http://localhost:11434/api/tags' -Method Get -TimeoutSec 5 } catch { $_.Exception.Message }
+
+# 9. Get IP address of the machine
+ipconfig

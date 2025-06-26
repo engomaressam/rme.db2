@@ -1,0 +1,33 @@
+Sample supplier/terms questions:
+What are the terms for supplier الشركة المصرية لصناعة العازلات الكهربائية?
+Show all POs for supplier الشركة المصرية لصناعة العازلات الكهربائية and their terms.
+List PO numbers and terms for الشركة المصرية لصناعة العازلات الكهربائية.
+What are the terms for supplier الشركة المصرية لصناعة العازلات الكهربائية?
+Show all POs for supplier الشركة المصرية لصناعة العازلات الكهربائية and their terms.
+List PO numbers and terms for الشركة المصرية لصناعة العازلات الكهربائية.
+What are the terms for supplier الشركة المصرية لصناعة العازلات الكهربائية?
+Show all POs for supplier الشركة المصرية لصناعة العازلات الكهربائية and their terms.
+List PO numbers and terms for الشركة المصرية لصناعة العازلات الكهربائية.
+What are the terms for supplier الشركة المصرية لصناعة العازلات الكهربائية?
+Show all POs for supplier الشركة المصرية لصناعة العازلات الكهربائية and their terms.
+List PO numbers and terms for الشركة المصرية لصناعة العازلات الكهربائية.
+What are the terms for supplier الشركة المصرية لصناعة العازلات الكهربائية?
+Show all POs for supplier الشركة المصرية لصناعة العازلات الكهربائية and their terms.
+List PO numbers and terms for الشركة المصرية لصناعة العازلات الكهربائية.
+
+Sample project questions:
+What are the terms for project PSP Master Organization?
+Show all POs for project PSP Master Organization and their terms.
+List PO numbers and terms for project PSP Master Organization.
+What are the terms for project Beni-Suef Power Plant EPC?
+Show all POs for project Beni-Suef Power Plant EPC and their terms.
+List PO numbers and terms for project Beni-Suef Power Plant EPC.
+What are the terms for project Suez Gulf Substation?
+Show all POs for project Suez Gulf Substation and their terms.
+List PO numbers and terms for project Suez Gulf Substation.
+What are the terms for project Attaqa Power Plant?
+Show all POs for project Attaqa Power Plant and their terms.
+List PO numbers and terms for project Attaqa Power Plant.
+What are the terms for project Berket Ghalion?
+Show all POs for project Berket Ghalion and their terms.
+List PO numbers and terms for project Berket Ghalion.
