@@ -1,0 +1,30 @@
+Verifying Excel data against PDF for pages: [3, 13, 23]
+
+Successfully loaded Excel file: d:\OneDrive2\OneDrive - Rowad Modern Engineering\x004 Data Science\03.rme.db\00.repo\rme.db\06.adhoc.requests\17.from.uae\ADWEA_APPROVED_CONTRACTORS_LIST.xlsx
+Successfully opened PDF: d:\OneDrive2\OneDrive - Rowad Modern Engineering\x004 Data Science\03.rme.db\00.repo\rme.db\06.adhoc.requests\17.from.uae\ADWEA_APPROVED_CONTRACTORS_LIST.pdf
+
+--- Verifying Page 3 ---
+  PDF Headers - Work Group: '1110200 - POWER DISTRIBUTION CONSULTANCY', Criteria: 'VERY GOOD: > 30M, GOOD:10M-30M, AVERAGE: 3M-9.99M, BELOW AVERAGE: 1M-2.99M'
+  PDF First Row - Company ID: '9918272', Company Name: 'CONSULTING ENGINEERING GROUP
+(COENGR) - ABU DHABI BRANCH'
+  Excel Match - Work Group: '1110200 - POWER DISTRIBUTION CONSULTANCY', Criteria: 'VERY GOOD: > 30M, GOOD:10M-30M, AVERAGE: 3M-9.99M, BELOW AVERAGE: 1M-2.99M'
+  Verification: Work Group MATCHES.
+  Verification: Criteria MATCHES.
+---
+--- Verifying Page 13 ---
+  PDF Headers - Work Group: '1130400 - FIRE PROTECTION CONSULTANCY', Criteria: 'VERY GOOD: > 10M, GOOD: 3M-10M, AVERAGE: 1M-2.99M, BELOW AVERAGE: 25K-0.99M'
+  PDF First Row - Company ID: '99103213', Company Name: 'ULTRA TECH ENGINEERING
+CONSULTANTS LLC'
+  Excel Match - Work Group: '1130400 - FIRE PROTECTION CONSULTANCY', Criteria: 'VERY GOOD: > 10M, GOOD: 3M-10M, AVERAGE: 1M-2.99M, BELOW AVERAGE: 25K-0.99M'
+  Verification: Work Group MATCHES.
+  Verification: Criteria MATCHES.
+---
+--- Verifying Page 23 ---
+  PDF Headers - Work Group: '1230300 - PROJECT MANAGEMENT CONSULTANCY', Criteria: 'VERY GOOD: > 10M, GOOD: 3M-10M, AVERAGE: 1M-2.99M, BELOW AVERAGE: 25K-0.99M'
+  PDF First Row - Company ID: '9976041', Company Name: 'AECOM MIDDLE EAST LIMITED - ABU
+DHABI'
+  Excel Match - Work Group: '1230300 - PROJECT MANAGEMENT CONSULTANCY', Criteria: 'VERY GOOD: > 10M, GOOD: 3M-10M, AVERAGE: 1M-2.99M, BELOW AVERAGE: 25K-0.99M'
+  Verification: Work Group MATCHES.
+  Verification: Criteria MATCHES.
+---
+Verification script finished.

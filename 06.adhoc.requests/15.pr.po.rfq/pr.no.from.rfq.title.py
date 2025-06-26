@@ -1,0 +1,14 @@
+
+def extract_pr_numbers_enhanced(title):
+    matches = re.findall(r'PR[-_ ]?(?:NO[.\s]*)?(\d+)|pr[-_ ](\d+)', title, re.IGNORECASE)
+    # Flatten and filter out None values from regex match groups
+    pr_numbers = [num for match in matches for num in match if num]
+    return ', '.join(pr_numbers) if pr_numbers else None
+
+# Apply the enhanced function
+df['PR Number'] = df['Title of RFQ'].astype(str).apply(extract_pr_numbers_enhanced)
+
+# Save the updated results to a new file
+final_file_path = "PR_Numbers.xlsx"
+df.to_excel(final_file_path, index=False)
+

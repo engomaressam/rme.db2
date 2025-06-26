@@ -1,0 +1,46 @@
+SELECT 
+    COALESCE(in_data.PROJECT_NAME, out_data.PROJECT_NAME) AS PROJECT_NAME,
+    COALESCE(in_data.Month, out_data.Month) AS Month,
+    COALESCE(Total_In, 0) AS Total_In,
+    COALESCE(Total_Out, 0) AS Total_Out
+FROM 
+    (SELECT 
+        PROJECT_NAME,
+        DATE_FORMAT(STR_TO_DATE(RECEIPT_DATE, '%Y-%m-%d'), '%Y-%m') AS `Month`,
+        SUM(FUNC_AMOUNT) AS Total_In
+    FROM SWD_Collection_Report
+    GROUP BY PROJECT_NAME, `Month`) AS in_data
+LEFT JOIN 
+    (SELECT 
+        PROJECT_NAME,
+        DATE_FORMAT(STR_TO_DATE(CHECK_DATE, '%Y-%m-%d'), '%Y-%m') AS `Month`,
+        SUM(EQUIV) AS Total_Out
+    FROM RME_ap_check_payments_Report
+    GROUP BY PROJECT_NAME, `Month`) AS out_data
+ON in_data.PROJECT_NAME = out_data.PROJECT_NAME 
+AND in_data.Month = out_data.Month
+
+UNION 
+
+SELECT 
+    COALESCE(in_data.PROJECT_NAME, out_data.PROJECT_NAME) AS PROJECT_NAME,
+    COALESCE(in_data.Month, out_data.Month) AS Month,
+    COALESCE(Total_In, 0) AS Total_In,
+    COALESCE(Total_Out, 0) AS Total_Out
+FROM 
+    (SELECT 
+        PROJECT_NAME,
+        DATE_FORMAT(STR_TO_DATE(RECEIPT_DATE, '%Y-%m-%d'), '%Y-%m') AS `Month`,
+        SUM(FUNC_AMOUNT) AS Total_In
+    FROM SWD_Collection_Report
+    GROUP BY PROJECT_NAME, `Month`) AS in_data
+RIGHT JOIN 
+    (SELECT 
+        PROJECT_NAME,
+        DATE_FORMAT(STR_TO_DATE(CHECK_DATE, '%Y-%m-%d'), '%Y-%m') AS `Month`,
+        SUM(EQUIV) AS Total_Out
+    FROM RME_ap_check_payments_Report
+    GROUP BY PROJECT_NAME, `Month`) AS out_data
+ON in_data.PROJECT_NAME = out_data.PROJECT_NAME 
+AND in_data.Month = out_data.Month
+ORDER BY PROJECT_NAME, Month;

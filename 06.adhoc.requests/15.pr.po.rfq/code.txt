@@ -1,0 +1,14 @@
+# Updated function to extract PR numbers considering additional variations
+def extract_pr_numbers_updated(title):
+    matches = re.findall(r'PR[_ ](?:NO[.\s]*)?(\d+)', title, re.IGNORECASE)
+    return ', '.join(matches) if matches else None
+
+# Apply the updated function
+df['PR Number'] = df['Title of RFQ'].astype(str).apply(extract_pr_numbers_updated)
+
+# Save the corrected file
+corrected_file_path = "/mnt/data/Corrected_Extracted_PR_Numbers.xlsx"
+df.to_excel(corrected_file_path, index=False)
+
+# Provide the download link
+corrected_file_path

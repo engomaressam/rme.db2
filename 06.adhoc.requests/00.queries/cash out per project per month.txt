@@ -1,0 +1,7 @@
+SELECT 
+    PROJECT_NAME,
+    DATE_FORMAT(STR_TO_DATE(CHECK_DATE, '%Y-%m-%d'), '%Y-%m') AS `Month`,
+    SUM(EQUIV) AS Total_Out
+FROM RME_ap_check_payments_Report
+GROUP BY PROJECT_NAME, `Month`
+ORDER BY PROJECT_NAME, `Month`;
