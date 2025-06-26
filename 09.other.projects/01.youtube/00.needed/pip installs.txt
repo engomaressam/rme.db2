@@ -1,0 +1,31 @@
+pip install --upgrade pip setuptools wheel
+
+
+pip install --upgrade certifi urllib3 requests
+
+
+pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+pip install ffmpeg-python
+pip install httplib2
+pip install requests
+pip install certifi urllib3
+
+
+all
+pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client ffmpeg-python httplib2 requests certifi urllib3
+
+fix ssl
+pip uninstall certifi urllib3 -y
+pip install --upgrade certifi urllib3
+
+pip install google-auth google-auth-oauthlib google-auth-httplib2 \
+    google-api-python-client ffmpeg-python httplib2 requests \
+    certifi urllib3 six protobuf uritemplate
+
+
+The correct package name for googleapiclient is actually google-api-python-client
+
+
+all all again
+
+pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client ffmpeg-python httplib2 requests certifi urllib3 six protobuf uritemplate

@@ -1,0 +1,7 @@
+C:\ffmpeg\bin
+
+check
+
+ffmpeg -version
+
+pip install ffmpeg-python
