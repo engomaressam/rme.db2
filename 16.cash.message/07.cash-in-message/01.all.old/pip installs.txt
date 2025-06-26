@@ -1,3 +1,0 @@
-pip install oracledb
-pip install requests
-pip install twilio
