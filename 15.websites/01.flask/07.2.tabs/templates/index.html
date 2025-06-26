@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Download Excel Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="top-bar">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+
+    <div class="container">
+        <h2>Blue For Nada</h2>
+
+        <form action="/download" method="POST">
+            <div class="form-group">
+                <label for="project">Select Project:</label>
+                <select name="project_name" id="project">
+                    <option value="all">All</option>
+                    {% for project in projects %}
+                        <option value="{{ project }}">{{ project }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="client">Select Client:</label>
+                <select name="client_name" id="client">
+                    <option value="all">All</option>
+                    {% for client in clients %}
+                        <option value="{{ client }}">{{ client }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="from_date">From Date:</label>
+                <input type="date" name="from_date" id="from_date">
+            </div>
+
+            <div class="form-group">
+                <label for="to_date">To Date:</label>
+                <input type="date" name="to_date" id="to_date">
+            </div>
+
+            <div class="form-group">
+                <button type="submit">📥 Download Excel</button>
+            </div>
+        </form>
+    </div>
+</body>
+<footer>
+    <p>&copy; {{ current_year }} Rowad Modern Engineering. All rights reserved.</p>
+</footer>
+</html>
