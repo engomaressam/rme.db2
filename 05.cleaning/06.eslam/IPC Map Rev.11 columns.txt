@@ -1,0 +1,30 @@
+ #   Column                                        Non-Null Count  Dtype         
+---  ------                                        --------------  -----         
+ 0   project                                       4622 non-null   object        
+ 1   package                                       4622 non-null   object        
+ 2   invoice_no.                                   4618 non-null   float64       
+ 3   invoice_month                                 4622 non-null   object        
+ 4   cut_off_date                                  4618 non-null   object        
+ 5   submittal_date                                4618 non-null   datetime64[ns]
+ 6   duration_of_pay                               4615 non-null   float64       
+ 7   pay_due_date                                  4622 non-null   object        
+ 8   collection_date                               0 non-null      float64       
+ 9   status                                        0 non-null      float64       
+ 10  collection_amount                             0 non-null      float64       
+ 11  monthly_amount_(submitted)                    1631 non-null   float64       
+ 12  cummulative_amount_(submitted)                3547 non-null   float64       
+ 13  approval_date                                 3966 non-null   object        
+ 14  monthly_amount_approved                       1320 non-null   float64       
+ 15  cummulative_amount_approved                   3190 non-null   float64       
+ 16  dp_amount                                     132 non-null    float64       
+ 17  on_account_amount                             56 non-null     float64       
+ 18  net_amount_monthly_approved                   4011 non-null   float64       
+ 19  material_on_site_cummulative_amount_approved  2532 non-null   float64       
+ 20  v.o._cummulative_amount_approved              594 non-null    float64       
+ 21  ncr_cummulative_amount_approved               192 non-null    float64       
+ 22  escalation_cummulative_amount_approved        546 non-null    float64       
+ 23  1st_retention_cummulative_amount_approved     658 non-null    float64       
+ 24  2nd_retention_cummulative_amount_approved     592 non-null    float64       
+dtypes: datetime64[ns](1), float64(18), object(6)
+memory usage: 902.9+ KB
+None
