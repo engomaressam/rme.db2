@@ -1,0 +1,73 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="FlowStatements" VisualBasic.Settings="{x:Null}" sap:VirtualizedContainerService.HintSize="858.4,1574.4" sap2010:WorkflowViewState.IdRef="FlowStatements_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>System.ComponentModel</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.EventBasedAsync</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Primitives</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="FlowStatements" sap:VirtualizedContainerService.HintSize="416,1509.6" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment sap:VirtualizedContainerService.HintSize="353.6,300" sap2010:WorkflowViewState.IdRef="Comment_1" Text="Layouts refer to the visual organization of your activities within a workflow. &#xD;&#xA;&#xD;&#xA;Conditional statements, on the other hand, are programming constructs that allow you to control the flow of your automation based on certain conditions or criteria.&#xD;&#xA;&#xD;&#xA;By using layouts and conditional statements together, you can create complex automation workflows that are both easy to understand and highly functional. " />
+    <ui:Comment DisplayName="Comment conditions - if/else if" sap:VirtualizedContainerService.HintSize="353.6,415.2" sap2010:WorkflowViewState.IdRef="Comment_2" Text="// If/If Else Use cases&#xD;&#xA;Checking the status of a payment (done/not done) and performing a set of different operations in each case. &#xD;&#xA;&#xD;&#xA;2&#xD;&#xA;Making sure that the outcome of the previous operation in the sequence is successful.&#xD;&#xA;&#xD;&#xA;3&#xD;&#xA;Checking the balance of an account to ensure that there is enough money to pay an invoice.&#xD;&#xA;---------------------------------Condition and practice------------------&#xD;&#xA;4&#xD;&#xA;Checking if something has happened in a system like, if an element or an image exists, and performing an action based on that.&#xD;&#xA;&#xD;&#xA;the if activities&#xD;&#xA;1- inside sequence&#xD;&#xA;2- inside flowchart&#xD;&#xA;3- isnide assign activity" />
+    <ui:Comment DisplayName="Comment Loops" sap:VirtualizedContainerService.HintSize="353.6,145.6" sap2010:WorkflowViewState.IdRef="Comment_3" Text="// Write your comments in the Text property&#xD;&#xA;1. when specific condition met:&#xD;&#xA;while,&#xD;&#xA;do-while&#xD;&#xA;2. specific iterative a mount:&#xD;&#xA;for&#xD;&#xA;3. loops stops: break, max iteration" />
+    <ui:Comment DisplayName="Comment Switch" sap:VirtualizedContainerService.HintSize="353.6,560" sap2010:WorkflowViewState.IdRef="Comment_4" Text="// Write your comments in the Text property&#xD;&#xA;&#xD;&#xA;Switch is a type of control flow activity that enables you to select one choice out of multiple, based on the value of a specified expression.&#xD;&#xA;&#xD;&#xA;The Switch activity can be useful to categorize data according to a custom number of cases. Depending on the case, you can have a set of activities that differ for each case. You can also set actions to take if the condition isn't matched with any defined case.&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;What are some business scenarios in which I will use Switch?&#xD;&#xA;&#xD;&#xA;1&#xD;&#xA;An invoice that has three potential statuses (not started, pending, approved) and a different set of actions for each status.&#xD;&#xA;&#xD;&#xA;2&#xD;&#xA;A process that orders a different set of raw materials depending on the supplier name.&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;The condition in a Switch isn't Boolean, like in the case of an If or Loop. If you haven't already, check out this activity and its properties in Studio." />
+  </Sequence>
+</Activity>

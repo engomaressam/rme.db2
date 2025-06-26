@@ -1,22 +1,3 @@
-# 🚧 Repository Transition Notice
-
-**This repository is being reorganized.**
-
-## New Structure
-This repository is being split into smaller, more focused repositories under [omare32](https://github.com/omare32).
-
-## New Repositories
-- [ ] 01.connections
-- [ ] 02.etl
-- [ ] 03.warehouse
-- [ ] ... (more to come)
-
-## Purpose
-This repository is now an archive. Please refer to the individual repositories for the latest versions of the code.
-
----
-*Last updated: 2023-02-20*
-
 # 🚀 rme.db
 *A comprehensive portfolio of my data science and engineering projects, showcasing expertise from database systems to cutting-edge AI/ML implementations.*
 
