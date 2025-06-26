@@ -1,0 +1,160 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot,
+    top=2 cm,
+    bottom=2 cm,
+    left=2 cm,
+    right=2 cm,
+    footskip=1.0 cm,
+]{geometry}
+\usepackage[explicit]{titlesec}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{primaryColor}{RGB}{0, 79, 144}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+\usepackage{hyperref}
+\hypersetup{
+    pdftitle={Omar Essam El-Din Mohamed's CV},
+    pdfauthor={Omar Essam El-Din Mohamed},
+    colorlinks=true,
+    urlcolor=primaryColor
+}
+\usepackage{paracol}
+\usepackage{ifthen}
+\usepackage{needspace}
+
+\pagestyle{empty}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+
+% Section Formatting
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{primaryColor}}
+{\thesection}{1em}{}
+\titlespacing*{\section}
+{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+% Add a horizontal rule after each section title
+\titleformat{name=\section}
+  {\normalfont\Large\bfseries\color{primaryColor}}
+  {\thesection}{1em}{\color{primaryColor}\MakeUppercase{#1}\vspace{0.5ex}\titlerule}
+
+\begin{document}
+\begin{center}
+    {\LARGE \textbf{Omar Essam El-Din Mohamed}} \\
+    {Zahraa El Maadi, Cairo, Egypt} \\
+    {\faPhone* \hspace{0.2cm} +20 1004819774} \hspace{1cm}
+    {\href{mailto:eng.omar.e@gmail.com}{\faEnvelope[regular] \hspace{0.2cm} eng.omar.e@gmail.com}} \hspace{1cm}
+            {\href{https://www.linkedin.com/in/omar-essam-b602279b}{\faLinkedin \hspace{0.2cm} LinkedIn}} \hspace{1cm}
+    {\href{https://github.com/omare32}{\faGithub \hspace{0.2cm} GitHub}}
+\end{center}
+    
+    \section{Professional Summary}
+    A versatile Project Management Information Systems (PMIS) Engineer with extensive experience in construction, civil engineering, and data engineering. Proven expertise in project control, programming, and data science, with a strong ability to automate tasks and optimize workflows. Dedicated to delivering efficient solutions under tight deadlines and improving team performance.
+
+\section{Education}
+\textbf{Cairo University}, Bachelor of Science in Civil Engineering, May 2013 \\
+\textit{Overall Grade:} Good (C) \\
+\textit{Project Grade:} Excellent (A) {Graduation Project:} Steel Bridges Design \\
+\textit
+
+\textbf{Orouba Language School}, Graduation Score: 98.9\% (405.5/410)
+
+    \section{Professional Experience}
+\textbf{\textcolor{primaryColor}{Programming and Data Engineering Experience}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Data Engineer Lead} | Rowad Modern Engineering (Aug 2024 – Present)
+    \begin{itemize}[leftmargin=1cm]
+        \item Established a data warehouse team and integrated data sources for \mbox{improved reporting}.
+    \end{itemize}
+    \item \textbf{Data Scientist} | Rowad Modern Engineering (Mar 2024 – Jul 2024)
+    \begin{itemize}[leftmargin=1cm]
+        \item Developed machine learning models for cash flow predictions.
+    \end{itemize}
+    \item \textbf{Senior Data Engineer} | Rowad Modern Engineering (Apr 2023 – Dec 2023)
+    \begin{itemize}[leftmargin=1cm]
+        \item Automated repetitive tasks using Python, saving significant resource hours.
+    \end{itemize}
+    \item \textbf{IT Networking / Data Engineer} | Rowad Modern Engineering (Jan 2023 – Present)
+    \begin{itemize}[leftmargin=1cm]
+        \item Maintained SQL and MySQL databases, ensuring seamless data access and storage.
+    \end{itemize}
+    \item \textbf{Co-Owner} | Cyber Cafe (2009 – 2011)
+    \begin{itemize}[leftmargin=1cm]
+        \item Managed hardware and networking for all systems.
+    \end{itemize}
+\end{itemize}
+
+\newpage
+\textbf{\textcolor{primaryColor}{Construction and Civil Engineering Experience}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Project Control Section Head} | Rowad Modern Engineering, Bridges Sector (Sep 2021 – May 2023)
+    \begin{itemize}[leftmargin=1cm]
+        \item Managed the project control team for bridge projects. Streamlined cost and schedule reporting processes. Enhanced coordination between construction and planning teams.
+    \end{itemize}
+    \item \textbf{Senior Project Control Engineer} | Rowad Modern Engineering, Head Office (Jan 2019 – Aug 2021)
+    \begin{itemize}[leftmargin=1cm]
+        \item Oversaw multiple project schedules and cost control measures. Delivered periodic project performance reports to stakeholders.
+    \end{itemize}
+    \item \textbf{Project Control Engineer} | Rowad Modern Engineering (Apr 2018 – Dec 2018)
+    \begin{itemize}[leftmargin=1cm]
+        \item Worked on major infrastructure projects including Nefisha Bridge and El Sokhna Tunnel.
+    \end{itemize}
+    \item \textbf{Tendering Engineer} | Rowad Modern Engineering, Tender Department (Jan 2018 – Mar 2018)
+    \begin{itemize}[leftmargin=1cm]
+        \item Evaluated project tenders for technical and financial feasibility.
+    \end{itemize}
+    \item \textbf{Planning/Cost Control Engineer} | Concrete Plus (Apr 2015 – Jan 2018)
+    \begin{itemize}[leftmargin=1cm]
+        \item Coordinated cost control for multiple projects from the head office.
+    \end{itemize}
+    \item \textbf{Site Engineer} | Concrete Plus, Porto October Project (Apr 2014 – Mar 2015)
+    \begin{itemize}[leftmargin=1cm]
+        \item Supervised on-site construction activities, ensuring compliance with design specifications.
+    \end{itemize}
+\end{itemize}
+
+\section{Key Skills}
+\vspace{-1.5ex} % Adjust this value to reduce spacing
+\begin{itemize}[leftmargin=*, itemsep=0.5ex] % itemsep reduces space between items
+    \item \textbf{Technical Tools:} \\
+    Primavera P6, MS Project, Synchro, Revit, Navisworks, Power BI, AutoCAD
+    \item \textbf{Programming:} \\
+    Python, SQL, Java, C++ (familiar), C\# (familiar)
+    \item \textbf{Data Engineering:} \\
+    ETL pipelines, Airflow, Spark, ERP systems
+    \item \textbf{Software:} \\
+    Microsoft Office (expert in Excel), Adobe Photoshop, Illustrator, After Effects
+    \item \textbf{Construction Expertise:} \\
+    Cost control, tender evaluation, risk management
+    \item \textbf{Languages:} \\
+    Arabic (Native), English (Fluent)
+\end{itemize}
+
+\section{Certifications}
+\vspace{-1ex} % Adjust spacing under section title
+\begin{itemize}[leftmargin=*, itemsep=0.5ex] % Reduce space between items
+    \item Certified Data Scientist Professional (Epsilon AI)
+    \item Primavera P6
+    \item Python Programming
+    \item PMP Certification
+    \item CCNA and CCNP Networking
+    \item Steel Bridges Design
+\end{itemize}
+
+\section{Personal Projects}
+\vspace{-1ex} % Adjust spacing under section title
+\begin{itemize}[leftmargin=*, itemsep=0.5ex] % Reduce space between items
+    \item Guitarist in an Iron Maiden cover band.
+    \item Created a music YouTube channel with over 100,000 subscribers.
+    \item Co-created the social media group ESS.
+    \item Co-hosted a political podcast.
+    \item Wrote two sci-fi novels.
+    \item Worked in the rescue of street cats and dogs in Maadi.
+\end{itemize}
+
+\end{document}

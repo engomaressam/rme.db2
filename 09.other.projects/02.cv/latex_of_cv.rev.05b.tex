@@ -1,0 +1,231 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot,
+    top=1.5cm,
+    bottom=1.5cm,
+    left=1.5cm,
+    right=1.5cm,
+    footskip=0.5cm,
+]{geometry}
+\usepackage[explicit]{titlesec}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{primaryColor}{RGB}{0, 79, 144}
+\definecolor{frameColor}{RGB}{0, 79, 144}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{fancybox}
+\usepackage{tikz}
+\usepackage[framemethod=tikz]{mdframed}
+
+% Frame settings
+\mdfdefinestyle{cvframe}{
+    linecolor=frameColor,
+    linewidth=1pt,
+    topline=true,
+    bottomline=true,
+    leftline=true,
+    rightline=true,
+    innertopmargin=\topskip,
+    skipabove=\topskip,
+    skipbelow=\topskip
+}
+
+% Hyperref settings
+\hypersetup{
+    pdftitle={Omar Essam El-Din Mohamed's CV},
+    pdfauthor={Omar Essam El-Din Mohamed},
+    colorlinks=true,
+    urlcolor=primaryColor
+}
+
+\pagestyle{empty}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\columnsep}{1cm}
+
+% Section Formatting
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{primaryColor}}
+{\thesection}{0.7em}{\MakeUppercase{#1}}
+\titlespacing*{\section}
+{0pt}{2ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Compact list settings
+\setlist[itemize]{leftmargin=*, itemsep=0.3ex, parsep=0.2ex}
+
+\begin{document}
+
+% Page 1
+\begin{mdframed}[style=cvframe]
+% Header
+\begin{center}
+    {\LARGE \textbf{Omar Essam El-Din Mohamed}} \\[0.3em]
+    {Zahraa El Maadi, Cairo, Egypt} \\[0.2em]
+    {\faPhone* \hspace{0.2cm} +20 1004819774} \hspace{0.7cm}
+    {\href{mailto:eng.omar.e@gmail.com}{\faEnvelope[regular] \hspace{0.2cm} eng.omar.e@gmail.com}} \hspace{0.7cm}
+    {\href{https://www.linkedin.com/in/omar-essam-b602279b}{\faLinkedin \hspace{0.2cm} LinkedIn}} \hspace{0.7cm}
+    {\href{https://github.com/omare32}{\faGithub \hspace{0.2cm} GitHub}}
+\end{center}
+
+\section{Professional Summary}
+A results-driven Project Management Information Systems (PMIS) Engineer with 10+ years of experience spanning construction, civil engineering, and data engineering.
+
+\begin{multicols}{2}
+% Left Column
+\section{Education}
+\textbf{Cairo University}, Bachelor of Science in Civil Engineering, May 2013 \\
+\textit{Overall Grade:} Good (C) \\
+\textit{Project Grade:} Excellent (A) \\
+\textit{Graduation Project:} Steel Bridges Design
+
+\textbf{Orouba Language School} \\
+Graduation Score: 98.9\% (405.5/410)
+
+\section{Professional Experience}
+\textbf{\textcolor{primaryColor}{Programming and Data Engineering Experience}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Data Engineer Lead (AI \& Automation)} | Rowad Modern Engineering (Aug 2024 -- Present)
+    \begin{itemize}[leftmargin=1cm]
+        \item Led development of an internal NLP system using LLMs (GPT/Mistral) to summarize and draft replies to executive emails automatically
+        \item Designed and deployed an automated cash-in notification system integrated with financial data pipelines
+        \item Built a secure internal web UI to query and interact with MySQL, PostgreSQL, and MongoDB databases across projects
+        \item Expanded data engineering scope into applied AI/ML, handling both backend data processing and frontend user interaction
+        \item Coordinated across departments to scale automation tools, boosting productivity in HR, Finance, and PMO workflows
+    \end{itemize}
+
+% Right Column
+\columnbreak
+
+    \item \textbf{IT Networking / Data Engineer} | Rowad Modern Engineering (Jan 2023 -- Present)
+    \begin{itemize}[leftmargin=1cm]
+        \item Maintained MySQL databases on Linux Servers, ensuring seamless data access and storage
+    \end{itemize}
+
+    \item \textbf{Data Scientist} | Rowad Modern Engineering (Mar 2024 -- Jul 2024)
+    \begin{itemize}[leftmargin=1cm]
+        \item Developed machine learning models for cash flow predictions
+    \end{itemize}
+    
+    \item \textbf{Senior Data Engineer} | Rowad Modern Engineering (Apr 2023 -- Dec 2023)
+    \begin{itemize}[leftmargin=1cm]
+        \item Automated repetitive tasks using Python, saving significant resource hours
+    \end{itemize}
+\end{itemize}
+
+\textbf{\textcolor{primaryColor}{Construction and Civil Engineering Experience}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Project Control Section Head} | Rowad Modern Engineering (Sep 2021 -- May 2023)
+    \begin{itemize}[leftmargin=1cm]
+        \item Managed the project control team for bridge projects
+        \item Streamlined cost and schedule reporting processes
+        \item Enhanced coordination between construction and planning teams
+    \end{itemize}
+    
+    \item \textbf{Senior Project Control Engineer} | Rowad Modern Engineering (Jan 2019 -- Aug 2021)
+    \begin{itemize}[leftmargin=1cm]
+        \item Oversaw multiple project schedules and cost control measures
+        \item Delivered periodic project performance reports to stakeholders
+    \end{itemize}
+\end{itemize}
+\end{multicols}
+\end{mdframed}
+
+\clearpage  % Force a page break
+
+% Page 2
+\begin{mdframed}[style=cvframe]
+\begin{multicols}{2}
+% Left Column
+\textbf{\textcolor{primaryColor}{Construction and Civil Engineering Experience (cont.)}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Project Control Engineer} | Rowad Modern Engineering (Apr 2018 -- Dec 2018)
+    \begin{itemize}[leftmargin=1cm]
+        \item Worked on major infrastructure projects including Nefisha Bridge and El Sokhna Tunnel
+    \end{itemize}
+    
+    \item \textbf{Tendering Engineer} | Rowad Modern Engineering (Jan 2018 -- Mar 2018)
+    \begin{itemize}[leftmargin=1cm]
+        \item Evaluated project tenders for technical and financial feasibility
+    \end{itemize}
+    
+    \item \textbf{Planning/Cost Control Engineer} | Concrete Plus (Apr 2015 -- Jan 2018)
+    \begin{itemize}[leftmargin=1cm]
+        \item Coordinated cost control for multiple projects from the head office
+    \end{itemize}
+    
+    \item \textbf{Site Engineer} | Concrete Plus (Apr 2014 -- Mar 2015)
+    \begin{itemize}[leftmargin=1cm]
+        \item Supervised on-site construction activities, ensuring compliance with design specifications
+    \end{itemize}
+\end{itemize}
+
+\section{Technical Projects}
+\textbf{Data Engineering Pipeline}
+\begin{itemize}[leftmargin=*]
+    \item Developed automated data pipelines for cash flow analysis using Apache Airflow
+    \item Implemented real-time messaging integration with Teams and WhatsApp
+    \item Built custom ETL processes for financial data processing
+\end{itemize}
+
+\textbf{Django Enterprise Warehouse System}
+\begin{itemize}[leftmargin=*]
+    \item Developed a comprehensive Django-based warehouse management system with multiple modules
+    \item Implemented Purchase Order tracking, Cost Distribution, and Accounts Payable modules
+    \item Integrated with MS SQL Server for robust data storage and retrieval
+    \item Built a modular architecture supporting HR, Finance, and Operations workflows
+\end{itemize}
+
+\textbf{Machine Learning Projects}
+\begin{itemize}[leftmargin=*]
+    \item Created stock price prediction models using time series analysis
+    \item Developed rainfall prediction model for construction planning
+    \item Implemented CDL (Construction Data Library) model for project analytics
+\end{itemize}
+
+% Right Column
+\columnbreak
+
+\section{Key Skills}
+\textbf{\textcolor{primaryColor}{Technical Skills}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Data Engineering:} ETL pipelines, Airflow, Spark, ERP systems, Docker
+    \item \textbf{Data Visualization:} Power BI, Looker, Tableau, Python visualization libraries
+    \item \textbf{Programming:} Python (Django, FastAPI), SQL, Java, R, C++, C\# (familiar)
+\end{itemize}
+
+\textbf{\textcolor{primaryColor}{Domain Expertise}}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Engineering Tools:} Primavera P6, MS Project, Synchro, Revit, Navisworks, AutoCAD
+    \item \textbf{Construction:} Cost Control, Tender Evaluation, Risk Management
+    \item \textbf{Languages:} Arabic (Native), English (Fluent)
+\end{itemize}
+
+\section{Certifications}
+\begin{itemize}[leftmargin=*]
+    \item Certified Data Scientist Professional (Epsilon AI)
+    \item Primavera P6
+    \item Python Programming
+    \item PMP Certification
+    \item CCNA and CCNP Networking
+    \item Steel Bridges Design
+\end{itemize}
+
+\section{Personal Projects}
+\begin{itemize}[leftmargin=*]
+    \item Guitarist in an Iron Maiden cover band
+    \item Created a music YouTube channel with over 100,000 subscribers
+    \item Co-created the social media group ESS
+    \item Co-hosted a political podcast
+    \item Wrote two sci-fi novels
+    \item Worked in the rescue of street cats and dogs in Maadi
+\end{itemize}
+
+\end{multicols}
+\end{mdframed}
+\end{document}
