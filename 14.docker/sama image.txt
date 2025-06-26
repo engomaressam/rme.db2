@@ -1,0 +1,5 @@
+image id sha256:b6e72f8ddc684ec9f9133042168afaab3d37a64d0dfe29e4c86727aa6c788c85
+
+samarowad387/airflow:latest
+
+sha256:b6e72f8ddc684ec9f9133042168afaab3d37a64d0dfe29e4c86727aa6c788c85
