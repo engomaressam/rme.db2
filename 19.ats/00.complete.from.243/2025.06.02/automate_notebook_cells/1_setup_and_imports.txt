@@ -1,0 +1,41 @@
+# Setup: Imports and configuration
+import os
+import requests
+from requests_ntlm import HttpNtlmAuth
+from urllib.parse import quote
+from datetime import datetime, timedelta
+import base64
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from pdf2image import convert_from_path
+import pytesseract
+from openai import OpenAI
+import json
+from dotenv import load_dotenv
+
+print("[SETUP] Loading environment variables and configuration...")
+# Load environment variables
+load_dotenv()
+
+# Constants and configurations
+CRM_URL = "https://rmecrm.rowad-rme.com/RMECRM/api/data/v8.2"
+USERNAME = "Rowad\\Omar Essam"
+PASSWORD = "PMO@1234"
+DOWNLOAD_DIR = r"C:\cvs"
+TESSERACT_PATH = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+POPPLER_PATH = r"C:\\poppler\\Library\\bin"
+
+# Configure Tesseract path
+pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+
+# Database configuration
+DB_CONFIG = {
+    "host": "localhost",
+    "database": "postgres",
+    "user": "postgres",
+    "password": "PMO@1234"
+}
+
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+print("[SETUP] Configuration loaded. Ready to start pipeline.\n") 

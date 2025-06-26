@@ -1,0 +1,6 @@
+Sample annotation records from CRM (filename, _objectid_value, createdon):
+filename: 'log on automatically.mp4', _objectid_value: 'ccc75d7c-09d6-ed11-826c-00155d6c0716', createdon: '2023-04-08T12:32:56Z'
+filename: 'log on automatically.mp4', _objectid_value: '83292074-0ad6-ed11-826c-00155d6c0716', createdon: '2023-04-08T12:39:51Z'
+filename: 'Mostafa Sobhi_Resume-1-1.pdf', _objectid_value: 'cabfb3dc-48d6-ed11-826c-00155d6c0716', createdon: '2023-04-08T20:06:36Z'
+filename: 'تسويه 76.pdf', _objectid_value: 'd646b477-abd6-ed11-826c-00155d6c0716', createdon: '2023-04-09T07:53:05Z'
+filename: 'تسويه 50.pdf', _objectid_value: '3a06e7ac-b2d6-ed11-826c-00155d6c0716', createdon: '2023-04-09T08:45:10Z'

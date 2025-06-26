@@ -1,0 +1,12 @@
+Sample normalized_filename values from CRM (repr):
+'2023-04-08_mostafasobhi_resume-1-1.pdf'
+'2023-04-09_mohamedahmedabokamel-cv.pdf'
+'2023-04-09_amirgeorgefikryfinal.pdf'
+'2023-04-09_cv-youssefelsalamony-costcontrolengineer_3.pdf'
+'2023-04-09_waelmohamedibrahimcv.pdf'
+Sample pdf_filename values from DB (repr):
+'2025-01-12_Mohamed ebrahim abdelghafar  CV .pdf'
+'2025-01-14_Mosher Samwel Asham CV .pdf'
+'2025-02-13_Mohamed fawzy alsoudy CV .pdf'
+'2025-01-07_Omar Abdallah Greer CV .pdf'
+'2025-01-11_Mohamed Mamoun Ibrahim CV .pdf'

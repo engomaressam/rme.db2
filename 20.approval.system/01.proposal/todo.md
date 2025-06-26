@@ -1,0 +1,6 @@
+- [x] Gather detailed requirements for the construction approval tracking system.
+- [x] Design the system features, user roles (Contractor, Consultant, Owner), and workflows.
+- [x] Create visual flowcharts illustrating the approval cycles for IRs, shop drawings, and material approvals.
+- [x] Draft the proposal document, including system description, features, benefits, flowcharts, and potential timeline/cost estimate (if possible).
+- [x] Review and validate the proposal content and visuals for clarity, accuracy, and completeness.
+- [x] Finalize the proposal and deliver it to the user.

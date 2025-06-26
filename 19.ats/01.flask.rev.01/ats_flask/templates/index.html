@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATS Resume Parser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .upload-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            width: 60%;
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+        }
+        .results {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 30px;
+        }
+        .candidate {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+        .download-btn {
+            margin-top: 20px;
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .download-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>ATS Resume Parser</h1>
+
+    <div class="upload-box">
+        <form method="post" enctype="multipart/form-data">
+            <label>Select one or more PDF CVs:</label><br>
+            <input type="file" name="pdfs" multiple required><br><br>
+            <input type="submit" value="Upload and Parse">
+        </form>
+    </div>
+
+    {% if results %}
+        <div class="results">
+            <h2>📄 Parsed Results</h2>
+            {% for r in results %}
+                <div class="candidate">
+                    <strong>Name:</strong> {{ r['Name'] or 'Not Found' }}<br>
+                    <strong>Email:</strong> {{ r['Email'] or 'Not Found' }}<br>
+                    <strong>Phone:</strong> {{ r['Phone'] or 'Not Found' }}<br>
+                    <strong>LinkedIn:</strong> {{ r['LinkedIn'] or 'Not Found' }}<br>
+                    <strong>Graduation Year:</strong> {{ r['Graduation Year'] or 'Not Found' }}<br>
+                    <strong>University:</strong> {{ r['University'] or 'Not Found' }}<br>
+                    <strong>Skills:</strong> {{ r['Skills'] or 'Not Found' }}
+                </div>
+            {% endfor %}
+
+            <a href="/download" class="download-btn">⬇ Download Excel</a>
+        </div>
+    {% endif %}
+</body>
+</html>
