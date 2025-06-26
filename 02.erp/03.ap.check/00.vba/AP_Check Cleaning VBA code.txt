@@ -1,0 +1,71 @@
+Sub cleaning()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim crr_cell As Range
+Dim rangeToFormat As Range
+Dim proj_name As String
+Set wb = ThisWorkbook
+Set ws = wb.Sheets(1)
+
+lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+ws.Columns(1).Insert Shift:=xlToRight
+ws.Cells.Select
+Selection.UnMerge
+ws.Rows("24:24").Copy
+ws.Rows("18:18").PasteSpecial
+ws.Cells(18, 1).Select
+
+'Copying Project Names
+For i = 18 To lastrow
+    Set crr_cell = ws.Cells(i, 2)
+    If crr_cell.Interior.Color = 11891758 And crr_cell.Value = "Bank Account Name" Then
+        proj_name = crr_cell.Offset(-4, 3)
+        ws.Cells(i, 1) = proj_name
+    ElseIf crr_cell.Interior.Color = 16777215 And crr_cell.Value <> "" And crr_cell.Offset(0, 1).Value <> "" Then
+        ws.Cells(i, 1) = proj_name
+    End If
+Next i
+
+lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+With ws.Cells(18, 1)
+    .Value = "Project"
+    .Interior.Color = 11891758
+    .Font.Color = RGB(255, 255, 255) 'white color
+End With
+ws.Cells(lastrow + 1, 1).Value = "END"
+
+'Deleting excess rows
+c = 19
+Do While ws.Cells(c, 1).Value <> "END"
+    Set crr_cell = ws.Cells(c, 1)
+    If crr_cell.Value = "" Or crr_cell.Offset(0, 1) = "" Or crr_cell.Offset(0, 1) = "Bank Account Name" Or crr_cell.Offset(0, 1) = "Owner Name " Then
+        Rows(crr_cell.Row).Delete
+    Else
+        c = c + 1
+    End If
+Loop
+
+lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+ws.Rows(lastrow & ":" & (lastrow + 50)).Delete
+
+lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+Set rangeToFormat = ws.Range(ws.Cells(18, 1), ws.Cells(lastrow, 15))
+
+With rangeToFormat
+    .Borders.LineStyle = xlContinuous
+    .Borders.ColorIndex = 0
+    .Borders.TintAndShade = 0
+    .Borders.Weight = xlThin
+    .HorizontalAlignment = xlCenter
+End With
+
+ws.Cells.EntireColumn.AutoFit
+
+
+End Sub
+
+
+
+

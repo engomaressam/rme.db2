@@ -1,0 +1,7 @@
+select  acr.attribute1   Project_code ,
+        acr.amount       Recipt_amount_currency ,
+        acr.currency_code  Currency ,
+        nvl(acr.exchange_rate ,1) exchange_rate   ,
+        nvl(acr.amount,0)  *  nvl(acr.exchange_rate ,1) Recipt_amount_EGP , 
+       acr.comments 
+from    AR_CASH_RECEIPTS_all acr
