@@ -1,0 +1,82 @@
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }} 
+    <button type="submit">Submit</button>
+  </form>
+  
+  {% if total_cash_out %}
+      <h2>Total Cash Out: {{ total_cash_out }}</h2>
+  {% endif %}
+  
+  {% if results %}
+      <table>
+          <tr>
+              {# Add column headers for the detailed view here #}
+          </tr>
+          {% for row in results %}
+              <tr>
+                  {# Display data from each row here #}
+              </tr>
+          {% endfor %}
+      </table>
+  
+      {# Add Excel export functionality here if needed #}
+  {% endif %}
+  
+  <script>
+    const projectIdentifierTypeRadios = document.querySelectorAll('input[name="project_identifier_type"]');
+    const projectIdentifierInput = document.getElementById('id_project_identifier');
+    const projectNameDropdown = document.getElementById('id_project_name');
+    
+    projectIdentifierTypeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'project_no') {
+                projectIdentifierInput.required = true;
+                projectNameDropdown.required = false;
+                projectNameDropdown.disabled = true;
+                projectIdentifierInput.disabled = false;
+            } else if (radio.value === 'project_name') {
+                projectIdentifierInput.required = false;
+                projectNameDropdown.required = true;
+                projectNameDropdown.disabled = false;
+                projectIdentifierInput.disabled = true;
+                projectIdentifierInput.value = projectNameDropdown.value;
+            }
+        });
+    });
+    
+    // Create and insert the search input field
+    const projectNameSearchInput = document.createElement('input');
+    projectNameSearchInput.type = 'text';
+    projectNameSearchInput.placeholder = 'Search project names...';
+    projectNameDropdown.parentNode.insertBefore(projectNameSearchInput, projectNameDropdown); 
+    
+    // Add event listener to the search input
+    projectNameSearchInput.addEventListener('input', () => {
+      const searchTerm = projectNameSearchInput.value.toLowerCase();
+      const options = projectNameDropdown.options;
+    
+      for (let i = 0; i < options.length; i++) {
+        const option = options[i];
+        const optionText = option.text.toLowerCase();
+        if (optionText.includes(searchTerm)) {
+          option.style.display = 'block';
+        } else {
+          option.style.display = 'none';
+        }
+      }
+    });
+    
+    projectNameDropdown.addEventListener('change', () => {
+      if (document.querySelector('input[name="project_identifier_type"]:checked').value === 'project_name') {
+          projectIdentifierInput.value = projectNameDropdown.value;
+      }
+    });
+    
+    projectNameDropdown.addEventListener('change', () => {
+        if (projectNameDropdown.value !== '') { 
+            document.querySelector('input[name="project_identifier_type"][value="project_name"]').checked = true;
+            projectIdentifierInput.value = projectNameDropdown.value;
+        }
+    });
+    </script>

@@ -1,0 +1,67 @@
+/* omar_warehouse/cost_dist/static/cost_dist/styles.css */
+
+table {
+    border-collapse: collapse;  /* Collapse borders into single lines */
+    width: 100%;                /* Make the table take up full width */
+    margin-top: 20px;           /* Add some space above the table */
+}
+
+th, td {
+    text-align: left;           /* Align text to the left */
+    padding: 8px;               /* Add padding to cells */
+    border: 1px solid #ddd;     /* Add borders to cells */
+}
+
+tr:nth-child(even) { 
+    background-color: #f2f2f2;  /* Add alternating row colors */
+}
+
+/* Style the form elements if needed */
+form div {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"], 
+input[type="date"],
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+/* Styles for the form row layout */
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.form-row label {
+    margin-right: 10px;
+}
+
+.form-row input[type="text"],
+.form-row select {
+    flex-grow: 1;
+    width: auto;
+}

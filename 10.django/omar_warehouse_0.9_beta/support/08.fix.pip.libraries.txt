@@ -1,0 +1,8 @@
+Install mssql-django pip install mssql-django==1.0rc1
+Change the database engine in settings.py
+DATABASES = {
+        'default': {
+            'ENGINE': 'mssql',
+            ...
+        }
+    }

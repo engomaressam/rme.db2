@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PO Follow-up Report</title>
+</head>
+<body>
+
+  <form method="post" id="po-followup-form">
+    {% csrf_token %}
+    <div class="form-row">  
+      {{ form.description.label_tag }}
+      <input type="text" id="description-search" name="description" required>  {# Modified input field #}
+      <div id="description-suggestions" style="display: none;"></div> 
+    </div>
+    <button type="submit">Submit</button>
+  </form>
+
+  {% if highest_price or lowest_price %}
+  <h2>Results for "{{ description }}"</h2>
+
+  {% if highest_price %}
+  <h3>Highest Price</h3>
+  <p>Unit Price: {{ highest_price.0 }}</p>
+  <p>Approved Date: {{ highest_price.1 }}</p>
+  <p>Vendor: {{ highest_price.2 }}</p>
+  <p>Project: {{ highest_price.3 }}</p>
+  {% endif %}
+
+  {% if lowest_price %}
+  <h3>Lowest Price</h3>
+  <p>Unit Price: {{ lowest_price.0 }}</p>
+  <p>Approved Date: {{ lowest_price.1 }}</p>
+  <p>Vendor: {{ lowest_price.2 }}</p>
+  <p>Project: {{ lowest_price.3 }}</p>
+  {% endif %}
+
+  {% else %}
+  <p>No results found for the selected item.</p>
+  {% endif %}
+
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const descriptionInput = document.getElementById('description-search');
+      const suggestionsDiv = document.getElementById('description-suggestions');
+
+      descriptionInput.addEventListener('input', () => {
+        const searchTerm = descriptionInput.value;
+        if (searchTerm.length > 2) { 
+          fetch(`/po_followup_report/get_matching_descriptions/?term=${searchTerm}`)
+            .then(response => response.json())
+            .then(data => {
+              suggestionsDiv.innerHTML = ''; 
+              if (data.length > 0) {
+                suggestionsDiv.style.display = 'block';
+                data.forEach(description => {
+                  const suggestionItem = document.createElement('div');
+                  suggestionItem.textContent = description;
+                  suggestionItem.addEventListener('click', () => {
+                    descriptionInput.value = description;
+                    suggestionsDiv.style.display = 'none';
+                  });
+                  suggestionsDiv.appendChild(suggestionItem);
+                });
+              } else {
+                suggestionsDiv.style.display = 'none';
+              }
+            });
+        } else {
+          suggestionsDiv.style.display = 'none';
+        }
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', (event) => {
+        if (!suggestionsDiv.contains(event.target) && event.target !== descriptionInput) {
+          suggestionsDiv.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

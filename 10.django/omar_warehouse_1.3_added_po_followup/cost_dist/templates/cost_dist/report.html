@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cost Distribution Report</title>
+  {% load static %}
+  {# <link rel="stylesheet" href="{% static 'cost_dist/styles.css' %}"> #}
+</head>
+<body>
+
+<form method="post">
+  {% csrf_token %} 
+
+  <div>
+    {{ form.project_identifier_type.label_tag }}
+    {{ form.project_identifier_type }}
+  </div>
+
+  <div>
+    {{ form.project_identifier.label_tag }}
+    {{ form.project_identifier }}
+  </div>
+
+  <div class="form-row">
+    {{ form.project_name.label_tag }}
+    {{ form.project_name }}
+  </div>
+
+  <div>
+    {{ form.start_date.label_tag }}
+    {{ form.start_date }}
+  </div>
+
+  <div>
+    {{ form.end_date.label_tag }}
+    {{ form.end_date }}
+  </div>
+
+  <div>
+    {{ form.show_details }}
+    {{ form.show_details.label_tag }}
+  </div>
+
+  <button type="submit" id="submit-button">Submit</button>
+  <button type="submit" name="export_excel">Download Excel</button>
+  <input type="hidden" name="show_details" value="True">
+
+  <button id="view-chart-button">View Chart</button>
+
+</form>
+  
+  {% if total_amount %}
+      <h2>Total Amount: {{ total_amount }}</h2>
+  {% endif %}
+  
+  {% if results %}
+      <table>
+          <tr>
+              <th>Line Description</th>
+              <th>Unit</th>
+              <th>Quantity</th>
+              <th>Amount</th>
+          </tr>
+          {% for row in results %}
+          <tr>
+              <td>{{ row.line_desc|default_if_none:"" }}</td> 
+              <td>{{ row.unit|default_if_none:"" }}</td>
+              <td>{{ row.qty|default_if_none:"" }}</td>
+              <td>{{ row.amount|default_if_none:"" }}</td>
+          </tr>
+      {% endfor %}
+      </table>
+  
+      {# Add Excel export functionality here if needed #}
+  {% endif %}
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const projectIdentifierTypeRadios = document.querySelectorAll('input[name="project_identifier_type"]');
+      const projectIdentifierInput = document.getElementById('id_project_identifier');
+      const projectNameDropdown = document.getElementById('id_project_name');
+    
+      // Create and insert the search input field
+      const projectNameSearchInput = document.createElement('input');
+      projectNameSearchInput.type = 'text';
+      projectNameSearchInput.placeholder = 'Search project names...';
+      projectNameDropdown.parentNode.insertBefore(projectNameSearchInput, projectNameDropdown);
+    
+      projectIdentifierTypeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          if (radio.value === 'project_no') {
+            projectIdentifierInput.required = true;
+            projectNameDropdown.required = false;
+            projectNameDropdown.disabled = true;
+            projectIdentifierInput.disabled = false;
+          } else if (radio.value === 'project_name') {
+            projectIdentifierInput.required = false;
+            projectNameDropdown.required = true;
+            projectNameDropdown.disabled = false;
+            projectIdentifierInput.disabled = true;
+            projectIdentifierInput.value = projectNameDropdown.value;
+          }
+        });
+      });
+    
+      // Add event listener to the search input
+      projectNameSearchInput.addEventListener('input', () => {
+        const searchTerm = projectNameSearchInput.value.toLowerCase();
+        const options = projectNameDropdown.options;
+    
+        for (let i = 0; i < options.length; i++) {
+          const option = options[i];
+          const optionText = option.text.toLowerCase();
+          if (optionText.includes(searchTerm)) {
+            option.style.display = 'block';
+          } else {
+            option.style.display = 'none';
+          }
+        }
+      });
+    
+      projectNameDropdown.addEventListener('change', () => {
+        if (document.querySelector('input[name="project_identifier_type"]:checked').value === 'project_name') {
+          projectIdentifierInput.value = projectNameDropdown.value;
+        }
+      });
+    
+      projectNameDropdown.addEventListener('change', () => {
+        if (projectNameDropdown.value !== '') {
+          document.querySelector('input[name="project_identifier_type"][value="project_name"]').checked = true;
+          projectIdentifierInput.value = projectNameDropdown.value;
+        }
+      });
+    
+      const submitButton = document.getElementById('submit-button');
+      const showDetailsCheckbox = document.getElementById('id_show_details');
+    
+      showDetailsCheckbox.addEventListener('change', () => {
+        if (showDetailsCheckbox.checked) {
+          submitButton.textContent = 'Submit and Show Details';
+        } else {
+          submitButton.textContent = 'Submit';
+        }
+      });
+    
+      form.addEventListener('submit', (event) => {
+        if (showDetailsCheckbox.checked) {
+          submitButton.name = 'export_excel';
+        } else {
+          submitButton.name = '';
+        }
+      });
+    });
+  const viewChartButton = document.getElementById('view-chart-button');
+  viewChartButton.addEventListener('click', () => {
+    window.location.href = "{% url 'cost_dist_chart' %}"; 
+  });
+  </script> 
+</body>
+</html>

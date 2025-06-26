@@ -1,0 +1,9 @@
+Model Fields:
+
+project_no: (CharField) - To store the project number (user input). You'll likely want to set unique=True to ensure project numbers are unique.
+project_name: (CharField) - To store the project name (user input).
+gl_date: (DateField) - To store the date associated with each cost entry.
+line_desc: (CharField) - To store the description of the item or service.
+unit: (CharField) - To store the unit of measurement for the item or service.
+qty: (DecimalField or IntegerField) - To store the quantity.
+amount: (DecimalField) - To store the monetary amount.

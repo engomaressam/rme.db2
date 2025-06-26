@@ -1,0 +1,35 @@
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py startapp cost_dist
+python manage.py startapp ap_check
+python manage.py startapp salaries
+
+python manage.py shell
+
+python manage.py inspectdb > cost_dist/models.py
+
+
+
+
+python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
+
+
+
+cd D:\virtual_env\.venv\Scripts
+
+activate
+
+or (powershell)
+
+.\.venv\Scripts\Activate.ps1
+
+or (cmd)
+
+cd ".venv\Scripts"
+activate
+
+cd "D:\OneDrive\OneDrive - Rowad Modern Engineering\x004 Data Science\03.rme.db\00.repo\rme.db\10.django\omar_warehouse_1.5"
+
+python manage.py runserver 0.0.0.0:8000

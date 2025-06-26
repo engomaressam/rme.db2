@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Salaries Report</title>
+</head>
+<body>
+    <h1>Salaries Report for {{ project_name }}</h1>
+
+    <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+    </form>
+
+    <h2>Total Salaries: {{ total_salaries }}</h2>
+    <p>{{ last_month_info }}</p>
+
+</body>
+</html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const projectNameDropdown = document.getElementById('id_project_name'); // Adjust the ID if needed
+  
+      // Create and insert the search input field immediately
+      const projectNameSearchInput = document.createElement('input');
+      projectNameSearchInput.type = 'text';
+      projectNameSearchInput.placeholder = 'Search project names...';
+      projectNameDropdown.parentNode.insertBefore(projectNameSearchInput, projectNameDropdown); 
+  
+      // Add event listener to the search input
+      projectNameSearchInput.addEventListener('input', () => {
+        const searchTerm = projectNameSearchInput.value.toLowerCase();
+        const options = projectNameDropdown.options;
+  
+        for (let i = 0; i < options.length; i++) {
+          const option = options[i];
+          const optionText = option.text.toLowerCase();
+          if (optionText.includes(searchTerm)) {
+            option.style.display = 'block';
+          } else {
+            option.style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>

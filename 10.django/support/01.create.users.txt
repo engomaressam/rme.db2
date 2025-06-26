@@ -1,0 +1,10 @@
+from django.contrib.auth.models import User
+
+# Create your user
+you = User.objects.create_user('omar', 'omar.essam@rowad-rme.com', 'omar123')
+
+# Create Nada's user
+nada = User.objects.create_user('nada', 'nada.namir@rowad-rme.com', 'nada123')
+
+# Create Yasser's user
+yasser = User.objects.create_user('yasser', 'yasser.abouzeid@rowad-rme.com', 'yasser123')

@@ -1,0 +1,13 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'mssql',  # Use the django-mssql-backend
+        'NAME': 'omar.rme1',  # Your database name
+        'USER': 'yasser',     # Your database username
+        'PASSWORD': 'yasser123', # Your database password
+        'HOST': '10.10.11.241',   # When I'm on My Laptop
+        'PORT': '1433',           # Default SQL Server port 1433
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',  # Adjust if needed
+        },
+    }
+}
