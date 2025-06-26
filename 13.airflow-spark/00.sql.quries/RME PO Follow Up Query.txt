@@ -1,0 +1,483 @@
+/* Formatted on 22/12/2021 16:03:26 (QP5 v5.256.13226.35510) */
+SELECT                                                                 --nvl((
+       --    SELECT
+       --        tax_amt                                        -- d.tax_rate
+       --    FROM
+       --        zx_lines d--,PO_LINE_LOCATIONS_ALL plla  ,PO_HEADERS_ALL pha                   --, po_headers_all ph
+       --    WHERE
+       --        d.trx_id = poh.po_header_id      -- 167784
+       --              -- and  c.trx_id = d.trx_id
+       --              --and c.TRX_LINE_ID = d.TRX_LINE_ID
+       --        AND d.trx_line_id = pll.line_location_id
+       --        AND d.entity_code = 'PURCHASE_ORDER'
+       --), 0) recovery_tax,
+       CASE
+          WHEN NVL (d.tax_amt, 0) = 0
+          THEN
+             0
+          WHEN NVL (d.trx_line_quantity, 0) = 0
+          THEN
+             0
+          ELSE
+               (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+             * (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+       END
+          recovery_tax,
+       RME_DEV.XXRME_TAX_RATE.GET_TAX_RATE_NAME (poh.po_header_id,
+                                                 pll.line_location_id)
+          Tax_Code,
+         CASE
+            WHEN NVL (d.tax_amt, 0) = 0
+            THEN
+               0
+            WHEN NVL (d.trx_line_quantity, 0) = 0
+            THEN
+               0
+            ELSE
+                 (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+               * (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+         END
+       * CASE WHEN poh.CURRENCY_CODE = 'EGP' THEN 1 ELSE poh.rate END
+          CONVERTED_TAX,
+       poh.po_header_id,
+       pol.po_line_id,
+       DECODE (poh.style_id,  1, pol.attribute5,  100, pod.expenditure_type)
+          exp_type,
+       (SELECT DISTINCT expenditure_category
+          FROM pa_expenditure_types a
+         WHERE     a.expenditure_type =
+                      DECODE (poh.style_id,
+                              1, pol.attribute5,
+                              100, pod.expenditure_type)
+               AND ROWNUM = 1)
+          exp_category,
+       DECODE (poh.style_id,
+               1, NVL (poh.ATTRIBUTE4, pol.attribute4),
+               100, pod.task_id)
+          tsk,
+       pod.task_id,
+       pol.attribute4,
+       --     (select task_number from pa_tasks  where  pol.ATTRIBUTE4  = task_id ) tsk_number ,
+       (SELECT DISTINCT task_name
+          FROM pa_tasks
+         WHERE pol.attribute4 = task_number AND ROWNUM = 1)
+          tsk_name,
+       pll.line_location_id,
+       pod.po_distribution_id,
+       --   pod.EXPENDITURE_TYPE ,
+       pod.task_id,
+       poh.segment1 po_num,
+       poh.segment1 po_num_line,
+       poh.comments,
+       poh.comments comments_line,
+       poh.currency_code,
+       (SELECT tt.name
+          FROM apps.ap_terms tt
+         WHERE tt.term_id = poh.terms_id AND ROWNUM = 1)
+          term,
+       (SELECT tt.description
+          FROM apps.ap_terms tt
+         WHERE tt.term_id = poh.terms_id AND ROWNUM = 1)
+          term_desc,
+       poh.currency_code curr_line,
+       poh.creation_date poh_creation_date,
+       poh.creation_date poh_crt_dt_line,
+       poh.approved_date,
+       poh.approved_date aprv_date_line,
+       pol.line_num,
+       pol.unit_meas_lookup_code,
+       pol.item_description,
+       DECODE (
+          RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+             poh.po_header_id,
+             pll.line_location_id),
+          100, pol.unit_price,
+          0, (  pol.unit_price
+              + CASE
+                   WHEN NVL (d.tax_amt, 0) = 0 THEN 0
+                   WHEN NVL (d.trx_line_quantity, 0) = 0 THEN 0
+                   ELSE (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                END),
+          (  pol.unit_price
+           + CASE
+                WHEN NVL (d.tax_amt, 0) = 0 THEN 0
+                WHEN NVL (d.trx_line_quantity, 0) = 0 THEN 0
+                ELSE (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+             END))
+          unit_price,
+       --       pol.unit_price,
+
+       DECODE (
+          RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+             poh.po_header_id,
+             pll.line_location_id),
+          100,   pol.unit_price
+               - CASE
+                    WHEN NVL (d.tax_amt, 0) = 0 THEN 0
+                    WHEN NVL (d.trx_line_quantity, 0) = 0 THEN 0
+                    ELSE (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                 END,
+          0, pol.unit_price,
+          pol.unit_price)
+          unit_price_with_tax,
+       pol.attribute1 req_dept,
+       pll.need_by_date,
+       pod.quantity_ordered,
+       pod.quantity_billed,
+       pod.quantity_delivered,
+       pod.quantity_cancelled,
+       pll.quantity_received,
+       pll.quantity_accepted,
+       pll.quantity_rejected,
+       led.currency_code,
+       DECODE (
+          RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+             poh.po_header_id,
+             pll.line_location_id),
+          100, ( (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+                  * pol.unit_price)),
+          0, (  (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+                 * pol.unit_price)
+              + CASE
+                   WHEN NVL (d.tax_amt, 0) = 0
+                   THEN
+                      0
+                   WHEN NVL (d.trx_line_quantity, 0) = 0
+                   THEN
+                      0
+                   ELSE
+                        (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                      * (  pod.quantity_ordered
+                         - NVL (pod.quantity_cancelled, 0))
+                END),
+          (  (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+              * pol.unit_price)
+           + CASE
+                WHEN NVL (d.tax_amt, 0) = 0
+                THEN
+                   0
+                WHEN NVL (d.trx_line_quantity, 0) = 0
+                THEN
+                   0
+                ELSE
+                     (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                   * (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+             END))
+          line_amount,
+       DECODE (
+          RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+             poh.po_header_id,
+             pll.line_location_id),
+          100,   (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+                  * pol.unit_price)
+               - CASE
+                    WHEN NVL (d.tax_amt, 0) = 0
+                    THEN
+                       0
+                    WHEN NVL (d.trx_line_quantity, 0) = 0
+                    THEN
+                       0
+                    ELSE
+                         (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                       * (  pod.quantity_ordered
+                          - NVL (pod.quantity_cancelled, 0))
+                 END,
+          0, (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+              * pol.unit_price),
+          (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+           * pol.unit_price))
+          line_amount_without_Tax,
+         (  (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+             * pol.unit_price)
+          + CASE
+               WHEN NVL (d.tax_amt, 0) = 0
+               THEN
+                  0
+               WHEN NVL (d.trx_line_quantity, 0) = 0
+               THEN
+                  0
+               ELSE
+                    (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                  * (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+            END)
+       / pod.quantity_ordered
+       * POH.RATE
+          AS open_qty_unit_price,
+         (  (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+             * pol.unit_price)
+          + CASE
+               WHEN NVL (d.tax_amt, 0) = 0
+               THEN
+                  0
+               WHEN NVL (d.trx_line_quantity, 0) = 0
+               THEN
+                  0
+               ELSE
+                    (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                  * (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+            END)
+       / pod.quantity_ordered
+       * POH.RATE
+       * (  NVL (pod.quantity_ordered, 0)
+          - NVL (pod.quantity_delivered, 0)
+          - NVL (pod.quantity_cancelled, 0))
+          AS open_qty_amount,
+       DECODE (
+          RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+             poh.po_header_id,
+             pll.line_location_id),
+          100, (  ( (  (  pod.quantity_ordered
+                        - NVL (pod.quantity_cancelled, 0))
+                     * pol.unit_price))
+                * CASE
+                     WHEN poh.CURRENCY_CODE = 'EGP' THEN 1
+                     ELSE poh.rate
+                  END),
+          0, (  (  (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+                    * pol.unit_price)
+                 + CASE
+                      WHEN NVL (d.tax_amt, 0) = 0
+                      THEN
+                         0
+                      WHEN NVL (d.trx_line_quantity, 0) = 0
+                      THEN
+                         0
+                      ELSE
+                           (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                         * (  pod.quantity_ordered
+                            - NVL (pod.quantity_cancelled, 0))
+                   END)
+              * CASE WHEN poh.CURRENCY_CODE = 'EGP' THEN 1 ELSE poh.rate END),
+          (  (  (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+                 * pol.unit_price)
+              + CASE
+                   WHEN NVL (d.tax_amt, 0) = 0
+                   THEN
+                      0
+                   WHEN NVL (d.trx_line_quantity, 0) = 0
+                   THEN
+                      0
+                   ELSE
+                        (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                      * (  pod.quantity_ordered
+                         - NVL (pod.quantity_cancelled, 0))
+                END)
+           * CASE WHEN poh.CURRENCY_CODE = 'EGP' THEN 1 ELSE poh.rate END))
+          AS converted_line_amount,
+         DECODE (
+            RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+               poh.po_header_id,
+               pll.line_location_id),
+            100,   ( (  (  pod.quantity_ordered
+                         - NVL (pod.quantity_cancelled, 0))
+                      * pol.unit_price))
+                 - CASE
+                      WHEN NVL (d.tax_amt, 0) = 0
+                      THEN
+                         0
+                      WHEN NVL (d.trx_line_quantity, 0) = 0
+                      THEN
+                         0
+                      ELSE
+                           (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                         * (  pod.quantity_ordered
+                            - NVL (pod.quantity_cancelled, 0))
+                   END,
+            0, ( (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+                  * pol.unit_price)),
+            ( (  (pod.quantity_ordered - NVL (pod.quantity_cancelled, 0))
+               * pol.unit_price)))
+       * CASE WHEN poh.CURRENCY_CODE = 'EGP' THEN 1 ELSE poh.rate END
+          AS converted_amount_without_tax,
+       POH.RATE AS current_rate,
+       (  NVL (pod.quantity_ordered, 0)
+        - NVL (pod.quantity_delivered, 0)
+        - NVL (pod.quantity_cancelled, 0))
+          open,
+       (SELECT                                                    /*Q'[']'||*/
+               DECODE (gcc.segment6, '0000', gcc.segment5, gcc.segment6)
+          FROM gl_code_combinations_v gcc, mtl_parameters mp
+         WHERE     gcc.code_combination_id = mp.material_account
+               AND mp.organization_id = pll.ship_to_organization_id
+               AND ROWNUM = 1)
+          project_num,
+       (SELECT o.organization_name
+          FROM org_organization_definitions o
+         WHERE o.organization_id = pll.ship_to_organization_id AND ROWNUM = 1)
+          project_name,
+       (SELECT o.organization_code
+          FROM org_organization_definitions o
+         WHERE o.organization_id = pll.ship_to_organization_id AND ROWNUM = 1)
+          organization_code,
+       (SELECT msi.segment1
+          FROM mtl_system_items_b msi
+         WHERE     msi.inventory_item_id = pol.item_id
+               AND msi.organization_id = pll.ship_to_organization_id
+               AND ROWNUM = 1)
+          item_code,
+       (SELECT prh.segment1
+          FROM po_requisition_headers_all prh,
+               po_requisition_lines_all prl,
+               po_req_distributions_all prd
+         WHERE     prh.requisition_header_id = prl.requisition_header_id
+               AND prl.requisition_line_id = prd.requisition_line_id
+               AND prd.distribution_id = pod.req_distribution_id
+               AND ROWNUM = 1)
+          pr_num,
+       (SELECT prh.segment1
+          FROM po_requisition_headers_all prh,
+               po_requisition_lines_all prl,
+               po_req_distributions_all prd
+         WHERE     prh.requisition_header_id = prl.requisition_header_id
+               AND prl.requisition_line_id = prd.requisition_line_id
+               AND prd.distribution_id = pod.req_distribution_id
+               AND ROWNUM = 1)
+          pr_num2,
+       (SELECT prl.line_num
+          FROM po_requisition_lines_all prl, po_req_distributions_all prd
+         WHERE     prl.requisition_line_id = prd.requisition_line_id
+               AND prd.distribution_id = pod.req_distribution_id
+               AND ROWNUM = 1)
+          pr_line_num,
+       (SELECT pov.vendor_name
+          FROM po_vendors pov
+         WHERE poh.vendor_id = pov.vendor_id AND ROWNUM = 1)
+          vendor_name,
+       (SELECT pov.segment1
+          FROM po_vendors pov
+         WHERE poh.vendor_id = pov.vendor_id AND ROWNUM = 1)
+          vendor_no,
+       (SELECT pov.vendor_name
+          FROM po_vendors pov
+         WHERE poh.vendor_id = pov.vendor_id AND ROWNUM = 1)
+          vendor_name_line,
+       (SELECT p.full_name
+          FROM per_all_people_f p
+         WHERE     p.person_id = poh.agent_id
+               AND (SYSDATE BETWEEN p.effective_start_date
+                                AND p.effective_end_date)
+               AND ROWNUM = 1)
+          buyer_name,
+       (SELECT p.full_name
+          FROM per_all_people_f p
+         WHERE     p.person_id = poh.agent_id
+               AND (SYSDATE BETWEEN p.effective_start_date
+                                AND p.effective_end_date)
+               AND ROWNUM = 1)
+          buyer_name_line,
+       (SELECT prh.attribute3
+          FROM po_requisition_headers_all prh,
+               po_requisition_lines_all prl,
+               po_req_distributions_all prd                                --,
+         -- po_distributions_all       pod
+         WHERE     prh.requisition_header_id = prl.requisition_header_id
+               AND prl.requisition_line_id = prd.requisition_line_id
+               AND prd.distribution_id = pod.req_distribution_id
+               --and pod.PO_LINE_ID = i.po_line_id
+               AND ROWNUM = 1)
+          pr_category,
+       (SELECT prh.attribute5
+          FROM po_requisition_headers_all prh,
+               po_requisition_lines_all prl,
+               po_req_distributions_all prd                                --,
+         -- po_distributions_all       pod
+         WHERE     prh.requisition_header_id = prl.requisition_header_id
+               AND prl.requisition_line_id = prd.requisition_line_id
+               AND prd.distribution_id = pod.req_distribution_id
+               --and pod.PO_LINE_ID = i.po_line_id
+               AND ROWNUM = 1)
+          pr_reason,
+       poh.authorization_status,
+       pll.promised_date,
+       (SELECT l.long_text
+          FROM fnd_attached_docs_form_vl d, fnd_documents_long_text l
+         WHERE     d.media_id = l.media_id
+               AND d.function_name = DECODE (0, 1, NULL, 'PO_POXPOVPO')
+               AND d.function_type = DECODE (0, 1, NULL, 'F')
+               AND (d.entity_name = 'PO_HEADERS')
+               AND category_id = 1000712
+               AND ROWNUM = 1
+               AND d.pk1_value =
+                      (SELECT po_header_id
+                         FROM po_headers_all p4
+                        WHERE     p4.po_header_id = poh.po_header_id
+                              AND type_lookup_code = 'STANDARD')
+               AND ROWNUM = 1)
+          delv,
+       CASE
+          WHEN pll.cancel_flag = 'Y'
+          THEN
+             'Cancelled'
+          WHEN     NVL (pod.quantity_cancelled, 0) > 0
+               AND NVL (pod.quantity_cancelled, 0) < pod.quantity_ordered
+          THEN
+             'Partially Cancelled'
+          ELSE
+             NULL
+       END
+          AS shipment_cancel_status,
+       pll.closed_code AS shipment_close_status,
+       --added by omar.basiony 17-06-2020
+       --requested by sarah.ehab
+       (SELECT ASS_ATTRIBUTE1
+          FROM PER_ALL_ASSIGNMENTS_F
+         WHERE     PERSON_ID = POH.AGENT_ID
+               AND SYSDATE BETWEEN EFFECTIVE_START_DATE
+                               AND EFFECTIVE_END_DATE
+               AND ROWNUM = 1)
+          BUYER_DEP,
+           DECODE (
+          RME_DEV.XXRME_TAX_RATE.GET_REC_PERCENTAGE_RATE (
+             poh.po_header_id,
+             pll.line_location_id),
+          100, pol.unit_price,
+          0, (  pol.unit_price
+              + CASE
+                   WHEN NVL (d.tax_amt, 0) = 0 THEN 0
+                   WHEN NVL (d.trx_line_quantity, 0) = 0 THEN 0
+                   ELSE (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+                END),
+          (  pol.unit_price
+           + CASE
+                WHEN NVL (d.tax_amt, 0) = 0 THEN 0
+                WHEN NVL (d.trx_line_quantity, 0) = 0 THEN 0
+                ELSE (NVL (d.tax_amt, 0) / NVL (d.trx_line_quantity, 0))
+             END))*(  NVL (pod.quantity_ordered, 0)
+        - NVL (pod.quantity_delivered, 0)
+        - NVL (pod.quantity_cancelled, 0)) "Quantity Open Amount" 
+  --ended by omar.basiony 17-06-2020
+  --  (select spla.full_name from sw_po_next_approve spla where spla.object_id = poh.PO_HEADER_ID and rownum = 1) next_approval,
+  --(select spla.action_date from sw_po_next_approve spla where spla.object_id = poh.PO_HEADER_ID and rownum = 1) ACTION_DATE
+  FROM po_headers_all poh,
+       po_lines_all pol,
+       po_line_locations_all pll,
+       po_distributions_all pod,
+       (SELECT organization_id, org_information3 AS ledger_id
+          FROM hr_organization_information
+         WHERE org_information_context = 'Operating Unit Information')
+       org_led,
+       gl_ledgers led,
+       (  SELECT SUM (tax_amt) AS tax_amt,
+                 SUM (trx_line_quantity) AS trx_line_quantity,
+                 trx_id,
+                 trx_line_id
+            FROM zx_lines
+           WHERE     entity_code = 'PURCHASE_ORDER'
+                 AND application_id = 201
+                 AND event_class_code = 'PO_PA'
+                 AND trx_level_type = 'SHIPMENT'
+                 AND tax_apportionment_line_number = 1
+        --AND    tax_regime_code='TAX REGIME_RME'
+        --AND    tax='TAX_RME'
+        GROUP BY trx_id, trx_line_id) d
+ WHERE     poh.po_header_id = pol.po_header_id
+       AND poh.org_id = org_led.organization_id
+       AND org_led.ledger_id = led.ledger_id
+       AND pol.po_line_id = pll.po_line_id
+       /*LINK WITH TAX LINES*/
+       AND poh.po_header_id = d.trx_id(+)
+       AND pll.line_location_id = d.trx_line_id(+)
+       /*LINK WITH TAX LINES*/
+       AND pol.po_line_id = pod.po_line_id
+       AND pll.line_location_id = pod.line_location_id
+       AND poh.type_lookup_code = 'STANDARD'    -----mismail 7/3/2017

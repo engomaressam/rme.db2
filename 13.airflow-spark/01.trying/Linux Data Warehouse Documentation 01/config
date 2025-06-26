@@ -1,0 +1,4 @@
+Host 10.10.11.242
+  HostName 10.10.11.242
+  User PMO
+  IdentityFile C:\Users\Omar Essam2\.ssh\id_ed25519

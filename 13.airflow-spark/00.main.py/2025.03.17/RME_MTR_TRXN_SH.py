@@ -1,0 +1,1311 @@
+import sys
+sys.path.insert(1, '/home/PMO/airflow/dags')
+from pyspark.sql import SparkSession
+from pyspark import SparkConf, conf
+from pyspark.sql.types import *
+import pandas as pd
+from datetime import * 
+import Connections as conn
+import ETLFunctions as fx
+from time import * 
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+import random 
+import sys 
+import pendulum
+from pyspark.sql.functions import to_date, col
+
+load_connection_string = "jdbc:mysql://10.10.11.242:3306/RME_TEST?useUnicode=true&characterEncoding=UTF-8"
+
+
+RME_Material_Movement_query="""(
+
+/* Formatted on 7/3/2022 11:50:40 AM (QP5 v5.256.13226.35510) */
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE ex.DOCUMENT_HEADER_ID = poh.po_header_id AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       NVL (pol.ATTRIBUTE4, poh.ATTRIBUTE4) task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       rsh.RECEIPT_NUM,
+       NVL ( (SELECT DISTINCT (SELECT DISTINCT vendor_name
+                                 FROM po_vendors v
+                                WHERE v.vendor_id = h.attribute2)
+                FROM MTL_TXN_REQUEST_HEADERS h
+               WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID),
+            (SELECT DISTINCT h.attribute3
+               FROM MTL_TXN_REQUEST_HEADERS h
+              WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID))
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT (SELECT DISTINCT segment1
+                           FROM po_vendors v
+                          WHERE v.vendor_id = h.attribute2)
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT name
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       poh.segment1 po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       rcv_transactions rcv,
+       rcv_shipment_headers rsh,
+       po_headers_all poh,
+       po_lines_all pol,
+       rcv_shipment_lines rsl,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+       AND mmt.rcv_transaction_id = rcv.transaction_id
+       AND mmt.organization_id = hou.organization_id
+       AND poh.po_header_id = pol.po_header_id
+       AND poh.po_header_id = rsl.po_header_id
+       AND rsl.shipment_header_id = rsh.shipment_header_id
+       AND rcv.po_header_id = poh.po_header_id
+       AND rcv.po_line_id = pol.po_line_id
+       AND rcv.shipment_line_id = rsl.shipment_line_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND rsh.shipment_header_id = rcv.shipment_header_id
+       AND MMT.transaction_type_id IN (36,
+                                       83,
+                                       48,
+                                       58,
+                                       43,
+                                       234,
+                                       233,
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       56,
+                                       44,
+                                       25,
+                                       889)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+     
+UNION
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE ex.DOCUMENT_HEADER_ID = poh.po_header_id AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       NVL ( (SELECT PP.TASK_NUMBER
+                FROM PA.PA_TASKS PP
+               WHERE PP.TASK_ID = MMT.SOURCE_TASK_ID AND ROWNUM = 1),
+            poh.ATTRIBUTE4)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       rsh.RECEIPT_NUM,
+       (SELECT DISTINCT vendor_name
+          FROM po_vendors v
+         WHERE v.vendor_id = poh.vendor_id)
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT segment1
+          FROM po_vendors v
+         WHERE v.vendor_id = poh.vendor_id)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND L.ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT name
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       poh.segment1 po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       rcv_transactions rcv,
+       rcv_shipment_headers rsh,
+       po_headers_all poh,
+       po_lines_all pol,
+       rcv_shipment_lines rsl,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+       AND mmt.rcv_transaction_id = rcv.transaction_id
+       AND mmt.organization_id = hou.organization_id
+       AND poh.po_header_id = pol.po_header_id
+       AND poh.po_header_id = rsl.po_header_id
+       AND rsl.shipment_header_id = rsh.shipment_header_id
+       AND rcv.po_header_id = poh.po_header_id
+       AND rcv.po_line_id = pol.po_line_id
+       AND rcv.shipment_line_id = rsl.shipment_line_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND rsh.shipment_header_id = rcv.shipment_header_id
+       AND MMT.transaction_type_id IN (18,
+                                       83,
+                                       48,
+                                       234,
+                                       58,
+                                       43,
+                                       233,
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       56,
+                                       1003,
+                                       44,
+                                       25,
+                                       71,
+                                       889)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+    
+       
+                    
+UNION ALL
+---nEW aYA-----
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE ex.DOCUMENT_HEADER_ID = poh.po_header_id AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       NVL ( (SELECT PP.TASK_NUMBER
+                FROM PA.PA_TASKS PP
+               WHERE PP.TASK_ID = MMT.SOURCE_TASK_ID AND ROWNUM = 1),
+            poh.ATTRIBUTE4)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       rsh.RECEIPT_NUM,
+       (SELECT DISTINCT vendor_name
+          FROM po_vendors v
+         WHERE v.vendor_id = poh.vendor_id)
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT segment1
+          FROM po_vendors v
+         WHERE v.vendor_id = poh.vendor_id)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND L.ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT NAME
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       poh.segment1 po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       rcv_transactions rcv,
+       rcv_shipment_headers rsh,
+       po_headers_all poh,
+       po_lines_all pol,
+       rcv_shipment_lines rsl,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+       AND mmt.rcv_transaction_id = rcv.transaction_id
+       AND mmt.organization_id = hou.organization_id
+       AND poh.po_header_id = pol.po_header_id
+       AND poh.po_header_id = rsl.po_header_id
+       AND rsl.shipment_header_id = rsh.shipment_header_id
+       AND rcv.po_header_id = poh.po_header_id
+       AND rcv.po_line_id = pol.po_line_id
+       AND rcv.shipment_line_id = rsl.shipment_line_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND rsh.shipment_header_id = rcv.shipment_header_id
+       AND MMT.transaction_type_id IN (83,
+                                       48,
+                                       58,
+                                       43,
+                                       234,
+                                       233,
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       56,
+                                       1003,
+                                       44,
+                                       25,
+                                       71,
+                                       889)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+     
+       AND UPPER (SUBINVENTORY_CODE) = UPPER ('RF1_MAIN')
+   
+     
+  
+----eND AyA
+UNION ALL
+---nEW aYA-----
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE ex.DOCUMENT_HEADER_ID = poh.po_header_id AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       NVL ( (SELECT PP.TASK_NUMBER
+                FROM PA.PA_TASKS PP
+               WHERE PP.TASK_ID = MMT.SOURCE_TASK_ID AND ROWNUM = 1),
+            poh.ATTRIBUTE4)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       rsh.RECEIPT_NUM,
+       (SELECT DISTINCT vendor_name
+          FROM po_vendors v
+         WHERE v.vendor_id = poh.vendor_id)
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT segment1
+          FROM po_vendors v
+         WHERE v.vendor_id = poh.vendor_id)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND L.ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT NAME
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       poh.segment1 po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       rcv_transactions rcv,
+       rcv_shipment_headers rsh,
+       po_headers_all poh,
+       po_lines_all pol,
+       rcv_shipment_lines rsl,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+       AND mmt.rcv_transaction_id = rcv.transaction_id
+       AND mmt.organization_id = hou.organization_id
+       AND poh.po_header_id = pol.po_header_id
+       AND poh.po_header_id = rsl.po_header_id
+       AND rsl.shipment_header_id = rsh.shipment_header_id
+       AND rcv.po_header_id = poh.po_header_id
+       AND rcv.po_line_id = pol.po_line_id
+       AND rcv.shipment_line_id = rsl.shipment_line_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND rsh.shipment_header_id = rcv.shipment_header_id
+       AND MMT.transaction_type_id IN (83,
+                                       48,
+                                       58,
+                                       43,
+                                       234,
+                                       233,
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       56,
+                                       1003,
+                                       44,
+                                       25,
+                                       71,
+                                       889)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+      
+       AND UPPER (SUBINVENTORY_CODE) = UPPER ('RD7_Main')
+   
+
+     
+--            ----eND AyA
+UNION ALL
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT CASE
+                  WHEN segment1 LIKE '14%' THEN 'Cement'
+                  WHEN segment1 LIKE '15%' THEN 'Steel'
+                  WHEN segment1 LIKE '09%' THEN 'Wood'
+                  ELSE 'Tools'
+               END
+          FROM mtl_system_items_b ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE     ex.expenditure_type = mmt.expenditure_type
+               AND mmt.inventory_item_id = ex.inventory_item_id
+               AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       (SELECT PP.TASK_NUMBER
+          FROM PA.PA_TASKS PP
+         WHERE PP.TASK_ID = MMT.SOURCE_TASK_ID AND ROWNUM = 1)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       hou.ORGANIZATION_NAME TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       NULL RECEIPT_NUM,
+       NVL ( (SELECT DISTINCT (SELECT DISTINCT vendor_name
+                                 FROM po_vendors v
+                                WHERE v.vendor_id = h.attribute2)
+                FROM MTL_TXN_REQUEST_HEADERS h
+               WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID),
+            (SELECT DISTINCT h.attribute3
+               FROM MTL_TXN_REQUEST_HEADERS h
+              WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID))
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT (SELECT DISTINCT segment1
+                           FROM po_vendors v
+                          WHERE v.vendor_id = h.attribute2)
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT name
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       NULL po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+       AND mmt.organization_id = hou.organization_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND MMT.transaction_type_id IN (186,
+                                       206,
+                                       120,
+                                       140,
+                                       83,
+                                       234,
+                                       48,
+                                       58,
+                                       43,
+                                       233,
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       56,
+                                       1003,
+                                       44,
+                                       25,
+                                       889)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+  
+UNION ALL
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE     ex.expenditure_type = mmt.expenditure_type
+               AND mmt.inventory_item_id = ex.inventory_item_id
+               AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       (SELECT task_number
+          FROM pa_tasks pt
+         WHERE pt.task_id = mmt.task_id AND pt.project_id = mmt.project_id)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       NULL RECEIPT_NUM,
+       NVL ( (SELECT DISTINCT (SELECT DISTINCT vendor_name
+                                 FROM po_vendors v
+                                WHERE v.vendor_id = h.attribute2)
+                FROM MTL_TXN_REQUEST_HEADERS h
+               WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID),
+            (SELECT DISTINCT h.attribute3
+               FROM MTL_TXN_REQUEST_HEADERS h
+              WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID))
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT (SELECT DISTINCT segment1
+                           FROM po_vendors v
+                          WHERE v.vendor_id = h.attribute2)
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT name
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       NULL po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+       AND mmt.organization_id = hou.organization_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND MMT.transaction_type_id IN (3,
+                                       12,
+                                       83,
+                                       48,
+                                       234,
+                                       58,
+                                       43,
+                                      
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       56,
+                                       808,
+                                       343,
+                                       1003,
+                                       44,
+                                       25,
+                                       889)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+     
+       AND mmt.PRIMARY_QUANTITY >= 0
+       
+UNION ALL
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE     ex.expenditure_type = mmt.expenditure_type
+               AND mmt.inventory_item_id = ex.inventory_item_id
+               AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.ORGANIZATION_ID)
+          from_cost_name,
+       (SELECT o.ORGANIZATION_NAME
+          FROM org_organization_definitions o
+         WHERE o.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       (SELECT task_number
+          FROM pa_tasks pt
+         WHERE pt.task_id = mmt.task_id AND pt.project_id = mmt.project_id)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       (SELECT DISTINCT ho.ORGANIZATION_NAME
+          FROM ORG_ORGANIZATION_DEFINITIONS ho
+         WHERE HO.ORGANIZATION_ID = mmt.TRANSFER_ORGANIZATION_ID)
+          TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       NULL RECEIPT_NUM,
+       NVL ( (SELECT DISTINCT (SELECT DISTINCT vendor_name
+                                 FROM po_vendors v
+                                WHERE v.vendor_id = h.attribute2)
+                FROM MTL_TXN_REQUEST_HEADERS h
+               WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID),
+            (SELECT DISTINCT h.attribute3
+               FROM MTL_TXN_REQUEST_HEADERS h
+              WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID))
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT (SELECT DISTINCT segment1
+                           FROM po_vendors v
+                          WHERE v.vendor_id = h.attribute2)
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       (SELECT SEGMENT1
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          PROJECT_NUMBER,
+       (SELECT name
+          FROM PA_PROJECTS_ALL
+         WHERE SEGMENT1 =
+                  (SELECT ORG.ATTRIBUTE1
+                     FROM HR_ORGANIZATION_UNITS_V ORG,
+                          ORG_ORGANIZATION_DEFINITIONS2 OOD
+                    WHERE     ORG.ORGANIZATION_ID = OOD.ORGANIZATION_ID
+                          AND ORG.ORGANIZATION_ID = mmt.ORGANIZATION_ID))
+          project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       NULL po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID
+     
+       AND mmt.organization_id = hou.organization_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND MMT.transaction_type_id IN (3,
+                                       21,
+                                       83,
+                                       48,
+                                       58,
+                                       32,
+                                       91,
+                                       57,
+                                       82,
+                                       17,
+                                       90,
+                                       55,
+                                       
+                                       56,
+                                       808,
+                                       343,
+                                       1003,
+                                       44,
+                                       25,
+                                       889,
+                                       211)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+       AND mmt.PRIMARY_QUANTITY < 0
+   
+UNION ALL
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE     ex.expenditure_type = mmt.expenditure_type
+               AND mmt.inventory_item_id = ex.inventory_item_id
+               AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       NULL from_cost_name,
+       NULL to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       (SELECT task_number
+          FROM pa_tasks pt
+         WHERE pt.task_id = mmt.task_id AND pt.project_id = mmt.project_id)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       NULL RECEIPT_NUM,
+       NVL ( (SELECT DISTINCT (SELECT DISTINCT vendor_name
+                                 FROM po_vendors v
+                                WHERE v.vendor_id = h.attribute2)
+                FROM MTL_TXN_REQUEST_HEADERS h
+               WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID),
+            (SELECT DISTINCT h.attribute3
+               FROM MTL_TXN_REQUEST_HEADERS h
+              WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID))
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT (SELECT DISTINCT segment1
+                           FROM po_vendors v
+                          WHERE v.vendor_id = h.attribute2)
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       --
+       NULL PROJECT_NUMBER,
+       NULL project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       NULL po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID(+) = Mmt.INVENTORY_ITEM_ID
+       AND mmt.organization_id = hou.organization_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND mmt.TRANSACTION_TYPE_id = 211
+       AND mmt.transaction_type_id = ty.transaction_type_id
+     
+     
+       UNION ALL
+SELECT DISTINCT
+       mmt.TRANSACTION_DATE,
+       (SELECT Categor
+          FROM APPS.RME_ITEMS_CATEGORY ms
+         WHERE ms.INVENTORY_ITEM_ID = Mmt.INVENTORY_ITEM_ID AND ROWNUM = 1)
+          Categor,
+       (SELECT DISTINCT ex.EXPENDITURE_ITEM_ID
+          FROM pa_expenditure_items_all ex
+         WHERE     ex.expenditure_type = mmt.expenditure_type
+               AND mmt.inventory_item_id = ex.inventory_item_id
+               AND ROWNUM = 1)
+          EXPENDITURE_ITEM_ID,
+       NULL from_cost_name,
+       NULL to_cost_name,
+       mmt.transaction_id,
+       mmt.SUBINVENTORY_CODE,
+       mmt.TRANSACTION_UOM,
+       mmt.ACTUAL_COST,
+       mmt.PRIMARY_QUANTITY,
+       (SELECT task_number
+          FROM pa_tasks pt
+         WHERE pt.task_id = mmt.task_id AND pt.project_id = mmt.project_id)
+          task_num,
+       mmt.expenditure_type expend,
+       mmt.CURRENCY_CONVERSION_RATE,
+       NULL TRANSFER_SUBINVENTORY,
+       msi.SEGMENT1 item_code,
+       msi.DESCRIPTION item_desc,
+       NULL RECEIPT_NUM,
+       NVL ( (SELECT DISTINCT (SELECT DISTINCT vendor_name
+                                 FROM po_vendors v
+                                WHERE v.vendor_id = h.attribute2)
+                FROM MTL_TXN_REQUEST_HEADERS h
+               WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID),
+            (SELECT DISTINCT h.attribute3
+               FROM MTL_TXN_REQUEST_HEADERS h
+              WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID))
+          supplier,
+       (SELECT DISTINCT DECODE ( (SELECT DISTINCT vendor_name
+                                    FROM po_vendors v
+                                   WHERE v.vendor_id = h.attribute2),
+                                NULL, '',
+                                'supplier')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          suuplier_on,
+       (SELECT DISTINCT DECODE (h.attribute3, NULL, '', 'Employee')
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          employee_on,
+       (SELECT DISTINCT (SELECT DISTINCT segment1
+                           FROM po_vendors v
+                          WHERE v.vendor_id = h.attribute2)
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          supplier_no,
+       (SELECT DISTINCT l.attribute2
+          FROM MTL_TXN_REQUEST_LINES l
+         WHERE     l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND ATTRIBUTE_CATEGORY IN ('Playa', 'Rowad')
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          area,
+       (SELECT DISTINCT DECODE (s.attribute2, NULL, 'Employee', 'Supplier')
+          FROM MTL_TXN_REQUEST_LINES l,
+               MTL_TXN_REQUEST_HEADERS h,
+               ap_suppliers s
+         WHERE     l.header_id = h.header_id
+               AND s.vendor_id = h.attribute2
+               AND l.TRANSACTION_HEADER_ID = mmt.TRANSACTION_set_ID
+               AND mmt.TRANSACTION_TYPE_ID = l.TRANSACTION_TYPE_ID
+               AND l.ORGANIZATION_ID = hou.ORGANIZATION_ID
+               AND l.inventory_item_id = mmt.inventory_item_id
+               AND mmt.TRX_SOURCE_LINE_ID = l.line_id)
+          received_type,
+       (SELECT REQUEST_NUMBER
+          FROM MTL_TXN_REQUEST_HEADERS h
+         WHERE h.header_id = mmt.TRANSACTION_SOURCE_ID)
+          MO_NUM,
+       --
+       NULL PROJECT_NUMBER,
+       NULL project,
+       mmt.PRIMARY_QUANTITY * mmt.actual_cost total_amount,
+       NULL po_number,
+       TY.TRANSACTION_TYPE_NAME TRX_TYPE,
+       mmt.transaction_set_id,
+       mmt.TRANSACTION_TYPE_ID,
+       hou.ORGANIZATION_ID,
+       msi.inventory_item_id,
+       mmt.TRX_SOURCE_LINE_ID,
+       mmt.TRANSACTION_TYPE_ID
+  FROM MTL_MATERIAL_TRANSACTIONS mmt,
+       mtl_system_items_b msi,
+       ORG_ORGANIZATION_DEFINITIONS hou,
+       mtl_transaction_types TY
+ WHERE     msi.INVENTORY_ITEM_ID(+) = Mmt.INVENTORY_ITEM_ID
+       AND mmt.organization_id = hou.organization_id
+       AND msi.ORGANIZATION_ID = mMt.ORGANIZATION_ID
+       AND mmt.TRANSACTION_TYPE_id in(608,548,648,652,649,650,1068)
+       AND mmt.transaction_type_id = ty.transaction_type_id
+ ) temp """
+
+def  RME_Material_Movement_ETL():
+    spark = fx.spark_app('RME_Material_Movement', '2g', '2')
+    RES = fx.connection(spark, 'RES', 'RMEDB',  RME_Material_Movement_query, 'TEMP', 'ERP')
+  
+
+local_tz = pendulum.timezone("Europe/Helsinki")
+default_args = {
+    'owner': 'sama',
+    'start_date': datetime(2024, 11, 14, tzinfo=local_tz),
+    "retries": 1,
+}
+
+dag = DAG(
+    'RME_Material_Movement',
+    catchup=False,
+    default_args=default_args,
+    schedule_interval='0 1 * * *',
+    tags=['5']
+)
+
+RME_Material_Movement_Task = PythonOperator(
+    dag=dag,
+    task_id='RME_Material_Movement',
+    python_callable= RME_Material_Movement_ETL
+)
+
+RME_Material_Movement_Task

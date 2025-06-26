@@ -1,0 +1,13 @@
+# ETL Source and Destination Mapping for 05.manual.quick
+
+1. 01.receipts_4_Report (drop all - take again).py
+   - **Oracle Source (View/Query):** RME_DEV.RME_INV_COLLECTING_STATUS_V
+   - **MySQL Destination Table:** receipts_4_Report
+
+2. 02.ap_check_payments (drop last month - take again).py
+   - **Oracle Source (Table):** RME_DEV.RME_AP_CHECK_PAYMENTS
+   - **MySQL Destination Table:** RME_ap_check_payments_Report
+
+3. 03.cost_dist_line (drop last day - take again).py
+   - **Oracle Source (Query):** Complex join, main table: apps.pa_expenditure_items_all, filtered by GL_DATE (see get_oracle_query() in code)
+   - **MySQL Destination Table:** RME_Projects_Cost_Dist_Line_Report_new
