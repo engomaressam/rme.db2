@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Plan Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .deployment-plan {
+            margin-top: 50px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Deployment Plan Generator</h1>
+        <form action="/" method="post">
+            <label for="project_type">Project Type:</label><br>
+            <select id="project_type" name="project_type">
+                <option value="Bridges">Bridges</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Factory">Factory</option>
+                <option value="HO">HO</option>
+                <option value="Head Office">Head Office</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Industrial">Industrial</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="L&L">L&L</option>
+                <option value="Offices & Mall">Offices & Mall</option>
+                <option value="Power Plant">Power Plant</option>
+                <option value="Railway">Railway</option>
+                <option value="Residential">Residential</option>
+                <option value="Restoration">Restoration</option>
+                <option value="Tank">Tank</option>
+            </select><br><br>
+            <label for="duration">Duration (months):</label><br>
+            <input type="number" id="duration" name="duration" min="1" required><br><br>
+            <input type="submit" value="Generate Plan">
+        </form>
+        
+        {% if deployment_plan_html %}
+        <div class="deployment-plan">
+            <h2>Deployment Plan</h2>
+            {{ deployment_plan_html|safe }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

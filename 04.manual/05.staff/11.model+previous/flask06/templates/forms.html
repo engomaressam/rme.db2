@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Table</title>
+</head>
+<body>
+    <h2>Project Table</h2>
+    {% if project_table %}
+        {{ project_table|safe }}
+    {% else %}
+        <p>No data available for the selected project.</p>
+    {% endif %}
+</body>
+</html>

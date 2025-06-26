@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Project</title>
+</head>
+<body>
+    <h2>Select Project</h2>
+    <form action="{{ url_for('select_project') }}" method="POST">
+        <select name="project" id="project-dropdown">
+            {% for project in projects %}
+                <option value="{{ project }}">{{ project }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit">Show Table</button>
+    </form>
+</body>
+</html>

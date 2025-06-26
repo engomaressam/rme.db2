@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Plan Generator</title>
+	    <!-- Link to external CSS file -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+	    <!-- Company logo -->
+    <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Company Logo" style="width: 150px; height: auto;">
+</head>
+<body>
+    <div class="container">
+        <h1>Deployment Plan Generator</h1>
+        <form action="/" method="post">
+            <label for="project_type">Project Type:</label><br>
+            <select id="project_type" name="project_type">
+                <option value="Bridges">Bridges</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Factory">Factory</option>
+                <option value="HO">HO</option>
+                <option value="Head Office">Head Office</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Industrial">Industrial</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="L&L">L&L</option>
+                <option value="Offices & Mall">Offices & Mall</option>
+                <option value="Power Plant">Power Plant</option>
+                <option value="Railway">Railway</option>
+                <option value="Residential">Residential</option>
+                <option value="Restoration">Restoration</option>
+                <option value="Tank">Tank</option>
+            </select><br><br>
+            <label for="duration">Duration (months):</label><br>
+            <input type="number" id="duration" name="duration" min="1" required><br><br>
+            <input type="submit" value="Generate Plan">
+        </form>
+        
+        {% if deployment_plan_html %}
+        <div class="deployment-plan">
+            <h2>Deployment Plan</h2>
+            {{ deployment_plan_html|safe }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Project Staff Data</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+ <h1>Select a Project</h1>
+ <form action="/project" method="POST">
+  <select name="project">
+   {% for project_name in project_names %}
+    <option value="{{ project_name }}">{{ project_name }}</option>
+   {% endfor %}
+  </select>
+  <button type="submit">Show Staff Data</button>
+ </form>
+</body>
+</html>

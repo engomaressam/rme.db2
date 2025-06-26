@@ -1,0 +1,22 @@
+select {
+  /* Increase width and adjust padding */
+  width: 200px;
+  padding: 5px;
+  /* Add some basic styling */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+table {
+  border-collapse: collapse; /* Combine table borders for cleaner look */
+  width: 100%; /* Set table width to 100% of its container */
+}
+
+th, td {
+  border: 1px solid #ddd; /* Add borders to table cells */
+  padding: 8px; /* Add some padding for readability */
+  text-align: left; /* Align content left by default */
+}
+
+th {
+  background-color: #f2f2f2; /* Light gray background for headers */
+}

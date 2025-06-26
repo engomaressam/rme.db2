@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Selection</title>
+</head>
+<body>
+    <h2>Select a Project:</h2>
+    <form action="/project" method="POST">
+        <select name="project">
+            {% for project_name in project_names %}
+                <option value="{{ project_name }}">{{ project_name }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <input type="submit" value="Show Project">
+    </form>
+</body>
+</html>
