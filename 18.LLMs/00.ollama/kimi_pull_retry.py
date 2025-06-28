@@ -1,7 +1,7 @@
 import subprocess
 import time
 
-MODEL = "volker-mauel/Kimi-Dev-72B-GGUF"
+MODEL = "volker-mauel/Kimi-Dev-72B-GGUF:q8_0"  # Added q8_0 tag for the correct model version
 PULL_COMMAND = f"ollama pull {MODEL}"
 RETRY_INTERVAL = 10 * 60  # 10 minutes in seconds
 MAX_RETRIES = 10  # Maximum number of retry attempts
@@ -14,33 +14,28 @@ def pull_model(model_name):
             # Using shell=True to execute the exact command as provided
             print(f"[DEBUG] Executing command: {PULL_COMMAND}")
             
-            # Create a subprocess with explicit encoding and error handling
+            # Create a subprocess with real-time output
             process = subprocess.Popen(
                 PULL_COMMAND,
                 shell=True,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                universal_newlines=False  # We'll handle decoding manually
+                stderr=subprocess.STDOUT,  # Combine stdout and stderr
+                universal_newlines=True,     # Text mode for real-time output
+                bufsize=1,                   # Line buffered
+                encoding='utf-8',
+                errors='replace'             # Handle any encoding errors
             )
             
-            # Read output with explicit error handling for encoding
-            stdout, stderr = process.communicate()
+            # Read and print output in real-time
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    print(output.strip())
             
-            # Try to decode with utf-8, fall back to 'ignore' errors if needed
-            try:
-                stdout_str = stdout.decode('utf-8')
-                stderr_str = stderr.decode('utf-8')
-            except UnicodeDecodeError:
-                stdout_str = stdout.decode('utf-8', errors='ignore')
-                stderr_str = stderr.decode('utf-8', errors='ignore')
-            
-            # Print the output from the command
-            if stdout_str.strip():
-                print("Command output:")
-                print(stdout_str)
-            if stderr_str.strip():
-                print("Command error output:")
-                print(stderr_str)
+            # Get the return code
+            process.poll()
             
             # Check the return code
             if process.returncode != 0:
