@@ -13,27 +13,42 @@ def pull_model(model_name):
         try:
             # Using shell=True to execute the exact command as provided
             print(f"[DEBUG] Executing command: {PULL_COMMAND}")
-            result = subprocess.run(
+            
+            # Create a subprocess with explicit encoding and error handling
+            process = subprocess.Popen(
                 PULL_COMMAND,
                 shell=True,
-                text=True,
-                capture_output=True
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=False  # We'll handle decoding manually
             )
+            
+            # Read output with explicit error handling for encoding
+            stdout, stderr = process.communicate()
+            
+            # Try to decode with utf-8, fall back to 'ignore' errors if needed
+            try:
+                stdout_str = stdout.decode('utf-8')
+                stderr_str = stderr.decode('utf-8')
+            except UnicodeDecodeError:
+                stdout_str = stdout.decode('utf-8', errors='ignore')
+                stderr_str = stderr.decode('utf-8', errors='ignore')
+            
             # Print the output from the command
-            if result.stdout:
+            if stdout_str.strip():
                 print("Command output:")
-                print(result.stdout)
-            if result.stderr:
+                print(stdout_str)
+            if stderr_str.strip():
                 print("Command error output:")
-                print(result.stderr)
-                
-            # Check the return code manually to handle it better
-            if result.returncode != 0:
+                print(stderr_str)
+            
+            # Check the return code
+            if process.returncode != 0:
                 raise subprocess.CalledProcessError(
-                    returncode=result.returncode,
+                    returncode=process.returncode,
                     cmd=PULL_COMMAND,
-                    output=result.stdout,
-                    stderr=result.stderr
+                    output=stdout_str,
+                    stderr=stderr_str
                 )
                 
             print(f"[SUCCESS] Successfully pulled {model_name}")
