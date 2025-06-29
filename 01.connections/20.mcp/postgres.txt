@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+      "postgresql": {
+        "command": "npx",
+        "args": [
+          "@henkey/postgres-mcp-server",
+          "--connection-string", "postgresql://postgres:PMO@1234@localhost:5432/postgres"
+        ],
+        "disabled": false
+      }
+    }
+  }
