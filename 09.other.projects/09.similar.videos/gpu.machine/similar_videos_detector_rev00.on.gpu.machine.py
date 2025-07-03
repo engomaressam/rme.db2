@@ -635,132 +635,90 @@ class VideoComparisonGUI:
                 self.current_cluster_idx = len(self.clusters) - 1
 
 
-class SettingsDialog(tk.Toplevel):
-    """GUI for tweaking detection parameters."""
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.title("Adjust Detection Settings")
-        self.geometry("450x300")
-        self.result = None
-        
-        # Variables to hold slider values
-        self.threshold_var = tk.DoubleVar(value=0.95)
-        self.tolerance_var = tk.DoubleVar(value=1.0)
-
-        # --- Similarity Threshold Slider ---
-        ttk.Label(self, text="Similarity Threshold", font=("Arial", 12, "bold")).pack(pady=(10,0))
-        
-        slider_frame = ttk.Frame(self)
-        slider_frame.pack(pady=5, padx=20, fill='x')
-        
-        ttk.Label(slider_frame, text="Detect More Videos").pack(side='left')
-        self.threshold_slider = ttk.Scale(slider_frame, from_=0.80, to=0.99, orient='horizontal', variable=self.threshold_var, command=self.update_threshold_label)
-        self.threshold_slider.pack(side='left', expand=True, fill='x')
-        ttk.Label(slider_frame, text="Stricter Matching").pack(side='right')
-
-        self.threshold_label = ttk.Label(self, text=f"{self.threshold_var.get():.2f}")
-        self.threshold_label.pack()
-
-        # --- Duration Tolerance Slider ---
-        ttk.Label(self, text="Duration Tolerance (seconds)", font=("Arial", 12, "bold")).pack(pady=(20,0))
-
-        slider_frame2 = ttk.Frame(self)
-        slider_frame2.pack(pady=5, padx=20, fill='x')
-
-        ttk.Label(slider_frame2, text="Less Strict").pack(side='left')
-        self.tolerance_slider = ttk.Scale(slider_frame2, from_=0.1, to=10.0, orient='horizontal', variable=self.tolerance_var, command=self.update_tolerance_label)
-        self.tolerance_slider.pack(side='left', expand=True, fill='x')
-        ttk.Label(slider_frame2, text="More Strict").pack(side='right')
-        
-        self.tolerance_label = ttk.Label(self, text=f"{self.tolerance_var.get():.1f}s")
-        self.tolerance_label.pack()
-
-        # --- Buttons ---
-        btn_frame = ttk.Frame(self)
-        btn_frame.pack(pady=20)
-        
-        ttk.Button(btn_frame, text="Start Scan", command=self.apply_settings).pack(side='left', padx=10)
-        ttk.Button(btn_frame, text="Cancel", command=self.destroy).pack(side='left', padx=10)
-
-        self.protocol("WM_DELETE_WINDOW", self.destroy)
-        self.transient(parent)
-        self.grab_set()
-
-    def update_threshold_label(self, value):
-        self.threshold_label.config(text=f"{float(value):.2f}")
-
-    def update_tolerance_label(self, value):
-        self.tolerance_label.config(text=f"{float(value):.1f}s")
-
-    def apply_settings(self):
-        self.result = {
-            'threshold': self.threshold_var.get(),
-            'tolerance': self.tolerance_var.get()
-        }
-        self.destroy()
-
 def main():
-    """Main function to run the similar videos detector with a GUI-first approach."""
-    # 1. Ask for directory
-    root = tk.Tk()
-    root.withdraw() # Hide the root window
-    directory = filedialog.askdirectory(title="Select the Directory Containing Your Videos")
-    if not directory:
-        print("No directory selected. Exiting.")
-        root.destroy()
-        return
-
-    # 2. Get settings from the user
-    settings_root = tk.Tk()
-    settings_root.withdraw()
-    settings_dialog = SettingsDialog(settings_root)
-    settings_root.wait_window(settings_dialog) # Wait until the dialog is closed
-    settings = settings_dialog.result
-    settings_root.destroy()
-
-    if not settings:
-        print("Operation cancelled. Exiting.")
-        return
-
-    # 3. Run the detection process
-    detector = SimilarVideosDetector(
-        directory=directory,
-        similarity_threshold=settings['threshold'],
-        duration_tolerance=settings['tolerance']
-    )
+    """Direct script execution with no complex GUI startup process"""
+    print("\n--------------------")
+    print("Starting video similarity detection")
+    print("--------------------\n")
     
-    video_files = detector.scan_directory()
-    if not video_files:
-        messagebox.showinfo("Info", "No video files found in the selected directory.")
-        return
-    
-    detector.extract_video_info(video_files)
-    if not detector.videos:
-        messagebox.showinfo("Info", "Could not process any video files.")
-        return
-    
-    detector.find_similar_videos()
-    if not detector.video_clusters:
-        messagebox.showinfo("Info", "No similar videos found based on the current settings.")
-        return
-    
-    detector.save_report()
-    
-    # 4. Launch the main comparison GUI
-    gui_root = tk.Tk()
-    gui_root.title("Similar Videos Review")
-    gui_root.geometry("1200x800")
-    app = VideoComparisonGUI(gui_root, detector)
-    gui_root.mainloop()
-    
-    # 5. Clean up temporary files
     try:
-        for video in detector.videos:
-            for path in video.thumbnail_paths:
-                if os.path.exists(path):
-                    os.remove(path)
+        # 1. Select directory
+        root = tk.Tk()
+        root.withdraw()
+        
+        directory = filedialog.askdirectory(title="Select the Directory Containing Your Videos")
+        if not directory:
+            print("No directory selected. Exiting.")
+            return
+        
+        print(f"\nSelected directory: {directory}")
+        
+        # 2. Use fixed settings instead of a dialog window
+        # We'll use preset values that work well for most cases
+        settings = {
+            'threshold': 0.95,  # Default similarity threshold
+            'tolerance': 2.0     # Default duration tolerance (seconds)
+        }
+        
+        print(f"Using settings: Similarity Threshold: {settings['threshold']}, Duration Tolerance: {settings['tolerance']}s")
+        print("\nProcessing videos... This may take some time depending on the number of videos and your GPU.")
+        
+        # 3. Run the detection process
+        detector = SimilarVideosDetector(
+            directory=directory,
+            similarity_threshold=settings['threshold'],
+            duration_tolerance=settings['tolerance']
+        )
+        
+        video_files = detector.scan_directory()
+        if not video_files:
+            messagebox.showinfo("Info", "No video files found in the selected directory.")
+            return
+        
+        print(f"\nFound {len(video_files)} video files")
+        
+        detector.extract_video_info(video_files)
+        if not detector.videos:
+            messagebox.showinfo("Info", "Could not process any video files.")
+            return
+        
+        print(f"\nProcessed {len(detector.videos)} videos successfully")
+        
+        detector.find_similar_videos()
+        if not detector.video_clusters:
+            messagebox.showinfo("Info", "No similar videos found based on the current settings.")
+            return
+        
+        print(f"\nFound {len(detector.video_clusters)} clusters of similar videos")
+        
+        detector.save_report()
+        
+        # 4. Launch the main comparison GUI
+        root.deiconify()
+        root.title("Similar Videos Review")
+        root.geometry("1200x800")
+        app = VideoComparisonGUI(root, detector)
+        
+        print("\nLaunching comparison GUI...")
+        root.mainloop()
+        
+        # 5. Clean up temporary files
+        try:
+            for video in detector.videos:
+                for path in video.thumbnail_paths:
+                    if os.path.exists(path):
+                        os.remove(path)
+        except Exception as e:
+            print(f"Error cleaning up temporary files: {str(e)}")
+            
     except Exception as e:
-        print(f"Error cleaning up temporary files: {str(e)}")
+        print(f"ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+    print("\n--------------------")
+    print("Application terminated")
+    print("--------------------")
 
 if __name__ == "__main__":
     main()

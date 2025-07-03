@@ -658,7 +658,13 @@ class VideoComparisonGUI:
                 thumb_label.pack()
             
             # Video information
+            # Get relative path from base directory
+            rel_path = os.path.relpath(os.path.dirname(video.path), self.base_directory)
+            if rel_path == ".":
+                rel_path = "<Root Directory>"
+                
             info_text = f"Name: {os.path.basename(video.path)}\n"
+            info_text += f"Path: {rel_path}\n"  # Add relative path
             info_text += f"Duration: {video.duration:.2f}s\n"
             info_text += f"Resolution: {video.resolution}\n"
             info_text += f"Size: {video.format_size()}\n"
@@ -768,7 +774,13 @@ class VideoComparisonGUI:
                 thumb_label.pack()
             
             # Video information
+            # Get relative path from base directory
+            rel_path = os.path.relpath(os.path.dirname(video.path), self.base_directory)
+            if rel_path == ".":
+                rel_path = "<Root Directory>"
+                
             info_text = f"Name: {os.path.basename(video.path)}\n"
+            info_text += f"Path: {rel_path}\n"  # Add relative path
             info_text += f"Duration: {video.duration:.2f}s\n"
             info_text += f"Resolution: {video.resolution}\n"
             info_text += f"Size: {video.format_size()}\n"

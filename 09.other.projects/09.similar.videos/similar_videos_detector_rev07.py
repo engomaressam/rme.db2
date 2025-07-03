@@ -658,7 +658,13 @@ class VideoComparisonGUI:
                 thumb_label.pack()
             
             # Video information
+            # Get relative path from base directory
+            rel_path = os.path.relpath(os.path.dirname(video.path), self.base_directory)
+            if rel_path == ".":
+                rel_path = "<Root Directory>"
+                
             info_text = f"Name: {os.path.basename(video.path)}\n"
+            info_text += f"Path: {rel_path}\n"  # Add relative path
             info_text += f"Duration: {video.duration:.2f}s\n"
             info_text += f"Resolution: {video.resolution}\n"
             info_text += f"Size: {video.format_size()}\n"
@@ -768,7 +774,13 @@ class VideoComparisonGUI:
                 thumb_label.pack()
             
             # Video information
+            # Get relative path from base directory
+            rel_path = os.path.relpath(os.path.dirname(video.path), self.base_directory)
+            if rel_path == ".":
+                rel_path = "<Root Directory>"
+                
             info_text = f"Name: {os.path.basename(video.path)}\n"
+            info_text += f"Path: {rel_path}\n"  # Add relative path
             info_text += f"Duration: {video.duration:.2f}s\n"
             info_text += f"Resolution: {video.resolution}\n"
             info_text += f"Size: {video.format_size()}\n"
@@ -908,7 +920,7 @@ def select_directory():
         return None, None
 
 
-def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
+def show_parameter_dialog(root, initial_threshold=0.75, initial_tolerance=0.9):
     """Show a dialog for adjusting detection parameters with intuitive sliders."""
     params_dialog = tk.Toplevel(root)
     params_dialog.title("Adjust Detection Parameters")
@@ -945,16 +957,57 @@ def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
     
+    # Enable mousewheel scrolling
+    def _on_mousewheel(event):
+        # Check if mouse is over the canvas
+        x, y = params_dialog.winfo_pointerxy()
+        widget_under_mouse = params_dialog.winfo_containing(x, y)
+        if widget_under_mouse and (widget_under_mouse == canvas or widget_under_mouse.master == scrollable_frame or widget_under_mouse.master.master == scrollable_frame):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    
+    canvas.bind_all("<MouseWheel>", _on_mousewheel)
+    
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
+    
+    # Fixed button container at the top of the window (not in scrollable area)
+    btn_container = ttk.Frame(params_dialog, padding="10 10 10 10")
+    btn_container.pack(side=tk.TOP, fill=tk.X)
+    
+    # Header
+    header = ttk.Label(btn_container, text="Detection Parameters", style="Header.TLabel")
+    header.pack(pady=(0, 10))
+    
+    def on_ok():
+        results["similarity_threshold"] = similarity_threshold.get()
+        results["duration_tolerance"] = duration_tolerance.get()
+        results["hash_size"] = hash_size.get()
+        results["frame_sampling_density"] = frame_sampling_density.get()
+        results["max_duration_diff"] = max_duration_diff.get()
+        results["enable_partial_match"] = enable_partial_match.get()
+        params_dialog.destroy()
+    
+    def on_cancel():
+        results["cancelled"] = True
+        params_dialog.destroy()
+    
+    # Style for bigger buttons
+    style.configure("Big.TButton", font=("Arial", 12, "bold"), padding=10)
+    
+    # OK button - large, prominent, and centered
+    ok_btn = ttk.Button(btn_container, text="RUN WITH THESE SETTINGS", command=on_ok, style="Big.TButton")
+    ok_btn.pack(side=tk.TOP, pady=10, ipadx=20, ipady=10, fill=tk.X)  # Add internal padding to make button bigger
+    
+    # Cancel button
+    cancel_btn = ttk.Button(btn_container, text="Cancel", command=on_cancel)
+    cancel_btn.pack(side=tk.TOP, pady=(0, 10))
+    
+    # Add a separator for visual clarity
+    ttk.Separator(params_dialog, orient='horizontal').pack(fill=tk.X, side=tk.TOP)
     
     # Main frame with padding inside the scrollable area
     main_frame = ttk.Frame(scrollable_frame, padding="20 20 20 20")
     main_frame.pack(fill=tk.BOTH, expand=True)
-    
-    # Header
-    header = ttk.Label(main_frame, text="Detection Parameters", style="Header.TLabel")
-    header.pack(pady=(0, 20))
     
     description = ttk.Label(main_frame, text="Adjust the parameters below to control how videos are detected and compared. \nSliding toward 'Detect More Videos' will make the detector more sensitive but may include false matches.", style="Desc.TLabel", wraplength=550)
     description.pack(pady=(0, 20))
@@ -1086,40 +1139,6 @@ def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
     # Results variable to return
     results = {}
     
-    # Fixed button container at the bottom of the window (not in scrollable area)
-    btn_container = ttk.Frame(params_dialog, padding="10 10 10 20")
-    btn_container.pack(side=tk.BOTTOM, fill=tk.X)
-    # Add a separator for visual clarity
-    ttk.Separator(params_dialog, orient='horizontal').pack(fill=tk.X, side=tk.BOTTOM, before=btn_container)
-    
-    def on_ok():
-        results["similarity_threshold"] = similarity_threshold.get()
-        results["duration_tolerance"] = duration_tolerance.get()
-        results["hash_size"] = hash_size.get()
-        results["frame_sampling_density"] = frame_sampling_density.get()
-        results["max_duration_diff"] = max_duration_diff.get()
-        results["enable_partial_match"] = enable_partial_match.get()
-        params_dialog.destroy()
-    
-    def on_cancel():
-        results["cancelled"] = True
-        params_dialog.destroy()
-    
-    # Large, prominent buttons with better spacing
-    btn_frame = ttk.Frame(btn_container)
-    btn_frame.pack(pady=10, fill=tk.X)
-    
-    # Style for bigger buttons
-    style.configure("Big.TButton", font=("Arial", 12, "bold"), padding=10)
-    
-    # OK button - large, prominent, and centered
-    ok_btn = ttk.Button(btn_frame, text="RUN WITH THESE SETTINGS", command=on_ok, style="Big.TButton")
-    ok_btn.pack(side=tk.RIGHT, padx=20, pady=10, ipadx=20, ipady=10)  # Add internal padding to make button bigger
-    
-    # Cancel button
-    cancel_btn = ttk.Button(btn_frame, text="Cancel", command=on_cancel)
-    cancel_btn.pack(side=tk.RIGHT, padx=10)
-    
     # Make the dialog modal
     params_dialog.protocol("WM_DELETE_WINDOW", on_cancel)  # Handle window close button
     params_dialog.transient(root)
@@ -1133,8 +1152,8 @@ def main():
     parser = argparse.ArgumentParser(description="Detect similar videos in a directory and its subdirectories.")
     parser.add_argument("--dir", type=str, help="Directory to scan for videos")
     parser.add_argument("--gui", action="store_true", help="Use GUI for directory selection")
-    parser.add_argument("--threshold", type=float, default=0.85, help="Similarity threshold (0-1)")
-    parser.add_argument("--tolerance", type=float, default=1.0, help="Duration tolerance in seconds")
+    parser.add_argument("--threshold", type=float, default=0.75, help="Similarity threshold (0-1)")
+    parser.add_argument("--tolerance", type=float, default=0.9, help="Duration tolerance in seconds")
     
     args = parser.parse_args()
     
