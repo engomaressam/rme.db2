@@ -573,16 +573,10 @@ class VideoComparisonGUI:
             quality_label = ttk.Label(video_frame, text=quality_text, font=("Arial", 10, "bold"))
             quality_label.pack(pady=2)
             
-            # Checkbox for selection (disabled for highest quality video)
+            # Checkbox for selection - now enabled for ALL videos
             delete_var = tk.BooleanVar(value=video.path in self.videos_to_delete)
-            delete_check = ttk.Checkbutton(video_frame, text="Mark for deletion", variable=delete_var)
-            
-            # Disable checkbox for highest quality video
-            if i == 0:
-                delete_check.state(['disabled'])
-            else:
-                delete_check.config(command=lambda v=video, var=delete_var: self.toggle_delete(v, var))
-            
+            delete_check = ttk.Checkbutton(video_frame, text="Mark for deletion", variable=delete_var, 
+                                        command=lambda v=video, var=delete_var: self.toggle_delete(v, var))
             delete_check.pack(pady=5)
             
             # Button to open video
@@ -597,33 +591,201 @@ class VideoComparisonGUI:
         if best_quality > 0:
             return (best_quality - current_quality) / best_quality * 100
         return 0.0
-    
-    def toggle_delete(self, video, var):
-        """Toggle video selection for deletion."""
-        if var.get():
+        
+    def display_current_cluster(self):
+        """Display the current group of similar videos with multiple thumbnails per video.
+        Videos are arranged in a 2-column grid layout with proper scrolling."""
+        # Clear previous widgets
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        
+        self.photo_references.clear()  # Clear old references
+        
+        if not self.clusters:
+            self.group_label.config(text="No similar videos found")
+            self.status_label.config(text="No similar videos to display")
+            return
+        
+        # Update group label
+        cluster_idx = self.current_cluster_idx + 1  # 1-indexed for display
+        self.group_label.config(text=f"Group {cluster_idx}/{len(self.clusters)}")
+        
+        # Get current cluster
+        cluster = self.clusters[self.current_cluster_idx]
+        
+        # Auto-mark all lower quality videos for deletion
+        # First, unmark any previously marked videos in this cluster
+        for video in cluster:
+            if video.path in self.videos_to_delete:
+                self.videos_to_delete.remove(video.path)
+        
+        # Then mark all videos except the highest quality one for deletion
+        for i, video in enumerate(cluster):
+            if i > 0:  # Skip the highest quality video (first one)
+                self.videos_to_delete.add(video.path)
+        
+        # Update status label
+        self.status_label.config(text=f"Displaying {len(cluster)} similar videos (Auto-marked {len(cluster)-1} for deletion)")
+        
+            # Display videos in a 2-column grid layout
+        videos_per_row = 2  # Always arrange 2 videos per row
+        max_thumb_width = 180  # Control the width of thumbnails
+        
+        for i, video in enumerate(cluster):
+            # Calculate row and column in grid
+            row = i // videos_per_row
+            col = i % videos_per_row
+            
+            # Create frame for each video
+            video_frame = ttk.LabelFrame(self.content_frame, text=f"Video {i+1}")
+            video_frame.grid(row=row, column=col, padx=10, pady=10, sticky="n")
+            
+                # Frame for thumbnails
+            thumbnails_frame = ttk.Frame(video_frame)
+            thumbnails_frame.pack(padx=5, pady=5)
+            
+            # Display all 3 thumbnails in a row
+            for j, pil_img in enumerate(video.thumbnails):
+                # Maintain aspect ratio while resizing to fit in grid
+                width, height = pil_img.size
+                new_width = max_thumb_width
+                new_height = int((height/width) * new_width)  # Keep aspect ratio
+                resized_img = pil_img.resize((new_width, new_height), Image.LANCZOS)
+                
+                # Convert PIL image to PhotoImage
+                photo = ImageTk.PhotoImage(resized_img)
+                self.photo_references.append(photo)  # Keep a reference
+
+                # Create label for thumbnail with position indicator
+                pos_text = ["10%", "50%", "90%"][j]
+                thumb_frame = ttk.LabelFrame(thumbnails_frame, text=f"Frame at {pos_text}")
+                thumb_frame.grid(row=0, column=j, padx=3, pady=3)
+                
+                # Add thumbnail to label
+                thumb_label = ttk.Label(thumb_frame, image=photo)
+                thumb_label.pack()
+            
+            # Video information
+            info_text = f"Name: {os.path.basename(video.path)}\n"
+            info_text += f"Duration: {video.duration:.2f}s\n"
+            info_text += f"Resolution: {video.resolution}\n"
+            info_text += f"Size: {video.format_size()}\n"
+            info_text += f"Bitrate: {video.bitrate/1000:.1f} Kbps"
+            
+            # Quality indicator
+            quality_text = "Highest Quality" if i == 0 else f"Lower Quality (-{self.get_quality_diff(cluster[0], video):.1f}%)"
+            
+            # Info label
+            info_label = ttk.Label(video_frame, text=info_text)
+            info_label.pack(pady=5, fill=tk.X)
+
+            # Quality label
+            quality_label = ttk.Label(video_frame, text=quality_text, font=("Arial", 10, "bold"))
+            quality_label.pack(pady=2)
+            
+            # Checkbox for selection - enabled for ALL videos
+            delete_var = tk.BooleanVar(value=video.path in self.videos_to_delete)
+            delete_check = ttk.Checkbutton(video_frame, text="Mark for deletion", variable=delete_var,
+                                         command=lambda v=video, var=delete_var: self.toggle_delete(v, var))
+            delete_check.pack(pady=5)
+
+            # Button to open video
+            open_btn = ttk.Button(video_frame, text="Open Video", 
+                               command=lambda path=video.path: self.open_video(path))
+            open_btn.pack(pady=5)
+
+def get_quality_diff(self, best_video, current_video):
+    """Calculate quality difference in percentage."""
+    best_quality = self.detector.get_video_quality(best_video)
+    current_quality = self.detector.get_video_quality(current_video)
+    if best_quality > 0:
+        return (best_quality - current_quality) / best_quality * 100
+    return 0.0
+
+def toggle_delete(self, video, checkbox_var):
+        """Mark or unmark a video for deletion.
+        Ensures at least one video remains unmarked in each cluster."""
+        current_cluster = self.clusters[self.current_cluster_idx]
+        
+        # Count how many videos would be marked after this toggle
+        would_be_marked = set(self.videos_to_delete)
+        
+        if checkbox_var.get():  # If being checked
+            would_be_marked.add(video.path)
+        else:  # If being unchecked
+            would_be_marked.discard(video.path)
+        
+        # Count how many videos in current cluster would be marked
+        cluster_videos_paths = {v.path for v in current_cluster}
+        marked_in_cluster = len(would_be_marked.intersection(cluster_videos_paths))
+        
+        # Check if this would mark all videos in current cluster
+        if marked_in_cluster == len(current_cluster):
+            messagebox.showwarning("Warning", "At least one video must remain unmarked in each group!")
+            checkbox_var.set(False)  # Revert the checkbox
+            return
+        
+        # Apply the change since it's valid
+        if checkbox_var.get():
             self.videos_to_delete.add(video.path)
         else:
             self.videos_to_delete.discard(video.path)
-    
-    def open_video(self, path):
-        """Open video in the default video player."""
-        try:
-            if sys.platform == "win32":
-                os.startfile(path)
-            elif sys.platform == "darwin":
-                os.system(f"open \"{path}\"")
-            else:  # linux
-                os.system(f"xdg-open \"{path}\"")
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not open video: {str(e)}")
-    
-    def delete_selected(self):
-        """Delete selected videos with confirmation."""
-        if not self.videos_to_delete:
-            messagebox.showinfo("Info", "No videos selected for deletion")
-            return
         
-        # Confirmation dialog
+        # Update the status label
+        marked_count = sum(1 for v in current_cluster if v.path in self.videos_to_delete)
+        total_count = len(current_cluster)
+        self.status_label.config(text=f"Marked {marked_count}/{total_count} videos for deletion")
+
+def delete_selected(self):
+    """Delete selected videos with confirmation."""
+    if not self.videos_to_delete:
+        messagebox.showinfo("Info", "No videos selected for deletion")
+        return
+
+    # Confirmation dialog
+    count = len(self.videos_to_delete)
+    confirm = messagebox.askyesno("Confirm Deletion", 
+                                f"Are you sure you want to delete {count} videos?")
+
+    if confirm:
+        deleted = 0
+        errors = 0
+
+        for path in self.videos_to_delete:
+            try:
+                os.remove(path)
+                deleted += 1
+            except Exception as e:
+                print(f"Error deleting {path}: {str(e)}")
+                errors += 1
+
+        # Update status
+        self.status_label.config(text=f"Deleted {deleted} videos. Errors: {errors}")
+
+        # Remove deleted videos from clusters
+        self.update_clusters_after_deletion()
+
+        # Clear selection
+        self.videos_to_delete.clear()
+
+        # Refresh display
+        self.display_current_cluster()
+
+def update_clusters_after_deletion(self):
+    """Update clusters after videos have been deleted."""
+    # First, remove deleted videos from clusters
+    for i, cluster in enumerate(self.clusters):
+        updated_cluster = [v for v in cluster if v.path not in self.videos_to_delete]
+
+        # Update the cluster
+        self.clusters[i] = updated_cluster
+
+    # Remove empty clusters and single-video clusters
+    self.clusters = [c for c in self.clusters if len(c) > 1]
+
+    # Adjust current index if needed
+    if self.clusters and self.current_cluster_idx >= len(self.clusters):
+        self.current_cluster_idx = max(0, len(self.clusters) - 1)
         count = len(self.videos_to_delete)
         confirm = messagebox.askyesno("Confirm Deletion", 
                                     f"Are you sure you want to delete {count} videos?")
