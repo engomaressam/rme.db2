@@ -1,0 +1,51 @@
+Similar Videos Report
+Generated on: 2025-07-03 16:38:41
+Source directory: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground
+Processed files: 6
+Similarity threshold: 85.0%
+
+Found 5 similar video pairs in 3 groups
+
+
+Similar Video Group #1 (2 videos):
+--------------------------------------------------------------------------------
+✓ KEEP: ground_000__Merged.mp4 - 70.70s, (1280, 720), 50.79MB, 6026.2Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\ground_000__Merged.mp4
+
+× POTENTIAL DELETE: ground_000__Merged (2).mp4 - 70.67s, (1280, 720), 20.95MB, 2486.5Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\ground_000__Merged (2).mp4
+  Quality: 35.8% lower than best video
+
+
+
+Similar Video Group #2 (4 videos):
+--------------------------------------------------------------------------------
+✓ KEEP: view11.avi - 72.00s, (1920, 1080), 104.76MB, 12205.9Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\view11.avi
+
+× POTENTIAL DELETE: view12.avi - 72.00s, (1920, 1080), 94.60MB, 11021.5Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\view12.avi
+  Quality: 5.0% lower than best video
+
+× POTENTIAL DELETE: view11.mp4 - 71.97s, (1280, 720), 21.85MB, 2546.8Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\view11.mp4
+  Quality: 79.7% lower than best video
+
+× POTENTIAL DELETE: view12.mp4 - 71.97s, (1280, 720), 19.94MB, 2324.7Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\view12.mp4
+  Quality: 80.6% lower than best video
+
+
+
+Similar Video Group #3 (2 videos):
+--------------------------------------------------------------------------------
+✓ KEEP: view11.mp4 - 71.97s, (1280, 720), 21.85MB, 2546.8Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\view11.mp4
+
+× POTENTIAL DELETE: view12.mp4 - 71.97s, (1280, 720), 19.94MB, 2324.7Kbps
+  Path: D:\OEssam\OneDrive - Rowad Modern Engineering\0001 All Projects\0099 Multi Sports Hall\10 - 4D Model\02.videos\03.ground\view12.mp4
+  Quality: 4.5% lower than best video
+
+
+
+Potential space savings: 207.13 MB

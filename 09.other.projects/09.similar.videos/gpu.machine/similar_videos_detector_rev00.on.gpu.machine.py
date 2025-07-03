@@ -64,18 +64,15 @@ class SimilarVideosDetector:
         self.video_clusters = []
         self.processed_files = 0
         self.skipped_files = 0
-
-        # --- ML Model Setup ---
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"Using device: {self.device}")
         
-        # Load pre-trained ResNet-50 model
-        self.model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-        # Remove the final classification layer to get feature vectors
-        self.model = nn.Sequential(*list(self.model.children())[:-1])
-        self.model.to(self.device)
-        self.model.eval() # Set to evaluation mode
-
+        # Load the model and print information about it
+        print(f"\nUsing device: {self.device}")
+        print("Loading ResNet-50 model...")
+        self.model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1).to(self.device)
+        print(f"Model loaded: ResNet-50 (ImageNet1K-V1 weights)")
+        self.model.eval()
+        
         # Image transformation pipeline
         self.preprocess = transforms.Compose([
             transforms.Resize(256),
@@ -83,6 +80,9 @@ class SimilarVideosDetector:
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
+        # Create a directory for thumbnails if it doesn't exist
+        self.thumbnail_dir = r"C:\Windows\Temp\video_thumbnails"
+        os.makedirs(self.thumbnail_dir, exist_ok=True)
 
     def scan_directory(self):
         """Scan directory and subdirectories for video files."""
@@ -635,32 +635,175 @@ class VideoComparisonGUI:
                 self.current_cluster_idx = len(self.clusters) - 1
 
 
+def show_settings_dialog(parent):
+    """Create a simplified settings dialog that won't get stuck"""
+    # Create a result container with default values
+    result = {
+        'threshold': 0.95,
+        'tolerance': 2.0
+    }
+    
+    # Create our dialog as a new Toplevel window
+    settings_win = tk.Toplevel(parent)
+    settings_win.title("Adjust Detection Settings")
+    settings_win.geometry("450x300")
+    settings_win.resizable(False, False)
+    
+    # Center window and make it visible
+    screen_width = settings_win.winfo_screenwidth()
+    screen_height = settings_win.winfo_screenheight()
+    x = (screen_width // 2) - (450 // 2)
+    y = (screen_height // 2) - (300 // 2)
+    settings_win.geometry(f"450x300+{x}+{y}")
+    
+    # Make sure it stays on top and gets focus
+    settings_win.attributes("-topmost", True)
+    
+    # Add the sliders
+    threshold_var = tk.DoubleVar(value=0.95)
+    tk.Label(settings_win, text="Similarity Threshold:", font=("Arial", 10, "bold")).pack(pady=(20,0))
+    threshold_label = tk.Label(settings_win, text=f"{threshold_var.get():.2f}")
+    threshold_label.pack()
+    
+    def update_threshold_label(value):
+        threshold_label.config(text=f"{float(value):.2f}")
+        result['threshold'] = float(value)  # Update result as slider moves
+    
+    tk.Scale(settings_win, from_=0.80, to=1.0, resolution=0.01, orient="horizontal", 
+             variable=threshold_var, command=update_threshold_label).pack(fill="x", padx=50)
+    
+    tolerance_var = tk.DoubleVar(value=2.0)
+    tk.Label(settings_win, text="Duration Tolerance (seconds):", font=("Arial", 10, "bold")).pack(pady=(20,0))
+    tolerance_label = tk.Label(settings_win, text=f"{tolerance_var.get():.1f}s")
+    tolerance_label.pack()
+    
+    def update_tolerance_label(value):
+        tolerance_label.config(text=f"{float(value):.1f}s")
+        result['tolerance'] = float(value)  # Update result as slider moves
+    
+    tk.Scale(settings_win, from_=0.0, to=10.0, resolution=0.1, orient="horizontal", 
+             variable=tolerance_var, command=update_tolerance_label).pack(fill="x", padx=50)
+    
+    # Define what happens when buttons are pressed
+    def on_apply():
+        print("Settings applied with:")
+        print(f" - Threshold: {result['threshold']}")
+        print(f" - Tolerance: {result['tolerance']}")
+        settings_win.destroy()
+    
+    def on_cancel():
+        # Reset to defaults
+        result.clear()
+        print("Settings cancelled")
+        settings_win.destroy()
+    
+    # Add the buttons
+    button_frame = tk.Frame(settings_win)
+    button_frame.pack(pady=20)
+    tk.Button(button_frame, text="Apply", command=on_apply, width=10).pack(side="left", padx=10)
+    tk.Button(button_frame, text="Cancel", command=on_cancel, width=10).pack(side="left", padx=10)
+    
+    # This is a simpler way to wait for interaction
+    settings_win.focus_set()
+    parent.wait_window(settings_win)
+    return result
+
+def choose_mode():
+    """Show a simple dialog to let the user choose between simple and advanced modes"""
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    
+    # Create a small dialog
+    dialog = tk.Toplevel(root)
+    dialog.title("Choose Mode")
+    dialog.geometry("300x150")
+    dialog.resizable(False, False)
+    
+    # Center the dialog
+    dialog.update_idletasks()
+    width = dialog.winfo_width()
+    height = dialog.winfo_height()
+    x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+    y = (dialog.winfo_screenheight() // 2) - (height // 2)
+    dialog.geometry(f"{width}x{height}+{x}+{y}")
+    
+    dialog.attributes("-topmost", True)
+    dialog.grab_set()
+    dialog.focus_force()
+    
+    # Prevent the X button from closing it
+    def disable_close():
+        pass
+    dialog.protocol("WM_DELETE_WINDOW", disable_close)
+    
+    # Instructions
+    tk.Label(dialog, text="Choose Detection Mode:", font=("Arial", 12)).pack(pady=(20, 15))
+    
+    # Variable to store the selection
+    choice = [True]  # Using a list to make it mutable in the nested functions
+    
+    # Button functions
+    def select_simple():
+        choice[0] = True  # Use default settings
+        dialog.destroy()
+    
+    def select_advanced():
+        choice[0] = False  # Show settings dialog
+        dialog.destroy()
+    
+    # Buttons
+    button_frame = tk.Frame(dialog)
+    button_frame.pack()
+    tk.Button(button_frame, text="Simple Mode", command=select_simple, 
+              width=15).pack(side="left", padx=5)
+    tk.Button(button_frame, text="Advanced Mode", command=select_advanced, 
+              width=15).pack(side="left", padx=5)
+    
+    # Wait for the dialog to close
+    root.wait_window(dialog)
+    return choice[0], root
+
 def main():
-    """Direct script execution with no complex GUI startup process"""
+    """Main entry point with choice of simple or advanced mode"""
     print("\n--------------------")
-    print("Starting video similarity detection")
+    print("Video Similarity Detector")
     print("--------------------\n")
     
     try:
-        # 1. Select directory
-        root = tk.Tk()
-        root.withdraw()
+        # Let user choose mode and get root window
+        use_simple_mode, root = choose_mode()
         
-        directory = filedialog.askdirectory(title="Select the Directory Containing Your Videos")
+        # 1. First, select the directory
+        directory = filedialog.askdirectory(parent=root, title="Select the Directory Containing Your Videos")
         if not directory:
             print("No directory selected. Exiting.")
+            root.destroy()
             return
         
-        print(f"\nSelected directory: {directory}")
+        print(f"Selected directory: {directory}")
         
-        # 2. Use fixed settings instead of a dialog window
-        # We'll use preset values that work well for most cases
-        settings = {
-            'threshold': 0.95,  # Default similarity threshold
-            'tolerance': 2.0     # Default duration tolerance (seconds)
-        }
+        # 2. Get settings based on chosen mode
+        if use_simple_mode:
+            # Simple mode: use preset values
+            settings = {
+                'threshold': 0.95,  # Default similarity threshold 
+                'tolerance': 2.0    # Default duration tolerance (seconds)
+            }
+            print("\nUsing default settings:")
+            print(f"- Similarity Threshold: {settings['threshold']}")
+            print(f"- Duration Tolerance: {settings['tolerance']}s")
+        else:
+            # Advanced mode: show settings dialog
+            print("\nOpening settings dialog...")
+            settings = show_settings_dialog(root)
+            if not settings:
+                print("Settings canceled. Exiting.")
+                root.destroy()
+                return
+            print(f"\nUsing custom settings:")
+            print(f"- Similarity Threshold: {settings['threshold']}")
+            print(f"- Duration Tolerance: {settings['tolerance']}s")
         
-        print(f"Using settings: Similarity Threshold: {settings['threshold']}, Duration Tolerance: {settings['tolerance']}s")
         print("\nProcessing videos... This may take some time depending on the number of videos and your GPU.")
         
         # 3. Run the detection process
@@ -670,51 +813,77 @@ def main():
             duration_tolerance=settings['tolerance']
         )
         
+        print("Scanning directory for video files...")
         video_files = detector.scan_directory()
         if not video_files:
+            print("No video files found in the selected directory.")
             messagebox.showinfo("Info", "No video files found in the selected directory.")
+            root.destroy()
             return
         
-        print(f"\nFound {len(video_files)} video files")
+        print(f"Found {len(video_files)} video files")
         
+        print("Extracting video information...")
         detector.extract_video_info(video_files)
         if not detector.videos:
+            print("Could not process any video files.")
             messagebox.showinfo("Info", "Could not process any video files.")
+            root.destroy()
             return
         
-        print(f"\nProcessed {len(detector.videos)} videos successfully")
+        print(f"Processed {len(detector.videos)} videos successfully")
         
+        print("Finding similar videos...")
         detector.find_similar_videos()
         if not detector.video_clusters:
+            print("No similar videos found based on the current settings.")
             messagebox.showinfo("Info", "No similar videos found based on the current settings.")
+            root.destroy()
             return
         
-        print(f"\nFound {len(detector.video_clusters)} clusters of similar videos")
+        print(f"Found {len(detector.video_clusters)} clusters of similar videos")
         
+        print("Saving report...")
         detector.save_report()
         
         # 4. Launch the main comparison GUI
+        print("Preparing review GUI...")
         root.deiconify()
         root.title("Similar Videos Review")
         root.geometry("1200x800")
-        app = VideoComparisonGUI(root, detector)
+        
+        # Center the main window
+        root.update_idletasks()
+        width = root.winfo_width()
+        height = root.winfo_height()
+        x = (root.winfo_screenwidth() // 2) - (width // 2)
+        y = (root.winfo_screenheight() // 2) - (height // 2)
+        root.geometry(f"{width}x{height}+{x}+{y}")
         
         print("\nLaunching comparison GUI...")
+        app = VideoComparisonGUI(root, detector)
+        
+        # Set up cleanup for when the window is closed
+        def on_closing():
+            print("Cleaning up temporary files...")
+            try:
+                for video in detector.videos:
+                    for path in video.thumbnail_paths:
+                        if os.path.exists(path):
+                            os.remove(path)
+            except Exception as e:
+                print(f"Error cleaning up temporary files: {str(e)}")
+            root.destroy()
+            print("Application terminated.")
+            
+        root.protocol("WM_DELETE_WINDOW", on_closing)
         root.mainloop()
         
-        # 5. Clean up temporary files
-        try:
-            for video in detector.videos:
-                for path in video.thumbnail_paths:
-                    if os.path.exists(path):
-                        os.remove(path)
-        except Exception as e:
-            print(f"Error cleaning up temporary files: {str(e)}")
-            
     except Exception as e:
         print(f"ERROR: {str(e)}")
         import traceback
         traceback.print_exc()
+        messagebox.showerror("Error", f"An error occurred: {str(e)}\n\nCheck the console for details.")
         
     print("\n--------------------")
     print("Application terminated")
