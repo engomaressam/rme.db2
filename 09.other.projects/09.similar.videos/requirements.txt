@@ -1,0 +1,7 @@
+opencv-python
+moviepy
+numpy
+tqdm
+Pillow
+imagededup
+matplotlib
