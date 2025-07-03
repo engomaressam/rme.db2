@@ -36,6 +36,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt 
 from matplotlib.colors import ListedColormap
 from torch.utils.data import Dataset, DataLoader
+import torch
+import torch.nn as nn
+import numpy as np
 
 # Use the following function to plot the data: 
 def plot_decision_regions_2class(model,data_set):
@@ -153,10 +156,7 @@ data_set.plot_stuff()
 # Practice: create a model with one neuron
 # Type your code here
 # Double-click <b>here</b> for the solution.
-# <!-- 
-# model = Net(2, 1, 1)
-# -->
-# Train the model
+model = Net(2, 1, 1)
 learning_rate = 0.001
 criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -170,10 +170,7 @@ plot_decision_regions_2class(model, data_set)
 # Practice: create a model with two neuron
 # Type your code here
 # Double-click <b>here</b> for the solution.
-# <!-- 
-# model = Net(2, 2, 1)
-# -->
-# Train the model
+model = Net(2, 2, 1)
 learning_rate = 0.1
 criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -187,10 +184,7 @@ plot_decision_regions_2class(model, data_set)
 # Practice: create a model with two neuron
 # Type your code here
 # Double-click <b>here</b> for the solution.
-# <!-- 
-# model = Net(2, 3, 1)
-# -->
-# Train the model
+model = Net(2, 3, 1)
 learning_rate = 0.1
 criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
