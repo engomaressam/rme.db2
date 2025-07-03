@@ -816,22 +816,28 @@ class VideoComparisonGUI:
             if self.current_cluster_idx >= len(self.clusters):
                 self.current_cluster_idx = len(self.clusters) - 1
 
-
 def select_directory():
-    """Open a dialog to select a directory."""
+    """Open a file dialog to select a directory."""
     root = tk.Tk()
-    root.withdraw()  # Hide the main window
+    root.withdraw()
     directory = filedialog.askdirectory(title="Select Directory with Videos")
-    root.destroy()
-    return directory
+    
+    # Don't destroy the root yet as we need it for the parameters dialog
+    if directory:  # Only if directory was selected
+        root.deiconify()  # Make root visible again for our dialog
+        return directory, root
+    else:
+        root.destroy()
+        return None, None
 
 
-def show_parameter_dialog(initial_threshold=0.85, initial_tolerance=1.0):
+def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
     """Show a dialog for adjusting detection parameters with intuitive sliders."""
-    params_dialog = tk.Toplevel()
+    params_dialog = tk.Toplevel(root)
     params_dialog.title("Adjust Detection Parameters")
-    params_dialog.geometry("600x500")
-    params_dialog.resizable(False, False)
+    params_dialog.geometry("800x700")  # Make window much larger
+    params_dialog.minsize(800, 700)   # Set minimum size
+    params_dialog.resizable(True, True)  # Allow resizing
     params_dialog.grab_set()  # Make dialog modal
     
     # Set icon and style
@@ -841,8 +847,30 @@ def show_parameter_dialog(initial_threshold=0.85, initial_tolerance=1.0):
     style.configure("Desc.TLabel", font=("Arial", 9))
     style.configure("TButton", font=("Arial", 10, "bold"))
     
-    # Main frame with padding
-    main_frame = ttk.Frame(params_dialog, padding="20 20 20 20")
+    # Use a master container with proper layout
+    container = ttk.Frame(params_dialog)
+    container.pack(fill=tk.BOTH, expand=True)
+    
+    # Scrollable canvas for the settings
+    canvas = tk.Canvas(container)
+    scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+    scrollable_frame = ttk.Frame(canvas)
+    
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(
+            scrollregion=canvas.bbox("all")
+        )
+    )
+    
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+    
+    # Main frame with padding inside the scrollable area
+    main_frame = ttk.Frame(scrollable_frame, padding="20 20 20 20")
     main_frame.pack(fill=tk.BOTH, expand=True)
     
     # Header
@@ -936,9 +964,11 @@ def show_parameter_dialog(initial_threshold=0.85, initial_tolerance=1.0):
     # Results variable to return
     results = {}
     
-    # Buttons frame
-    btn_frame = ttk.Frame(main_frame)
-    btn_frame.pack(fill=tk.X, pady=20)
+    # Fixed button container at the bottom of the window (not in scrollable area)
+    btn_container = ttk.Frame(params_dialog, padding="10 10 10 20")
+    btn_container.pack(side=tk.BOTTOM, fill=tk.X)
+    # Add a separator for visual clarity
+    ttk.Separator(params_dialog, orient='horizontal').pack(fill=tk.X, side=tk.BOTTOM, before=btn_container)
     
     def on_ok():
         results["similarity_threshold"] = similarity_threshold.get()
@@ -951,15 +981,24 @@ def show_parameter_dialog(initial_threshold=0.85, initial_tolerance=1.0):
         results["cancelled"] = True
         params_dialog.destroy()
     
-    # Ok and Cancel buttons
-    ok_btn = ttk.Button(btn_frame, text="OK", command=on_ok)
-    ok_btn.pack(side=tk.RIGHT, padx=5)
+    # Large, prominent buttons with better spacing
+    btn_frame = ttk.Frame(btn_container)
+    btn_frame.pack(pady=10, fill=tk.X)
     
+    # Style for bigger buttons
+    style.configure("Big.TButton", font=("Arial", 12, "bold"), padding=10)
+    
+    # OK button - large, prominent, and centered
+    ok_btn = ttk.Button(btn_frame, text="RUN WITH THESE SETTINGS", command=on_ok, style="Big.TButton")
+    ok_btn.pack(side=tk.RIGHT, padx=20, pady=10, ipadx=20, ipady=10)  # Add internal padding to make button bigger
+    
+    # Cancel button
     cancel_btn = ttk.Button(btn_frame, text="Cancel", command=on_cancel)
-    cancel_btn.pack(side=tk.RIGHT, padx=5)
+    cancel_btn.pack(side=tk.RIGHT, padx=10)
     
-    # Wait for the dialog to close
-    params_dialog.transient(params_dialog.master)
+    # Make the dialog modal
+    params_dialog.protocol("WM_DELETE_WINDOW", on_cancel)  # Handle window close button
+    params_dialog.transient(root)
     params_dialog.wait_window(params_dialog)
     
     return results
@@ -976,20 +1015,22 @@ def main():
     args = parser.parse_args()
     
     directory = args.dir
+    root = None
+    
     if args.gui or not directory:
-        directory = select_directory()
+        directory, root = select_directory()
     
     if not directory:
         print("No directory selected. Exiting.")
         return
     
-    # Initialize tkinter root for dialogs (will be withdrawn)
-    if not 'root' in globals():
+    # If we need to create a root window and didn't get one from select_directory
+    if root is None:
         root = tk.Tk()
         root.withdraw()
     
     # Show parameter dialog
-    params = show_parameter_dialog(initial_threshold=args.threshold, initial_tolerance=args.tolerance)
+    params = show_parameter_dialog(root, initial_threshold=args.threshold, initial_tolerance=args.tolerance)
     
     # Check if cancelled
     if params.get("cancelled", False):
