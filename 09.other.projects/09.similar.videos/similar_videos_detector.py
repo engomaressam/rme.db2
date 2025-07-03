@@ -4,12 +4,13 @@ import cv2
 import numpy as np
 import hashlib
 import argparse
+import json
 import tkinter as tk
 from tkinter import filedialog
 from collections import defaultdict
 from tqdm import tqdm
 from datetime import datetime
-from moviepy.editor import VideoFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 
 class VideoInfo:
@@ -100,6 +101,35 @@ class SimilarVideosDetector:
             print(f"Skipped {self.skipped_files} files due to errors")
         return self.videos
     
+    def dhash(self, image, hash_size=8):
+        """Compute the difference hash for an image."""
+        # Convert to grayscale and resize
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        resized = cv2.resize(gray, (hash_size + 1, hash_size))
+        
+        # Calculate differences
+        diff = resized[:, 1:] > resized[:, :-1]
+        
+        # Convert to hash string
+        return sum(2**i for i, v in enumerate(diff.flatten()) if v)
+    
+    def phash(self, image, hash_size=8):
+        """Compute the perceptual hash for an image."""
+        # Convert to grayscale and resize
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        resized = cv2.resize(gray, (hash_size, hash_size))
+        
+        # Calculate DCT (Discrete Cosine Transform)
+        dct = cv2.dct(np.float32(resized))
+        dct_low_freq = dct[:8, :8]
+        
+        # Calculate median value and generate hash
+        med = np.median(dct_low_freq)
+        hash_bits = dct_low_freq > med
+        
+        # Convert to hash
+        return sum(2**i for i, v in enumerate(hash_bits.flatten()) if v)
+    
     def calculate_video_fingerprint(self, video_info, num_frames=10):
         """Calculate a fingerprint for the video based on sample frames."""
         if video_info.fingerprint is not None:
@@ -125,19 +155,14 @@ class SimilarVideosDetector:
                 if not ret:
                     continue
                 
-                # Resize frame to a small size for faster processing
-                small_frame = cv2.resize(frame, (32, 32))
-                # Convert to grayscale
-                gray = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
-                # Compute average hash
-                avg_val = gray.mean()
-                binary = (gray > avg_val).flatten()
-                hash_value = ''.join(['1' if b else '0' for b in binary])
-                frame_hashes.append(hash_value)
+                # Generate both types of hashes for better accuracy
+                dhash_val = self.dhash(frame)
+                phash_val = self.phash(frame)
+                frame_hashes.append((dhash_val, phash_val))
             
             cap.release()
             
-            # Combine hashes into a fingerprint
+            # Store the fingerprint
             video_info.fingerprint = frame_hashes
             return frame_hashes
             
@@ -145,20 +170,39 @@ class SimilarVideosDetector:
             print(f"Error calculating fingerprint for {video_info.path}: {str(e)}")
             return None
     
+    def hamming_distance(self, hash1, hash2):
+        """Calculate the Hamming distance between two hash values."""
+        # XOR the hashes and count the number of set bits (1s)
+        return bin(hash1 ^ hash2).count('1')
+        
     def compare_fingerprints(self, fingerprint1, fingerprint2):
         """Compare two video fingerprints and return similarity score (0-1)."""
         if not fingerprint1 or not fingerprint2 or len(fingerprint1) != len(fingerprint2):
             return 0.0
         
-        matches = 0
-        total = len(fingerprint1) * len(fingerprint1[0])
+        # Calculate similarities for each frame pair
+        similarities = []
         
-        for h1, h2 in zip(fingerprint1, fingerprint2):
-            for bit1, bit2 in zip(h1, h2):
-                if bit1 == bit2:
-                    matches += 1
+        for (dhash1, phash1), (dhash2, phash2) in zip(fingerprint1, fingerprint2):
+            # Max possible distance for the hash size we're using
+            max_dist = 64
+            
+            # Calculate distances (lower is better)
+            dhash_dist = self.hamming_distance(dhash1, dhash2)
+            phash_dist = self.hamming_distance(phash1, phash2)
+            
+            # Convert to similarities (higher is better)
+            dhash_sim = 1.0 - (dhash_dist / max_dist)
+            phash_sim = 1.0 - (phash_dist / max_dist)
+            
+            # Take the average of both hash similarities
+            avg_sim = (dhash_sim + phash_sim) / 2
+            similarities.append(avg_sim)
         
-        return matches / total if total > 0 else 0.0
+        # Return the average similarity across all frames
+        if similarities:
+            return sum(similarities) / len(similarities)
+        return 0.0
     
     def find_similar_videos(self):
         """Find similar videos based on duration and fingerprint matching."""
