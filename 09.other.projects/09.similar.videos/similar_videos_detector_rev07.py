@@ -920,7 +920,7 @@ def select_directory():
         return None, None
 
 
-def show_parameter_dialog(root, initial_threshold=0.75, initial_tolerance=0.9):
+def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
     """Show a dialog for adjusting detection parameters with intuitive sliders."""
     params_dialog = tk.Toplevel(root)
     params_dialog.title("Adjust Detection Parameters")
@@ -1017,7 +1017,7 @@ def show_parameter_dialog(root, initial_threshold=0.75, initial_tolerance=0.9):
     duration_tolerance = tk.DoubleVar(value=initial_tolerance)
     hash_size = tk.IntVar(value=8)
     frame_sampling_density = tk.IntVar(value=3)  # Number of sample frames
-    max_duration_diff = tk.DoubleVar(value=10.0)  # Default 10 seconds
+    max_duration_diff = tk.DoubleVar(value=3.0)  # Default 3 seconds
     enable_partial_match = tk.BooleanVar(value=True)
     
     # Create frames for each parameter slider
@@ -1152,8 +1152,8 @@ def main():
     parser = argparse.ArgumentParser(description="Detect similar videos in a directory and its subdirectories.")
     parser.add_argument("--dir", type=str, help="Directory to scan for videos")
     parser.add_argument("--gui", action="store_true", help="Use GUI for directory selection")
-    parser.add_argument("--threshold", type=float, default=0.75, help="Similarity threshold (0-1)")
-    parser.add_argument("--tolerance", type=float, default=0.9, help="Duration tolerance in seconds")
+    parser.add_argument("--threshold", type=float, default=0.85, help="Similarity threshold (0-1)")
+    parser.add_argument("--tolerance", type=float, default=1.0, help="Duration tolerance in seconds")
     
     args = parser.parse_args()
     
