@@ -503,19 +503,22 @@ class VideoComparisonGUI:
         # Get current cluster
         cluster = self.clusters[self.current_cluster_idx]
         
-        # Auto-mark all lower quality videos for deletion
-        # First, unmark any previously marked videos in this cluster
-        for video in cluster:
-            if video.path in self.videos_to_delete:
-                self.videos_to_delete.remove(video.path)
+        # Check if we've seen this cluster before by checking if any videos in this cluster are marked
+        cluster_paths = {v.path for v in cluster}
+        cluster_already_visited = any(path in self.videos_to_delete for path in cluster_paths)
         
-        # Then mark all videos except the highest quality one for deletion
-        for i, video in enumerate(cluster):
-            if i > 0:  # Skip the highest quality video (first one)
-                self.videos_to_delete.add(video.path)
+        # Only auto-mark videos if this is the first time viewing this cluster
+        if not cluster_already_visited:
+            # Then mark all videos except the highest quality one for deletion
+            for i, video in enumerate(cluster):
+                if i > 0:  # Skip the highest quality video (first one)
+                    self.videos_to_delete.add(video.path)
+        
+        # Count how many are currently marked for deletion
+        marked_count = sum(1 for video in cluster if video.path in self.videos_to_delete)
         
         # Update status label
-        self.status_label.config(text=f"Displaying {len(cluster)} similar videos (Auto-marked {len(cluster)-1} for deletion)")
+        self.status_label.config(text=f"Marked {marked_count}/{len(cluster)} videos for deletion")
         
         # Display videos in a 2-column grid layout
         videos_per_row = 2  # Always arrange 2 videos per row
