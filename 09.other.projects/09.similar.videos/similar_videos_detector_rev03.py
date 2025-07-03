@@ -694,15 +694,15 @@ class VideoComparisonGUI:
                                command=lambda path=video.path: self.open_video(path))
             open_btn.pack(pady=5)
 
-def get_quality_diff(self, best_video, current_video):
-    """Calculate quality difference in percentage."""
-    best_quality = self.detector.get_video_quality(best_video)
-    current_quality = self.detector.get_video_quality(current_video)
-    if best_quality > 0:
-        return (best_quality - current_quality) / best_quality * 100
-    return 0.0
+    def get_quality_diff(self, best_video, current_video):
+        """Calculate quality difference in percentage."""
+        best_quality = self.detector.get_video_quality(best_video)
+        current_quality = self.detector.get_video_quality(current_video)
+        if best_quality > 0:
+            return (best_quality - current_quality) / best_quality * 100
+        return 0.0
 
-def toggle_delete(self, video, checkbox_var):
+    def toggle_delete(self, video, checkbox_var):
         """Mark or unmark a video for deletion.
         Ensures at least one video remains unmarked in each cluster."""
         current_cluster = self.clusters[self.current_cluster_idx]
@@ -735,57 +735,14 @@ def toggle_delete(self, video, checkbox_var):
         marked_count = sum(1 for v in current_cluster if v.path in self.videos_to_delete)
         total_count = len(current_cluster)
         self.status_label.config(text=f"Marked {marked_count}/{total_count} videos for deletion")
-
-def delete_selected(self):
-    """Delete selected videos with confirmation."""
-    if not self.videos_to_delete:
-        messagebox.showinfo("Info", "No videos selected for deletion")
-        return
-
-    # Confirmation dialog
-    count = len(self.videos_to_delete)
-    confirm = messagebox.askyesno("Confirm Deletion", 
-                                f"Are you sure you want to delete {count} videos?")
-
-    if confirm:
-        deleted = 0
-        errors = 0
-
-        for path in self.videos_to_delete:
-            try:
-                os.remove(path)
-                deleted += 1
-            except Exception as e:
-                print(f"Error deleting {path}: {str(e)}")
-                errors += 1
-
-        # Update status
-        self.status_label.config(text=f"Deleted {deleted} videos. Errors: {errors}")
-
-        # Remove deleted videos from clusters
-        self.update_clusters_after_deletion()
-
-        # Clear selection
-        self.videos_to_delete.clear()
-
-        # Refresh display
-        self.display_current_cluster()
-
-def update_clusters_after_deletion(self):
-    """Update clusters after videos have been deleted."""
-    # First, remove deleted videos from clusters
-    for i, cluster in enumerate(self.clusters):
-        updated_cluster = [v for v in cluster if v.path not in self.videos_to_delete]
-
-        # Update the cluster
-        self.clusters[i] = updated_cluster
-
-    # Remove empty clusters and single-video clusters
-    self.clusters = [c for c in self.clusters if len(c) > 1]
-
-    # Adjust current index if needed
-    if self.clusters and self.current_cluster_idx >= len(self.clusters):
-        self.current_cluster_idx = max(0, len(self.clusters) - 1)
+    
+    def delete_selected(self):
+        """Delete selected videos with confirmation."""
+        if not self.videos_to_delete:
+            messagebox.showinfo("Info", "No videos selected for deletion")
+            return
+        
+        # Confirmation dialog
         count = len(self.videos_to_delete)
         confirm = messagebox.askyesno("Confirm Deletion", 
                                     f"Are you sure you want to delete {count} videos?")
@@ -794,7 +751,7 @@ def update_clusters_after_deletion(self):
             deleted = 0
             errors = 0
             
-            for path in self.videos_to_delete:
+            for path in list(self.videos_to_delete):  # Use list to avoid modifying during iteration
                 try:
                     os.remove(path)
                     deleted += 1
@@ -815,20 +772,24 @@ def update_clusters_after_deletion(self):
             self.display_current_cluster()
     
     def update_clusters_after_deletion(self):
-        """Update clusters after videos have been deleted."""
-        # First, remove deleted videos from clusters
-        for i, cluster in enumerate(self.clusters):
-            updated_cluster = [v for v in cluster if v.path not in self.videos_to_delete]
+        """Remove deleted videos from clusters and update the UI."""
+        # Remove empty clusters and deleted videos
+        for i in range(len(self.clusters) - 1, -1, -1):  # Iterate backwards
+            # Remove deleted videos from this cluster
+            self.clusters[i] = [v for v in self.clusters[i] if os.path.exists(v.path)]
             
-            # Update the cluster
-            self.clusters[i] = updated_cluster
+            # If cluster is now empty or has only one video, remove it
+            if len(self.clusters[i]) <= 1:
+                self.clusters.pop(i)
         
-        # Remove empty clusters and single-video clusters
-        self.clusters = [c for c in self.clusters if len(c) > 1]
-        
-        # Adjust current index if needed
-        if self.clusters and self.current_cluster_idx >= len(self.clusters):
-            self.current_cluster_idx = max(0, len(self.clusters) - 1)
+        # Update current cluster index if needed
+        if not self.clusters:
+            self.current_cluster_idx = 0
+            self.group_label.config(text="No similar videos found")
+            self.status_label.config(text="All similar video groups have been processed")
+        else:
+            if self.current_cluster_idx >= len(self.clusters):
+                self.current_cluster_idx = len(self.clusters) - 1
 
 
 def select_directory():
