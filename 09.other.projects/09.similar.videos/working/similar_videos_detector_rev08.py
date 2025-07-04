@@ -76,7 +76,7 @@ class VideoInfo:
 
 class SimilarVideosDetector:
     """Detect similar videos in a directory and its subdirectories."""
-    def __init__(self, directory, extensions=None, similarity_threshold=0.85, duration_tolerance=1.0, hash_size=8, frame_sampling_density=3, max_duration_diff=3.0, enable_partial_match=False, skip_moviepy_fallback=True):
+    def __init__(self, directory, extensions=None, similarity_threshold=0.85, duration_tolerance=1.0, hash_size=8, frame_sampling_density=3, max_duration_diff=3.0, enable_partial_match=True):
         self.directory = os.path.abspath(directory)
         if extensions is None:
             self.extensions = [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv"]
@@ -94,7 +94,6 @@ class SimilarVideosDetector:
         self.processed_files = 0
         self.skipped_files = 0
         self.skip_errors = False  # Flag to control error handling behavior
-        self.skip_moviepy_fallback = skip_moviepy_fallback  # Flag to skip MoviePy fallback when OpenCV fails
         self.problematic_files = []  # List to track problematic files
         
     def scan_directory(self):
@@ -223,26 +222,7 @@ class SimilarVideosDetector:
             # First try with OpenCV
             cap = None
             try:
-                # Suppress OpenCV error output for h264 reference frame warnings
-                original_stderr = None
-                null_fd = None
-                try:
-                    if hasattr(os, 'devnull'):
-                        original_stderr = os.dup(2)  # Save stderr file descriptor
-                        null_fd = os.open(os.devnull, os.O_WRONLY)
-                        os.dup2(null_fd, 2)  # Redirect stderr to /dev/null
-                except Exception as e:
-                    logging.debug(f"Could not redirect stderr: {str(e)}")
-                
                 cap = cv2.VideoCapture(video_path)
-                
-                # Restore stderr if we redirected it
-                if original_stderr is not None:
-                    os.dup2(original_stderr, 2)
-                    os.close(original_stderr)
-                if null_fd is not None:
-                    os.close(null_fd)
-                    
                 if not cap.isOpened():
                     raise ValueError(f"Could not open video {video_path}")
                 
@@ -274,19 +254,14 @@ class SimilarVideosDetector:
                 if cap is not None:
                     cap.release()
                 
-                # Check if we should skip MoviePy fallback
-                if self.skip_moviepy_fallback:
-                    logging.warning(f"Skipping frame extraction for {video_path}: {str(e)}")
-                    return None
-                    
-                # If we're not skipping MoviePy and not in skip_errors mode, try MoviePy as a fallback
+                # If we're not in skip_errors mode, we'll try MoviePy as a fallback
                 if not self.skip_errors:
                     logging.warning(f"OpenCV failed to extract frame from {video_path}: {str(e)}. Trying MoviePy...")
                 else:
                     # In skip_errors mode, just log and return None
                     logging.warning(f"Skipping frame extraction for {video_path}: {str(e)}")
                     return None
-                    
+                
                 # Try with MoviePy as fallback
                 clip = None
                 try:
@@ -312,8 +287,23 @@ class SimilarVideosDetector:
             # Catch any other exceptions that might occur
             error_msg = f"Unexpected error with {video_path}: {str(e)}"
             logging.error(error_msg)
-            self.handle_problematic_video(video_path, str(e))
-            return None
+            problematic_files.append((video_path, str(e)))
+            self.skipped_files += 1
+    
+        # Report on problematic files
+        if problematic_files:
+            logging.warning(f"Skipped {len(problematic_files)} files due to errors")
+            with open("problematic_videos.log", "w") as f:
+                f.write("The following video files were skipped due to errors:\n\n")
+                for path, error in problematic_files:
+                    f.write(f"{path}\nError: {error}\n\n")
+            print(f"\nDetailed list of problematic files saved to 'problematic_videos.log'")
+        
+        self.videos = valid_videos
+        print(f"Successfully extracted info from {self.processed_files} videos")
+        if self.skipped_files > 0:
+            print(f"Skipped {self.skipped_files} files due to errors")
+        return valid_videos
         
     def handle_problematic_video(self, video_path, error_message):
         """Handle a problematic video by logging it and adding to the problematic_files list."""
@@ -429,10 +419,7 @@ class SimilarVideosDetector:
                 self.handle_problematic_video(video_info.path, error_msg)
                 return None
             else:
-                # When skip_errors is False, we still want to log the problematic video
-                # before raising the exception
-                self.handle_problematic_video(video_info.path, error_msg)
-                raise ValueError(error_msg)
+                raise
             
     def hamming_distance(self, hash1, hash2):
         """Calculate the Hamming distance between two hash values."""
@@ -526,21 +513,9 @@ class SimilarVideosDetector:
         
         # First, extract fingerprints for all videos
         print("Extracting video fingerprints...")
-        valid_videos = []
         for video in tqdm(self.videos, desc="Processing videos"):
-            try:
-                fingerprint = self.calculate_video_fingerprint(video)
-                if fingerprint is not None:
-                    valid_videos.append(video)
-            except ValueError as e:
-                # If skip_errors is False, we'll still continue with other videos
-                # The error has already been logged by calculate_video_fingerprint
-                logging.warning(f"Skipping video due to error: {video.path}")
-                continue
+            self.calculate_video_fingerprint(video)
         
-        # Update videos list to only include valid ones
-        self.videos = valid_videos
-            
         # Group videos by rounded duration for faster comparison
         duration_groups = defaultdict(list)
         for video in self.videos:
@@ -569,20 +544,6 @@ class SimilarVideosDetector:
             
             # Compare videos within the same group
             for i in range(len(group)):
-                # Compare with other videos in the same group
-                for j in range(i+1, len(group)):
-                    similarity = self.compare_fingerprints(group[i].fingerprint, group[j].fingerprint)
-                    comparisons += 1
-                    if similarity >= self.similarity_threshold:
-                        self.similar_videos.append((group[i], group[j], similarity))
-                
-                # Compare with videos in adjacent groups (regular matching)
-                for video2 in adjacent_videos:
-                    similarity = self.compare_fingerprints(group[i].fingerprint, video2.fingerprint)
-                    comparisons += 1
-                    if similarity >= self.similarity_threshold:
-                        self.similar_videos.append((group[i], video2, similarity))
-                
                 # Compare with other videos in the same group
                 for j in range(i+1, len(group)):
                     similarity = self.compare_fingerprints(group[i].fingerprint, group[j].fingerprint)
@@ -915,19 +876,10 @@ class VideoComparisonGUI:
                                         command=lambda v=video, var=delete_var: self.toggle_delete(v, var))
             delete_check.pack(pady=5)
             
-            # Create a frame for the buttons
-            buttons_frame = ttk.Frame(video_frame)
-            buttons_frame.pack(pady=5, fill=tk.X)
-            
             # Button to open video
-            open_btn = ttk.Button(buttons_frame, text="Open Video", 
+            open_btn = ttk.Button(video_frame, text="Open Video", 
                                command=lambda path=video.path: self.open_video(path))
-            open_btn.pack(side=tk.LEFT, padx=5)
-            
-            # Button to open file location
-            location_btn = ttk.Button(buttons_frame, text="Open File Location", 
-                                   command=lambda path=video.path: self.open_file_location(path))
-            location_btn.pack(side=tk.LEFT, padx=5)
+            open_btn.pack(pady=5)
     
     def get_quality_diff(self, best_video, current_video):
         """Calculate quality difference in percentage."""
@@ -1043,30 +995,6 @@ class VideoComparisonGUI:
             error_msg = f"Error opening video: {str(e)}"
             logging.error(error_msg)
             messagebox.showerror("Error", f"Could not open video: {str(e)}")
-            
-    def open_file_location(self, path):
-        """Open the folder containing the video file and select the file."""
-        try:
-            if not os.path.exists(path):
-                messagebox.showerror("Error", f"Video file not found: {path}")
-                return
-                
-            if platform.system() == "Windows":
-                # On Windows, use explorer to select the file
-                subprocess.run(["explorer", "/select,", os.path.normpath(path)])
-            elif platform.system() == "Darwin":  # macOS
-                # On macOS, open the parent folder and then try to select the file
-                # AppleScript can be used for more precise control
-                subprocess.call(["open", "-R", path])
-            else:  # Linux
-                # Most Linux file managers don't have a standard way to select a file
-                # So we'll just open the containing folder
-                folder_path = os.path.dirname(path)
-                subprocess.call(["xdg-open", folder_path])
-        except Exception as e:
-            error_msg = f"Error opening file location: {str(e)}"
-            logging.error(error_msg)
-            messagebox.showerror("Error", f"Could not open file location: {str(e)}")
 
 
 def select_directory():
@@ -1163,7 +1091,6 @@ def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
         results["frame_sampling_density"] = frame_sampling_density.get()
         results["max_duration_diff"] = max_duration_diff.get()
         results["enable_partial_match"] = enable_partial_match.get()
-        results["skip_moviepy_fallback"] = skip_moviepy_fallback.get()
         params_dialog.destroy()
     
     def on_cancel():
@@ -1197,8 +1124,7 @@ def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
     hash_size = tk.IntVar(value=8)
     frame_sampling_density = tk.IntVar(value=3)  # Number of sample frames
     max_duration_diff = tk.DoubleVar(value=3.0)  # Default 3 seconds
-    enable_partial_match = tk.BooleanVar(value=False)
-    skip_moviepy_fallback = tk.BooleanVar(value=True)  # Skip MoviePy fallback by default
+    enable_partial_match = tk.BooleanVar(value=True)
     
     # Create frames for each parameter slider
     def create_slider_frame(parent, text, variable, from_, to, resolution, left_label, right_label):
@@ -1316,29 +1242,6 @@ def show_parameter_dialog(root, initial_threshold=0.85, initial_tolerance=1.0):
         "Large Difference (slower)"
     )
     
-    # Frame extraction section
-    extraction_section = ttk.Label(main_frame, text="Frame Extraction Options", style="SubHeader.TLabel")
-    extraction_section.pack(pady=(20, 10), anchor="w")
-    
-    # Skip MoviePy fallback option
-    moviepy_frame = ttk.Frame(main_frame)
-    moviepy_frame.pack(fill=tk.X, pady=5)
-    
-    moviepy_check = ttk.Checkbutton(
-        moviepy_frame, 
-        text="Skip MoviePy fallback (faster processing but may skip problematic videos)", 
-        variable=skip_moviepy_fallback
-    )
-    moviepy_check.pack(anchor="w", padx=10)
-    
-    # Explanation
-    moviepy_explanation = ttk.Label(
-        moviepy_frame, 
-        text="When enabled, skips trying MoviePy when OpenCV fails to extract frames, avoiding long processing delays", 
-        style="Desc.TLabel"
-    )
-    moviepy_explanation.pack(anchor="w", padx=30, pady=(0, 10))
-    
     # Results variable to return
     results = {}
     
@@ -1404,8 +1307,7 @@ def main():
                 f"hash_size={params['hash_size']}, "
                 f"frame_sampling_density={params['frame_sampling_density']}, "
                 f"enable_partial_match={params['enable_partial_match']}, "
-                f"max_duration_diff={params['max_duration_diff']}, "
-                f"skip_moviepy_fallback={params['skip_moviepy_fallback']}")
+                f"max_duration_diff={params['max_duration_diff']}")
     
     # Apply parameters
     detector = SimilarVideosDetector(
@@ -1415,8 +1317,7 @@ def main():
         hash_size=params.get("hash_size", 8),
         frame_sampling_density=params.get("frame_sampling_density", 3),
         max_duration_diff=params.get("max_duration_diff", 3.0),  # Changed from 10.0 to 3.0
-        enable_partial_match=params.get("enable_partial_match", False),
-        skip_moviepy_fallback=params.get("skip_moviepy_fallback", True)
+        enable_partial_match=params.get("enable_partial_match", True)
     )
     
     # Set skip_errors flag from command line argument
