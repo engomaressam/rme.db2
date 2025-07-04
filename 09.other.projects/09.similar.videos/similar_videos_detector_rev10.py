@@ -342,8 +342,8 @@ class SimilarVideosDetector:
                     raise ValueError(error_msg)
         
             # Define positions to sample (percentage of video duration)
-            # We'll take more samples from longer videos
-            base_positions = [0.1, 0.5, 0.9]  # Default positions for short videos
+            # We'll take only 2 samples per video at 20% and 70% to save processing time
+            base_positions = [0.2, 0.7]  # Using only 2 positions instead of 3
             
             # For longer videos, add more sample points
             if video_info.duration > 60:  # For videos longer than 1 minute
@@ -352,7 +352,8 @@ class SimilarVideosDetector:
                 base_positions = [0.1, 0.3, 0.5, 0.7, 0.9]
             
             # Scale the number of positions based on frame_sampling_density
-            num_positions = max(3, min(int(len(base_positions) * self.frame_sampling_density / 3), len(base_positions)))
+            # Using minimum of 2 positions since we only need 2 thumbnails
+            num_positions = max(2, min(int(len(base_positions) * self.frame_sampling_density / 3), len(base_positions)))
             positions = base_positions[:num_positions]
             
             # Calculate timestamps for each position
@@ -376,8 +377,8 @@ class SimilarVideosDetector:
                     if phash_val and dhash_val:
                         fingerprint.append((dhash_val, phash_val))
                     
-                    # Save thumbnails for the first 3 positions
-                    if i < 3:
+                    # Save thumbnails for the first 2 positions
+                    if i < 2:
                         # Resize for thumbnail
                         height, width = frame.shape[:2]
                         max_dim = 200
@@ -864,7 +865,7 @@ class VideoComparisonGUI:
             thumbnails_frame = ttk.Frame(video_frame)
             thumbnails_frame.pack(padx=5, pady=5)
             
-            # Display all 3 thumbnails in a row
+            # Display the 2 thumbnails (at 20% and 70%) in a row
             for j, pil_img in enumerate(video.thumbnails):
                 # Maintain aspect ratio while resizing to fit in grid
                 width, height = pil_img.size
