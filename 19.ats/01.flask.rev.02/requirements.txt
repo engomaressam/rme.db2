@@ -1,7 +1,0 @@
-flask
-openai>=1.0.0
-python-dotenv
-pytesseract
-pdf2image
-Pillow
-pandas
